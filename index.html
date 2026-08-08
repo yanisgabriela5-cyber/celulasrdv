@@ -100,16 +100,25 @@
   .field{display:flex;flex-direction:column;gap:4px;}
   .field label{font-family:'Bebas Neue',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:400;}
   .field input{width:100%;}
-  .field-row{display:flex;align-items:center;gap:8px;}
-  .field-row input[type=text], .field-row input[type=time]{flex:1;min-width:0;}
+
+  .style-panel{
+    max-width:1180px;margin:0 auto 24px;background:var(--ink-2);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;
+  }
+  .style-panel .lbl{
+    font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.8px;text-transform:uppercase;
+    color:var(--gold);margin-right:4px;
+  }
+  .style-item{display:flex;align-items:center;gap:8px;}
+  .style-item span{font-size:12.5px;color:var(--muted);font-family:'Raleway',sans-serif;}
   .color-dot{
-    -webkit-appearance:none;appearance:none;width:26px;height:26px;flex-shrink:0;
+    -webkit-appearance:none;appearance:none;width:22px;height:22px;flex-shrink:0;
     padding:0;border:2px solid var(--line);border-radius:50%;cursor:pointer;background:none;
   }
   .color-dot::-webkit-color-swatch-wrapper{padding:0;border-radius:50%;}
   .color-dot::-webkit-color-swatch{border:none;border-radius:50%;}
   .color-dot::-moz-color-swatch{border:none;border-radius:50%;}
-  .stub .color-dot{width:22px;height:22px;}
+  .admin-only{display:none;}
   .preview-wrap{
     margin-top:2px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--ink-3);
     aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;position:relative;
@@ -156,9 +165,9 @@
     <div>
       <div class="eyebrow">Ministerio de Células</div>
       <h1>Invitaciones semanales</h1>
-      <p class="sub">Sube la imagen base de la semana y cada célula edita su hora y ubicación.</p>
+      <p class="sub">Cada célula edita su hora y ubicación.</p>
     </div>
-    <div class="week-controls">
+    <div class="week-controls admin-only" id="weekControls">
       <select id="weekSelect"></select>
       <button class="ghost small" id="newWeekBtn">+ Nueva semana</button>
     </div>
@@ -170,7 +179,7 @@
     de Firebase (Configuración del proyecto → tus apps → SDK de Firebase).
   </div>
 
-  <div class="base-panel">
+  <div class="base-panel admin-only" id="basePanel">
     <img class="thumb" id="baseThumb" style="display:none;" />
     <div class="thumb empty" id="baseThumbEmpty">sin imagen</div>
     <div class="info">
@@ -181,6 +190,22 @@
       Subir / reemplazar imagen
       <input type="file" id="uploadInput" accept="image/*" />
     </button>
+  </div>
+
+  <div class="style-panel admin-only" id="stylePanel">
+    <span class="lbl">Color del texto (aplica a todas)</span>
+    <div class="style-item">
+      <input type="color" class="color-dot" id="colorNombreInput" value="#ffcc4d" title="Color del nombre de la célula" />
+      <span>Nombre de célula</span>
+    </div>
+    <div class="style-item">
+      <input type="color" class="color-dot" id="colorHoraInput" value="#ffffff" title="Color de la hora" />
+      <span>Hora</span>
+    </div>
+    <div class="style-item">
+      <input type="color" class="color-dot" id="colorUbicacionInput" value="#ffffff" title="Color de la ubicación" />
+      <span>Ubicación</span>
+    </div>
   </div>
 
   <div class="status" id="statusLine"></div>
@@ -228,11 +253,18 @@ const baseThumb = document.getElementById('baseThumb');
 const baseThumbEmpty = document.getElementById('baseThumbEmpty');
 const baseName = document.getElementById('baseName');
 const statusLine = document.getElementById('statusLine');
+const colorNombreInput = document.getElementById('colorNombreInput');
+const colorHoraInput = document.getElementById('colorHoraInput');
+const colorUbicacionInput = document.getElementById('colorUbicacionInput');
 
 let weeks = [];          // [{key,label}]
 let currentWeekKey = null;
 let currentImage = null; // download URL
 let celulas = {};        // {1:{nombre,hora,ubicacion}, ...}
+let globalStyle = { colorNombre: '#ffcc4d', colorHora: '#ffffff', colorUbicacion: '#ffffff' };
+const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
+let cardRenderers = [];
+function refreshAllPreviews(){ cardRenderers.forEach(fn => fn()); }
 
 function setStatus(msg, isErr){
   statusLine.textContent = msg || '';
@@ -257,12 +289,29 @@ async function loadFonts(){
 function defaultCelulas(){
   const obj = {};
   for(let i=1;i<=NUM_CELULAS;i++){
-    obj[i] = {
-      nombre: 'Célula ' + i, hora: '', ubicacion: '',
-      colorNombre: '#ffcc4d', colorHora: '#ffffff', colorUbicacion: '#ffffff'
-    };
+    obj[i] = { nombre: 'Célula ' + i, hora: '', ubicacion: '' };
   }
   return obj;
+}
+
+async function loadGlobalStyle(){
+  if(!db) return;
+  try{
+    const snap = await getDoc(doc(db, 'meta', 'estilo'));
+    if(snap.exists()){
+      globalStyle = Object.assign({}, globalStyle, snap.data());
+    } else {
+      await setDoc(doc(db, 'meta', 'estilo'), globalStyle);
+    }
+  }catch(e){ /* keep defaults */ }
+}
+
+let styleSaveTimer = null;
+function scheduleSaveGlobalStyle(){
+  if(styleSaveTimer) clearTimeout(styleSaveTimer);
+  styleSaveTimer = setTimeout(async () => {
+    try{ await setDoc(doc(db, 'meta', 'estilo'), globalStyle); }catch(e){ /* ignore */ }
+  }, 400);
 }
 
 async function loadWeeksList(){
@@ -388,7 +437,7 @@ function drawOverlay(ctx, w, h, data){
   const pad = w * 0.06;
   let y = h - bandH * 0.62;
 
-  ctx.fillStyle = data.colorNombre || '#ffcc4d';
+  ctx.fillStyle = globalStyle.colorNombre;
   ctx.font = '700 ' + Math.round(w*0.062) + 'px "League Spartan", sans-serif';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText(data.nombre || '', pad, y);
@@ -401,13 +450,13 @@ function drawOverlay(ctx, w, h, data){
   ctx.lineTo(pad + w*0.16, y - h*0.04);
   ctx.stroke();
 
-  ctx.fillStyle = data.colorHora || '#ffffff';
+  ctx.fillStyle = globalStyle.colorHora;
   ctx.font = '500 ' + Math.round(w*0.034) + 'px "Raleway", sans-serif';
   const hora = data.hora ? ('Hora: ' + data.hora) : 'Hora: por confirmar';
   ctx.fillText(hora, pad, y);
 
   y += h * 0.055;
-  ctx.fillStyle = data.colorUbicacion || '#ffffff';
+  ctx.fillStyle = globalStyle.colorUbicacion;
   const ubic = data.ubicacion ? ('Lugar: ' + data.ubicacion) : 'Lugar: por confirmar';
   wrapText(ctx, ubic, pad, y, w - pad*2, h*0.05);
 }
@@ -503,30 +552,24 @@ function escapeHtml(str){
 
 function renderGrid(){
   gridEl.innerHTML = '';
+  cardRenderers = [];
   for(let i=1;i<=NUM_CELULAS;i++){
-    const data = celulas[i] || { nombre:'Célula '+i, hora:'', ubicacion:'', colorNombre:'#ffcc4d', colorHora:'#ffffff', colorUbicacion:'#ffffff' };
+    const data = celulas[i] || { nombre:'Célula '+i, hora:'', ubicacion:'' };
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
       <div class="stub">
         <span class="num">#${String(i).padStart(2,'0')}</span>
         <input class="nombre" data-field="nombre" value="${escapeHtml(data.nombre)}" />
-        <input type="color" class="color-dot" data-field="colorNombre" value="${data.colorNombre || '#ffcc4d'}" title="Color del nombre" />
       </div>
       <div class="body">
         <div class="field">
           <label>Hora</label>
-          <div class="field-row">
-            <input type="time" data-field="hora" value="${escapeHtml(data.hora)}" />
-            <input type="color" class="color-dot" data-field="colorHora" value="${data.colorHora || '#ffffff'}" title="Color de la hora" />
-          </div>
+          <input type="time" data-field="hora" value="${escapeHtml(data.hora)}" />
         </div>
         <div class="field">
           <label>Ubicación</label>
-          <div class="field-row">
-            <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
-            <input type="color" class="color-dot" data-field="colorUbicacion" value="${data.colorUbicacion || '#ffffff'}" title="Color de la ubicación" />
-          </div>
+          <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
         </div>
         <div class="preview-wrap">
           <canvas width="260" height="325"></canvas>
@@ -534,6 +577,7 @@ function renderGrid(){
         <div class="card-actions">
           <button class="ghost small" data-action="preview">Actualizar vista</button>
           <button class="primary small" data-action="download">Descargar imagen</button>
+
         </div>
         <div class="saved-tick">Guardado ✓</div>
       </div>
@@ -542,6 +586,7 @@ function renderGrid(){
 
     const canvas = card.querySelector('canvas');
     const renderThis = () => drawPreview(canvas, i);
+    cardRenderers.push(renderThis);
 
     card.querySelectorAll('input[data-field]').forEach(inp => {
       inp.addEventListener('input', () => {
@@ -597,12 +642,39 @@ newWeekBtn.addEventListener('click', async () => {
   }
 });
 
+function applyAdminVisibility(){
+  if(isAdmin){
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('admin-only'));
+  }
+}
+
+colorNombreInput.addEventListener('input', () => {
+  globalStyle.colorNombre = colorNombreInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+colorHoraInput.addEventListener('input', () => {
+  globalStyle.colorHora = colorHoraInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+colorUbicacionInput.addEventListener('input', () => {
+  globalStyle.colorUbicacion = colorUbicacionInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+
 async function init(){
   await loadFonts();
+  applyAdminVisibility();
   if(!isConfigured){
     setStatus('Falta pegar tu configuración de Firebase en el código (ver aviso arriba).', true);
     return;
   }
+  await loadGlobalStyle();
+  colorNombreInput.value = globalStyle.colorNombre;
+  colorHoraInput.value = globalStyle.colorHora;
+  colorUbicacionInput.value = globalStyle.colorUbicacion;
   await loadWeeksList();
   renderWeekSelect();
   const last = weeks[weeks.length - 1];
