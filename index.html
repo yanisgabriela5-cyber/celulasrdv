@@ -100,17 +100,34 @@
   .field{display:flex;flex-direction:column;gap:4px;}
   .field label{font-family:'Bebas Neue',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:400;}
   .field input{width:100%;}
+  .hora-row{display:flex;align-items:center;gap:4px;}
+  .hora-row select{
+    background:var(--ink-2);border:1px solid var(--line);color:var(--cream);
+    border-radius:8px;padding:8px 6px;font-family:'Raleway',sans-serif;font-size:13px;
+    outline:none;flex:1;min-width:0;
+  }
+  .hora-row select:focus{border-color:var(--gold);}
+  .hora-colon{color:var(--muted);font-weight:600;}
 
   .style-panel{
     max-width:1180px;margin:0 auto 24px;background:var(--ink-2);border:1px solid var(--line);
-    border-radius:var(--radius);padding:16px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;
+    border-radius:var(--radius);padding:16px 20px;display:flex;flex-direction:column;gap:14px;
   }
   .style-panel .lbl{
     font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.8px;text-transform:uppercase;
-    color:var(--gold);margin-right:4px;
+    color:var(--gold);
   }
-  .style-item{display:flex;align-items:center;gap:8px;}
-  .style-item span{font-size:12.5px;color:var(--muted);font-family:'Raleway',sans-serif;}
+  .style-fields{display:flex;gap:22px;flex-wrap:wrap;}
+  .style-field-group{display:flex;flex-direction:column;gap:6px;}
+  .style-field-title{
+    font-family:'Raleway',sans-serif;font-size:12.5px;font-weight:600;color:var(--cream);
+  }
+  .style-controls{display:flex;align-items:center;gap:6px;}
+  .style-controls select{
+    background:var(--ink-3);border:1px solid var(--line);color:var(--cream);
+    border-radius:8px;padding:7px 8px;font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;
+  }
+  .style-controls select:focus{border-color:var(--gold);}
   .color-dot{
     -webkit-appearance:none;appearance:none;width:22px;height:22px;flex-shrink:0;
     padding:0;border:2px solid var(--line);border-radius:50%;cursor:pointer;background:none;
@@ -193,18 +210,53 @@
   </div>
 
   <div class="style-panel admin-only" id="stylePanel">
-    <span class="lbl">Color del texto (aplica a todas)</span>
-    <div class="style-item">
-      <input type="color" class="color-dot" id="colorNombreInput" value="#ffcc4d" title="Color del nombre de la célula" />
-      <span>Nombre de célula</span>
-    </div>
-    <div class="style-item">
-      <input type="color" class="color-dot" id="colorHoraInput" value="#ffffff" title="Color de la hora" />
-      <span>Hora</span>
-    </div>
-    <div class="style-item">
-      <input type="color" class="color-dot" id="colorUbicacionInput" value="#ffffff" title="Color de la ubicación" />
-      <span>Dirección</span>
+    <span class="lbl">Formato del texto sobre la imagen (aplica a las 25 tarjetas)</span>
+    <div class="style-fields">
+      <div class="style-field-group">
+        <div class="style-field-title">Nombre de célula</div>
+        <div class="style-controls">
+          <input type="color" class="color-dot" id="colorNombreInput" value="#ffcc4d" title="Color" />
+          <select id="hAlignNombreInput" title="Alineación horizontal">
+            <option value="left">Izquierda</option>
+            <option value="center">Centro</option>
+            <option value="right">Derecha</option>
+          </select>
+          <select id="vPosNombreInput" title="Posición vertical">
+            <option value="top">Arriba</option>
+            <option value="bottom">Abajo</option>
+          </select>
+        </div>
+      </div>
+      <div class="style-field-group">
+        <div class="style-field-title">Hora</div>
+        <div class="style-controls">
+          <input type="color" class="color-dot" id="colorHoraInput" value="#ffffff" title="Color" />
+          <select id="hAlignHoraInput" title="Alineación horizontal">
+            <option value="left">Izquierda</option>
+            <option value="center">Centro</option>
+            <option value="right">Derecha</option>
+          </select>
+          <select id="vPosHoraInput" title="Posición vertical">
+            <option value="top">Arriba</option>
+            <option value="bottom">Abajo</option>
+          </select>
+        </div>
+      </div>
+      <div class="style-field-group">
+        <div class="style-field-title">Dirección</div>
+        <div class="style-controls">
+          <input type="color" class="color-dot" id="colorUbicacionInput" value="#ffffff" title="Color" />
+          <select id="hAlignDireccionInput" title="Alineación horizontal">
+            <option value="left">Izquierda</option>
+            <option value="center">Centro</option>
+            <option value="right">Derecha</option>
+          </select>
+          <select id="vPosDireccionInput" title="Posición vertical">
+            <option value="top">Arriba</option>
+            <option value="bottom">Abajo</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -245,6 +297,33 @@ if(isConfigured){
 }
 
 const NUM_CELULAS = 25;
+const FIXED_NAMES = [
+  'Célula La Chorrera',
+  'Célula Las Acacias (Arraiján)',
+  'Célula Bello Horizonte',
+  'San Antonio',
+  'Punta del Este',
+  'Villas Don Bosco',
+  'Célula Fe Sin Fronteras',
+  'Villa Zaita',
+  'San Francisco',
+  'Brisas Del Golf',
+  'Parque Lefevre',
+  'La Locería',
+  'Célula Las Villas de Arraiján',
+  'Tocumen',
+  'Obarrio',
+  'La Cascada',
+  'Juan Pablo II',
+  'Cerro Viento',
+  'Célula Versalles',
+  'La Cascada de Arraiján',
+  'Célula Parque Real',
+  'Ernesto T. Lefevre',
+  'Próxima Célula',
+  'Próxima Célula',
+  'Próxima Célula'
+];
 const gridEl = document.getElementById('grid');
 const weekSelect = document.getElementById('weekSelect');
 const newWeekBtn = document.getElementById('newWeekBtn');
@@ -256,12 +335,23 @@ const statusLine = document.getElementById('statusLine');
 const colorNombreInput = document.getElementById('colorNombreInput');
 const colorHoraInput = document.getElementById('colorHoraInput');
 const colorUbicacionInput = document.getElementById('colorUbicacionInput');
+const hAlignNombreInput = document.getElementById('hAlignNombreInput');
+const vPosNombreInput = document.getElementById('vPosNombreInput');
+const hAlignHoraInput = document.getElementById('hAlignHoraInput');
+const vPosHoraInput = document.getElementById('vPosHoraInput');
+const hAlignDireccionInput = document.getElementById('hAlignDireccionInput');
+const vPosDireccionInput = document.getElementById('vPosDireccionInput');
 
 let weeks = [];          // [{key,label}]
 let currentWeekKey = null;
 let currentImage = null; // download URL
 let celulas = {};        // {1:{nombre,hora,ubicacion}, ...}
-let globalStyle = { colorNombre: '#ffcc4d', colorHora: '#ffffff', colorUbicacion: '#ffffff' };
+let globalStyle = {
+  colorNombre: '#ffcc4d', colorHora: '#ffffff', colorUbicacion: '#ffffff',
+  hAlignNombre: 'left', vPosNombre: 'bottom',
+  hAlignHora: 'left', vPosHora: 'bottom',
+  hAlignDireccion: 'left', vPosDireccion: 'bottom'
+};
 const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
 let cardRenderers = [];
 function refreshAllPreviews(){ cardRenderers.forEach(fn => fn()); }
@@ -289,7 +379,7 @@ async function loadFonts(){
 function defaultCelulas(){
   const obj = {};
   for(let i=1;i<=NUM_CELULAS;i++){
-    obj[i] = { nombre: 'Célula ' + i, hora: '', ubicacion: '' };
+    obj[i] = { nombre: FIXED_NAMES[i-1] || ('Célula ' + i), hora: '', ubicacion: '' };
   }
   return obj;
 }
@@ -357,6 +447,10 @@ async function loadWeekData(key){
       const data = snap.data();
       currentImage = data.imageUrl || null;
       celulas = data.celulas || defaultCelulas();
+      const healed = healLegacyNames(celulas);
+      if(healed){
+        await updateDoc(doc(db, 'weeks', key), { celulas });
+      }
     } else {
       currentImage = null;
       celulas = defaultCelulas();
@@ -369,6 +463,25 @@ async function loadWeekData(key){
   renderBasePanel();
   renderGrid();
   setStatus('');
+}
+
+function healLegacyNames(celulasObj){
+  // Fixes generic auto-generated names ("Célula 1", "Célula 2"...) left over from
+  // before the fixed roster was set, without touching names someone already customized.
+  let changed = false;
+  for(let i=1;i<=NUM_CELULAS;i++){
+    if(!celulasObj[i]){
+      celulasObj[i] = { nombre: FIXED_NAMES[i-1] || ('Célula ' + i), hora: '', ubicacion: '' };
+      changed = true;
+      continue;
+    }
+    const nombre = celulasObj[i].nombre || '';
+    if(nombre === ('Célula ' + i) && FIXED_NAMES[i-1] && FIXED_NAMES[i-1] !== nombre){
+      celulasObj[i].nombre = FIXED_NAMES[i-1];
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 function renderBasePanel(){
@@ -436,40 +549,86 @@ function formatHora12(hora24){
   return h + ':' + m + suffix;
 }
 
+function to12Parts(hora24){
+  if(!hora24) return { h: '7', m: '00', ampm: 'PM' };
+  const parts = hora24.split(':');
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] || '00';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if(h === 0) h = 12;
+  return { h: String(h), m: m, ampm: ampm };
+}
+
+function from12PartsTo24(h, m, ampm){
+  h = parseInt(h, 10);
+  if(ampm === 'AM'){ if(h === 12) h = 0; }
+  else { if(h !== 12) h += 12; }
+  return String(h).padStart(2,'0') + ':' + m;
+}
+
 function drawOverlay(ctx, w, h, data){
-  const bandH = h * 0.30;
-  const grad = ctx.createLinearGradient(0, h - bandH, 0, h);
-  grad.addColorStop(0, 'rgba(20,18,30,0)');
-  grad.addColorStop(0.35, 'rgba(20,18,30,0.75)');
-  grad.addColorStop(1, 'rgba(20,18,30,0.92)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, h - bandH, w, bandH);
-
   const pad = w * 0.06;
-  let y = h - bandH * 0.62;
-
-  ctx.fillStyle = globalStyle.colorNombre;
-  ctx.font = '700 ' + Math.round(w*0.062) + 'px "League Spartan", sans-serif';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText(data.nombre || '', pad, y);
-
-  y += h * 0.075;
-  ctx.strokeStyle = 'rgba(255,204,77,0.6)';
-  ctx.lineWidth = Math.max(1, w*0.003);
-  ctx.beginPath();
-  ctx.moveTo(pad, y - h*0.04);
-  ctx.lineTo(pad + w*0.16, y - h*0.04);
-  ctx.stroke();
-
-  ctx.fillStyle = globalStyle.colorHora;
-  ctx.font = '500 ' + Math.round(w*0.034) + 'px "Raleway", sans-serif';
   const hora = data.hora ? ('Hora: ' + formatHora12(data.hora)) : 'Hora: por confirmar';
-  ctx.fillText(hora, pad, y);
-
-  y += h * 0.055;
-  ctx.fillStyle = globalStyle.colorUbicacion;
   const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion) : 'Dirección: por confirmar';
-  wrapText(ctx, ubic, pad, y, w - pad*2, h*0.05);
+
+  const fieldDefs = {
+    nombre:    { text: data.nombre || '', font: '700 ' + Math.round(w*0.062) + 'px "League Spartan", sans-serif', color: globalStyle.colorNombre, slot: h*0.105, wrap:false },
+    hora:      { text: hora,             font: '500 ' + Math.round(w*0.034) + 'px "Raleway", sans-serif',        color: globalStyle.colorHora,   slot: h*0.065, wrap:false },
+    direccion: { text: ubic,             font: '500 ' + Math.round(w*0.034) + 'px "Raleway", sans-serif',        color: globalStyle.colorUbicacion, slot: h*0.10, wrap:true }
+  };
+  const order = ['nombre','hora','direccion'];
+  const vPos = { nombre: globalStyle.vPosNombre, hora: globalStyle.vPosHora, direccion: globalStyle.vPosDireccion };
+  const hAlign = { nombre: globalStyle.hAlignNombre, hora: globalStyle.hAlignHora, direccion: globalStyle.hAlignDireccion };
+
+  const zones = { top: order.filter(k => vPos[k] === 'top'), bottom: order.filter(k => vPos[k] !== 'top') };
+
+  function drawZone(keys, zone){
+    if(keys.length === 0) return;
+    const margin = h * 0.045;
+    const bandHeight = keys.reduce((sum,k) => sum + fieldDefs[k].slot, 0) + margin * 1.6;
+    let bandTop, gradTopColor, gradBottomColor;
+    if(zone === 'top'){
+      bandTop = 0;
+      const grad = ctx.createLinearGradient(0, 0, 0, bandHeight);
+      grad.addColorStop(0, 'rgba(15,12,10,0.92)');
+      grad.addColorStop(0.65, 'rgba(15,12,10,0.75)');
+      grad.addColorStop(1, 'rgba(15,12,10,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, bandHeight);
+    } else {
+      bandTop = h - bandHeight;
+      const grad = ctx.createLinearGradient(0, bandTop, 0, h);
+      grad.addColorStop(0, 'rgba(15,12,10,0)');
+      grad.addColorStop(0.35, 'rgba(15,12,10,0.75)');
+      grad.addColorStop(1, 'rgba(15,12,10,0.92)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, bandTop, w, bandHeight);
+    }
+
+    ctx.textBaseline = 'alphabetic';
+    let y = bandTop + margin + fieldDefs[keys[0]].slot * 0.55;
+    keys.forEach((k, idx) => {
+      const f = fieldDefs[k];
+      const align = hAlign[k] === 'center' ? 'center' : (hAlign[k] === 'right' ? 'right' : 'left');
+      ctx.textAlign = align;
+      const x = align === 'left' ? pad : (align === 'right' ? (w - pad) : w/2);
+      ctx.fillStyle = f.color;
+      ctx.font = f.font;
+      if(f.wrap){
+        wrapText(ctx, f.text, x, y, w - pad*2, h*0.05);
+      } else {
+        ctx.fillText(f.text, x, y);
+      }
+      if(idx < keys.length - 1){
+        y += f.slot;
+      }
+    });
+    ctx.textAlign = 'left';
+  }
+
+  drawZone(zones.top, 'top');
+  drawZone(zones.bottom, 'bottom');
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight){
@@ -561,6 +720,25 @@ function compressImageToDataUrl(file, maxTargetBytes){
   });
 }
 
+function hourOptions(selected){
+  let out = '';
+  for(let h=1; h<=12; h++){
+    out += `<option value="${h}" ${String(h)===String(selected)?'selected':''}>${h}</option>`;
+  }
+  return out;
+}
+function minuteOptions(selected){
+  let out = '';
+  for(let m=0; m<60; m+=5){
+    const mm = String(m).padStart(2,'0');
+    out += `<option value="${mm}" ${mm===selected?'selected':''}>${mm}</option>`;
+  }
+  return out;
+}
+function ampmOptions(selected){
+  return `<option value="AM" ${selected==='AM'?'selected':''}>AM</option><option value="PM" ${selected==='PM'?'selected':''}>PM</option>`;
+}
+
 function escapeHtml(str){
   return (str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
@@ -570,6 +748,7 @@ function renderGrid(){
   cardRenderers = [];
   for(let i=1;i<=NUM_CELULAS;i++){
     const data = celulas[i] || { nombre:'Célula '+i, hora:'', ubicacion:'' };
+    const horaParts = to12Parts(data.hora);
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -580,7 +759,12 @@ function renderGrid(){
       <div class="body">
         <div class="field">
           <label>Hora</label>
-          <input type="time" data-field="hora" value="${escapeHtml(data.hora)}" />
+          <div class="hora-row">
+            <select class="hora-h" data-hora-part="h">${hourOptions(horaParts.h)}</select>
+            <span class="hora-colon">:</span>
+            <select class="hora-m" data-hora-part="m">${minuteOptions(horaParts.m)}</select>
+            <select class="hora-ampm" data-hora-part="ampm">${ampmOptions(horaParts.ampm)}</select>
+          </div>
         </div>
         <div class="field">
           <label>Dirección</label>
@@ -611,6 +795,19 @@ function renderGrid(){
         renderThis();
       });
     });
+
+    card.querySelectorAll('select[data-hora-part]').forEach(sel => {
+      sel.addEventListener('change', () => {
+        celulas[i] = celulas[i] || {};
+        const hSel = card.querySelector('.hora-h');
+        const mSel = card.querySelector('.hora-m');
+        const aSel = card.querySelector('.hora-ampm');
+        celulas[i].hora = from12PartsTo24(hSel.value, mSel.value, aSel.value);
+        scheduleSaveCelulas(card);
+        renderThis();
+      });
+    });
+
     card.querySelector('[data-action="preview"]').addEventListener('click', renderThis);
     card.querySelector('[data-action="download"]').addEventListener('click', () => {
       const w = weeks.find(w => w.key === currentWeekKey);
@@ -678,6 +875,36 @@ colorUbicacionInput.addEventListener('input', () => {
   scheduleSaveGlobalStyle();
   refreshAllPreviews();
 });
+hAlignNombreInput.addEventListener('change', () => {
+  globalStyle.hAlignNombre = hAlignNombreInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+vPosNombreInput.addEventListener('change', () => {
+  globalStyle.vPosNombre = vPosNombreInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+hAlignHoraInput.addEventListener('change', () => {
+  globalStyle.hAlignHora = hAlignHoraInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+vPosHoraInput.addEventListener('change', () => {
+  globalStyle.vPosHora = vPosHoraInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+hAlignDireccionInput.addEventListener('change', () => {
+  globalStyle.hAlignDireccion = hAlignDireccionInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
+vPosDireccionInput.addEventListener('change', () => {
+  globalStyle.vPosDireccion = vPosDireccionInput.value;
+  scheduleSaveGlobalStyle();
+  refreshAllPreviews();
+});
 
 async function init(){
   await loadFonts();
@@ -690,6 +917,12 @@ async function init(){
   colorNombreInput.value = globalStyle.colorNombre;
   colorHoraInput.value = globalStyle.colorHora;
   colorUbicacionInput.value = globalStyle.colorUbicacion;
+  hAlignNombreInput.value = globalStyle.hAlignNombre;
+  vPosNombreInput.value = globalStyle.vPosNombre;
+  hAlignHoraInput.value = globalStyle.hAlignHora;
+  vPosHoraInput.value = globalStyle.vPosHora;
+  hAlignDireccionInput.value = globalStyle.hAlignDireccion;
+  vPosDireccionInput.value = globalStyle.vPosDireccion;
   await loadWeeksList();
   renderWeekSelect();
   const last = weeks[weeks.length - 1];
