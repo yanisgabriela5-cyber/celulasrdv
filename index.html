@@ -204,7 +204,7 @@
     </div>
     <div class="style-item">
       <input type="color" class="color-dot" id="colorUbicacionInput" value="#ffffff" title="Color de la ubicación" />
-      <span>Ubicación</span>
+      <span>Dirección</span>
     </div>
   </div>
 
@@ -425,6 +425,17 @@ function drawPreview(canvas, id){
   img.src = currentImage;
 }
 
+function formatHora12(hora24){
+  if(!hora24) return '';
+  const parts = hora24.split(':');
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] || '00';
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if(h === 0) h = 12;
+  return h + ':' + m + suffix;
+}
+
 function drawOverlay(ctx, w, h, data){
   const bandH = h * 0.30;
   const grad = ctx.createLinearGradient(0, h - bandH, 0, h);
@@ -452,12 +463,12 @@ function drawOverlay(ctx, w, h, data){
 
   ctx.fillStyle = globalStyle.colorHora;
   ctx.font = '500 ' + Math.round(w*0.034) + 'px "Raleway", sans-serif';
-  const hora = data.hora ? ('Hora: ' + data.hora) : 'Hora: por confirmar';
+  const hora = data.hora ? ('Hora: ' + formatHora12(data.hora)) : 'Hora: por confirmar';
   ctx.fillText(hora, pad, y);
 
   y += h * 0.055;
   ctx.fillStyle = globalStyle.colorUbicacion;
-  const ubic = data.ubicacion ? ('Lugar: ' + data.ubicacion) : 'Lugar: por confirmar';
+  const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion) : 'Dirección: por confirmar';
   wrapText(ctx, ubic, pad, y, w - pad*2, h*0.05);
 }
 
@@ -479,21 +490,25 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight){
 }
 
 function downloadCardImage(id, weekLabel){
-  const outW = 1080, outH = 1350;
-  const off = document.createElement('canvas');
-  off.width = outW; off.height = outH;
-  const ctx = off.getContext('2d');
   if(!currentImage){
     setStatus('Sube primero la imagen base de la semana.', true);
     return;
   }
   const img = new Image();
   img.onload = () => {
-    const ir = img.width / img.height, cr = outW / outH;
-    let sx=0, sy=0, sw=img.width, sh=img.height;
-    if(ir > cr){ sw = img.height * cr; sx = (img.width - sw)/2; }
-    else { sh = img.width / cr; sy = (img.height - sh)/2; }
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+    // Use the image's own aspect ratio so nothing gets cropped.
+    // Cap the largest side for a reasonable file size while keeping quality.
+    const maxSide = 1600;
+    let outW = img.width, outH = img.height;
+    if(Math.max(outW, outH) > maxSide){
+      const scale = maxSide / Math.max(outW, outH);
+      outW = Math.round(outW * scale);
+      outH = Math.round(outH * scale);
+    }
+    const off = document.createElement('canvas');
+    off.width = outW; off.height = outH;
+    const ctx = off.getContext('2d');
+    ctx.drawImage(img, 0, 0, outW, outH);
     drawOverlay(ctx, outW, outH, celulas[id]);
     off.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
@@ -568,7 +583,7 @@ function renderGrid(){
           <input type="time" data-field="hora" value="${escapeHtml(data.hora)}" />
         </div>
         <div class="field">
-          <label>Ubicación</label>
+          <label>Dirección</label>
           <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
         </div>
         <div class="preview-wrap">
