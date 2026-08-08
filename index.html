@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Invitaciones de Células</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181828;
+    --ink-2:#232338;
+    --ink-3:#2c2c46;
+    --gold:#e3b04b;
+    --lavender:#9c93c9;
+    --cream:#f3efe6;
+    --muted:#8d8aa8;
+    --line:rgba(227,176,75,0.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--ink);color:var(--cream);font-family:'Work Sans',sans-serif;}
+  .app{
+    background: radial-gradient(1200px 600px at 15% -10%, #23233d 0%, var(--ink) 55%);
+    min-height:100vh;
+    padding:32px 24px 60px;
+  }
+  .header{max-width:1180px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;}
+  .header h1{
+    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,3.4vw,38px);
+    margin:0 0 6px;letter-spacing:.2px;color:var(--cream);
+  }
+  .header .eyebrow{
+    font-family:'Work Sans',sans-serif;text-transform:uppercase;letter-spacing:2.5px;
+    font-size:11px;color:var(--gold);margin-bottom:8px;font-weight:600;
+  }
+  .header p.sub{margin:0;color:var(--muted);font-size:14px;max-width:520px;}
+
+  .week-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  select, input[type=text], input[type=time]{
+    background:var(--ink-2);border:1px solid var(--line);color:var(--cream);
+    border-radius:9px;padding:9px 12px;font-family:'Work Sans',sans-serif;font-size:13.5px;
+    outline:none;transition:border-color .15s ease;
+  }
+  select:focus, input:focus{border-color:var(--gold);}
+  button{
+    font-family:'Work Sans',sans-serif;font-weight:600;font-size:13.5px;
+    border:none;border-radius:9px;padding:10px 16px;cursor:pointer;transition:transform .1s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(0.97);}
+  button.primary{background:var(--gold);color:#241d0a;}
+  button.primary:hover{opacity:.9;}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--cream);}
+  button.ghost:hover{border-color:var(--gold);color:var(--gold);}
+  button.small{padding:7px 12px;font-size:12.5px;}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+
+  .base-panel{
+    max-width:1180px;margin:0 auto 34px;background:var(--ink-2);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+  }
+  .base-panel .thumb{
+    width:64px;height:80px;border-radius:8px;object-fit:cover;background:var(--ink-3);
+    border:1px solid var(--line);flex-shrink:0;
+  }
+  .base-panel .thumb.empty{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;text-align:center;padding:4px;}
+  .base-panel .info{flex:1;min-width:180px;}
+  .base-panel .info .lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+  .base-panel .info .name{font-size:14px;color:var(--cream);}
+  .file-btn{position:relative;overflow:hidden;}
+  .file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+  .status{max-width:1180px;margin:0 auto 18px;font-size:12.5px;color:var(--muted);min-height:16px;}
+  .status.err{color:#e88a6c;}
+
+  .grid{
+    max-width:1180px;margin:0 auto;display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;
+  }
+  .card{
+    background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;display:flex;flex-direction:column;
+  }
+  .card .stub{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:12px 14px;border-bottom:1px dashed var(--line);background:var(--ink-3);
+  }
+  .card .stub .num{
+    font-family:'Fraunces',serif;color:var(--gold);font-size:12px;font-weight:600;letter-spacing:1px;
+  }
+  .card .stub input.nombre{
+    font-family:'Fraunces',serif;font-weight:600;font-size:15px;background:transparent;border:none;
+    color:var(--cream);width:100%;padding:2px 0;
+  }
+  .card .stub input.nombre:focus{outline:none;border-bottom:1px solid var(--gold);}
+  .card .body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:600;}
+  .field input{width:100%;}
+  .preview-wrap{
+    margin-top:2px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--ink-3);
+    aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .preview-wrap canvas{width:100%;height:100%;object-fit:cover;display:block;}
+  .card-actions{display:flex;gap:8px;margin-top:2px;}
+  .card-actions button{flex:1;}
+  .saved-tick{font-size:10.5px;color:var(--lavender);opacity:0;transition:opacity .3s ease;height:12px;}
+  .saved-tick.show{opacity:1;}
+  .config-warning{
+    max-width:1180px;margin:0 auto 24px;background:#3a2020;border:1px solid #e88a6c;
+    border-radius:var(--radius);padding:16px 20px;font-size:13px;color:#f3d9d0;line-height:1.5;
+  }
+  .config-warning code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:5px;}
+
+  @media (max-width:520px){
+    .app{padding:22px 14px 40px;}
+    .header{align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="eyebrow">Ministerio de Células</div>
+      <h1>Invitaciones semanales</h1>
+      <p class="sub">Sube la imagen base de la semana y cada célula edita su hora y ubicación.</p>
+    </div>
+    <div class="week-controls">
+      <select id="weekSelect"></select>
+      <button class="ghost small" id="newWeekBtn">+ Nueva semana</button>
+    </div>
+  </div>
+
+  <div class="config-warning" id="configWarning" style="display:none;">
+    ⚠️ Falta configurar Firebase. Abre este archivo <code>index.html</code>, busca el bloque
+    <code>const firebaseConfig = { ... }</code> cerca del final, y pega ahí los datos de tu proyecto
+    de Firebase (Configuración del proyecto → tus apps → SDK de Firebase).
+  </div>
+
+  <div class="base-panel">
+    <img class="thumb" id="baseThumb" style="display:none;" />
+    <div class="thumb empty" id="baseThumbEmpty">sin imagen</div>
+    <div class="info">
+      <div class="lbl">Imagen base de esta semana</div>
+      <div class="name" id="baseName">Ninguna imagen subida todavía</div>
+    </div>
+    <button class="primary file-btn" id="uploadBtnLabel">
+      Subir / reemplazar imagen
+      <input type="file" id="uploadInput" accept="image/*" />
+    </button>
+  </div>
+
+  <div class="status" id="statusLine"></div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* =======================================================================
+   PEGA AQUI TU CONFIGURACION DE FIREBASE
+   (Firebase console -> Configuración del proyecto -> tus apps -> SDK)
+   ======================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyB0fQXXlHQjRCOnvTvkbjsgAuRQ2JBPZBk",
+  authDomain: "celular-rdv.firebaseapp.com",
+  projectId: "celular-rdv",
+  storageBucket: "celular-rdv.firebasestorage.app",
+  messagingSenderId: "830620018609",
+  appId: "1:830620018609:web:154e90874b83cfe00a7f90"
+};
+/* ======================================================================= */
+
+const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith('PON_'));
+if(!isConfigured){
+  document.getElementById('configWarning').style.display = 'block';
+}
+
+let db = null;
+if(isConfigured){
+  const fbApp = initializeApp(firebaseConfig);
+  db = getFirestore(fbApp);
+}
+
+const NUM_CELULAS = 25;
+const gridEl = document.getElementById('grid');
+const weekSelect = document.getElementById('weekSelect');
+const newWeekBtn = document.getElementById('newWeekBtn');
+const uploadInput = document.getElementById('uploadInput');
+const baseThumb = document.getElementById('baseThumb');
+const baseThumbEmpty = document.getElementById('baseThumbEmpty');
+const baseName = document.getElementById('baseName');
+const statusLine = document.getElementById('statusLine');
+
+let weeks = [];          // [{key,label}]
+let currentWeekKey = null;
+let currentImage = null; // download URL
+let celulas = {};        // {1:{nombre,hora,ubicacion}, ...}
+
+function setStatus(msg, isErr){
+  statusLine.textContent = msg || '';
+  statusLine.className = 'status' + (isErr ? ' err' : '');
+}
+
+function slugify(str){
+  return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'semana';
+}
+
+async function loadFonts(){
+  try{
+    await Promise.all([
+      document.fonts.load('600 20px "Fraunces"'),
+      document.fonts.load('500 20px "Work Sans"')
+    ]);
+  }catch(e){ /* fallback fonts are fine */ }
+}
+
+function defaultCelulas(){
+  const obj = {};
+  for(let i=1;i<=NUM_CELULAS;i++){
+    obj[i] = { nombre: 'Célula ' + i, hora: '', ubicacion: '' };
+  }
+  return obj;
+}
+
+async function loadWeeksList(){
+  if(!db) { weeks = []; return; }
+  try{
+    const metaSnap = await getDoc(doc(db, 'meta', 'weeks'));
+    if(metaSnap.exists()){
+      weeks = metaSnap.data().weeks || [];
+    }
+  }catch(e){
+    setStatus('No se pudo conectar con Firebase: ' + e.message, true);
+  }
+  if(!weeks || weeks.length === 0){
+    const today = new Date();
+    const label = today.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
+    const key = slugify(label) + '-' + Date.now();
+    weeks = [{ key, label }];
+    if(db){
+      await setDoc(doc(db, 'meta', 'weeks'), { weeks });
+      await setDoc(doc(db, 'weeks', key), { label, imageUrl: null, celulas: defaultCelulas() });
+    }
+  }
+}
+
+function renderWeekSelect(){
+  weekSelect.innerHTML = '';
+  weeks.slice().reverse().forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.key;
+    opt.textContent = w.label;
+    weekSelect.appendChild(opt);
+  });
+  weekSelect.value = currentWeekKey;
+}
+
+async function loadWeekData(key){
+  if(!db) return;
+  setStatus('Cargando semana…');
+  currentWeekKey = key;
+  try{
+    const snap = await getDoc(doc(db, 'weeks', key));
+    if(snap.exists()){
+      const data = snap.data();
+      currentImage = data.imageUrl || null;
+      celulas = data.celulas || defaultCelulas();
+    } else {
+      currentImage = null;
+      celulas = defaultCelulas();
+      await setDoc(doc(db, 'weeks', key), { label: key, imageUrl: null, celulas });
+    }
+  }catch(e){
+    setStatus('Error cargando la semana: ' + e.message, true);
+    celulas = defaultCelulas();
+  }
+  renderBasePanel();
+  renderGrid();
+  setStatus('');
+}
+
+function renderBasePanel(){
+  if(currentImage){
+    baseThumb.src = currentImage;
+    baseThumb.style.display = 'block';
+    baseThumbEmpty.style.display = 'none';
+    const w = weeks.find(w => w.key === currentWeekKey);
+    baseName.textContent = 'Imagen lista para: ' + (w ? w.label : currentWeekKey);
+  } else {
+    baseThumb.style.display = 'none';
+    baseThumbEmpty.style.display = 'flex';
+    baseName.textContent = 'Ninguna imagen subida todavía';
+  }
+}
+
+let saveTimer = null;
+function scheduleSaveCelulas(cardEl){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    let ok = false;
+    try{
+      await updateDoc(doc(db, 'weeks', currentWeekKey), { celulas });
+      ok = true;
+    }catch(e){ ok = false; }
+    if(cardEl){
+      const tick = cardEl.querySelector('.saved-tick');
+      if(tick){
+        tick.textContent = ok ? 'Guardado ✓' : 'No se pudo guardar';
+        tick.classList.add('show');
+        setTimeout(()=> tick.classList.remove('show'), 1400);
+      }
+    }
+  }, 500);
+}
+
+function drawPreview(canvas, id){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(!currentImage) return;
+  const img = new Image();
+  img.onload = () => {
+    const ir = img.width / img.height, cr = w / h;
+    let sx=0, sy=0, sw=img.width, sh=img.height;
+    if(ir > cr){ sw = img.height * cr; sx = (img.width - sw)/2; }
+    else { sh = img.width / cr; sy = (img.height - sh)/2; }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+    drawOverlay(ctx, w, h, celulas[id]);
+  };
+  img.onerror = () => {
+    setStatus('La imagen no cargó correctamente.', true);
+  };
+  img.src = currentImage;
+}
+
+function drawOverlay(ctx, w, h, data){
+  const bandH = h * 0.30;
+  const grad = ctx.createLinearGradient(0, h - bandH, 0, h);
+  grad.addColorStop(0, 'rgba(20,18,30,0)');
+  grad.addColorStop(0.35, 'rgba(20,18,30,0.75)');
+  grad.addColorStop(1, 'rgba(20,18,30,0.92)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, h - bandH, w, bandH);
+
+  const pad = w * 0.06;
+  let y = h - bandH * 0.62;
+
+  ctx.fillStyle = '#e3b04b';
+  ctx.font = '600 ' + Math.round(w*0.062) + 'px Fraunces, serif';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(data.nombre || '', pad, y);
+
+  y += h * 0.075;
+  ctx.strokeStyle = 'rgba(227,176,75,0.6)';
+  ctx.lineWidth = Math.max(1, w*0.003);
+  ctx.beginPath();
+  ctx.moveTo(pad, y - h*0.04);
+  ctx.lineTo(pad + w*0.16, y - h*0.04);
+  ctx.stroke();
+
+  ctx.fillStyle = '#f3efe6';
+  ctx.font = '500 ' + Math.round(w*0.034) + 'px "Work Sans", sans-serif';
+  const hora = data.hora ? ('Hora: ' + data.hora) : 'Hora: por confirmar';
+  ctx.fillText(hora, pad, y);
+
+  y += h * 0.055;
+  const ubic = data.ubicacion ? ('Lugar: ' + data.ubicacion) : 'Lugar: por confirmar';
+  wrapText(ctx, ubic, pad, y, w - pad*2, h*0.05);
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '';
+  let curY = y;
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i] + ' ';
+    if(ctx.measureText(test).width > maxWidth && line !== ''){
+      ctx.fillText(line, x, curY);
+      line = words[i] + ' ';
+      curY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, curY);
+}
+
+function downloadCardImage(id, weekLabel){
+  const outW = 1080, outH = 1350;
+  const off = document.createElement('canvas');
+  off.width = outW; off.height = outH;
+  const ctx = off.getContext('2d');
+  if(!currentImage){
+    setStatus('Sube primero la imagen base de la semana.', true);
+    return;
+  }
+  const img = new Image();
+  img.onload = () => {
+    const ir = img.width / img.height, cr = outW / outH;
+    let sx=0, sy=0, sw=img.width, sh=img.height;
+    if(ir > cr){ sw = img.height * cr; sx = (img.width - sw)/2; }
+    else { sh = img.width / cr; sy = (img.height - sh)/2; }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+    drawOverlay(ctx, outW, outH, celulas[id]);
+    off.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = slugify(celulas[id].nombre || ('celula-' + id));
+      a.href = url;
+      a.download = safeName + '-' + slugify(weekLabel || '') + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 4000);
+    }, 'image/png');
+  };
+  img.onerror = () => setStatus('No se pudo cargar la imagen para descargar.', true);
+  img.src = currentImage;
+}
+
+function compressImageToDataUrl(file, maxTargetBytes){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('No se pudo procesar la imagen'));
+      img.onload = () => {
+        let maxW = 1200;
+        let quality = 0.82;
+        const tryEncode = () => {
+          const scale = Math.min(1, maxW / img.width);
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          if(dataUrl.length > maxTargetBytes && (quality > 0.4 || maxW > 500)){
+            if(quality > 0.4){ quality -= 0.1; }
+            else { maxW = Math.round(maxW * 0.8); }
+            tryEncode();
+          } else {
+            resolve(dataUrl);
+          }
+        };
+        tryEncode();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function escapeHtml(str){
+  return (str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+function renderGrid(){
+  gridEl.innerHTML = '';
+  for(let i=1;i<=NUM_CELULAS;i++){
+    const data = celulas[i] || { nombre:'Célula '+i, hora:'', ubicacion:'' };
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="stub">
+        <span class="num">#${String(i).padStart(2,'0')}</span>
+        <input class="nombre" data-field="nombre" value="${escapeHtml(data.nombre)}" />
+      </div>
+      <div class="body">
+        <div class="field">
+          <label>Hora</label>
+          <input type="time" data-field="hora" value="${escapeHtml(data.hora)}" />
+        </div>
+        <div class="field">
+          <label>Ubicación</label>
+          <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
+        </div>
+        <div class="preview-wrap">
+          <canvas width="260" height="325"></canvas>
+        </div>
+        <div class="card-actions">
+          <button class="ghost small" data-action="preview">Actualizar vista</button>
+          <button class="primary small" data-action="download">Descargar imagen</button>
+        </div>
+        <div class="saved-tick">Guardado ✓</div>
+      </div>
+    `;
+    gridEl.appendChild(card);
+
+    const canvas = card.querySelector('canvas');
+    const renderThis = () => drawPreview(canvas, i);
+
+    card.querySelectorAll('input[data-field]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        celulas[i] = celulas[i] || {};
+        celulas[i][inp.dataset.field] = inp.value;
+        scheduleSaveCelulas(card);
+        renderThis();
+      });
+    });
+    card.querySelector('[data-action="preview"]').addEventListener('click', renderThis);
+    card.querySelector('[data-action="download"]').addEventListener('click', () => {
+      const w = weeks.find(w => w.key === currentWeekKey);
+      downloadCardImage(i, w ? w.label : '');
+    });
+
+    if(currentImage) renderThis();
+  }
+}
+
+uploadInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file || !db) return;
+  setStatus('Procesando y guardando imagen…');
+  try{
+    const dataUrl = await compressImageToDataUrl(file, 700000);
+    currentImage = dataUrl;
+    await updateDoc(doc(db, 'weeks', currentWeekKey), { imageUrl: dataUrl });
+    renderBasePanel();
+    renderGrid();
+    setStatus('Imagen guardada para esta semana.');
+  }catch(e){
+    setStatus('No se pudo guardar la imagen: ' + e.message, true);
+  }
+});
+
+weekSelect.addEventListener('change', () => {
+  loadWeekData(weekSelect.value);
+});
+
+newWeekBtn.addEventListener('click', async () => {
+  const label = prompt('Escribe la fecha o nombre de la nueva semana (ej: 17 de Agosto 2026):');
+  if(!label || !db) return;
+  const key = slugify(label) + '-' + Date.now();
+  weeks.push({ key, label });
+  try{
+    await setDoc(doc(db, 'meta', 'weeks'), { weeks });
+    await setDoc(doc(db, 'weeks', key), { label, imageUrl: null, celulas: defaultCelulas() });
+    renderWeekSelect();
+    weekSelect.value = key;
+    await loadWeekData(key);
+  }catch(e){
+    setStatus('No se pudo crear la semana: ' + e.message, true);
+  }
+});
+
+async function init(){
+  await loadFonts();
+  if(!isConfigured){
+    setStatus('Falta pegar tu configuración de Firebase en el código (ver aviso arriba).', true);
+    return;
+  }
+  await loadWeeksList();
+  renderWeekSelect();
+  const last = weeks[weeks.length - 1];
+  if(last) await loadWeekData(last.key);
+}
+
+init();
+</script>
+</body>
+</html>
