@@ -135,6 +135,16 @@
   }
   .drag-label:active{cursor:grabbing;background:rgba(0,0,0,0.8);}
   .drag-hint{font-size:11.5px;color:var(--muted);font-family:'Raleway',sans-serif;font-style:italic;}
+  .drag-limit{
+    position:absolute;top:0;bottom:0;width:0;border-left:2px dashed rgba(255,204,77,0.6);
+    pointer-events:none;z-index:1;
+  }
+  .drag-limit::after{
+    content:'';position:absolute;top:-1px;left:-3px;width:6px;height:6px;border-radius:50%;
+    background:var(--gold);
+  }
+  .style-controls .width-field{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .style-controls input[type=number].width-input{width:48px;}
   .shadow-toggle{
     display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);
     font-family:'Raleway',sans-serif;white-space:nowrap;
@@ -238,11 +248,14 @@
     <div class="drag-preview-wrap" id="dragPreviewWrap">
       <img id="dragPreviewImg" alt="" />
       <div class="drag-empty" id="dragEmptyMsg">Sube una imagen para poder ubicar los textos</div>
+      <div class="drag-limit" data-key="nombre"></div>
+      <div class="drag-limit" data-key="hora"></div>
+      <div class="drag-limit" data-key="direccion"></div>
       <div class="drag-label" data-key="nombre">Nombre</div>
       <div class="drag-label" data-key="hora">Hora</div>
       <div class="drag-label" data-key="direccion">Dirección</div>
     </div>
-    <span class="drag-hint">Arrastra cada etiqueta a la posición exacta que quieras dentro de la imagen.</span>
+    <span class="drag-hint">Arrastra cada etiqueta a la posición exacta que quieras dentro de la imagen. La línea punteada dorada marca el límite de ancho: el texto se ajusta en varias líneas antes de cruzarla.</span>
 
     <div class="style-fields">
       <div class="style-field-group">
@@ -259,6 +272,9 @@
             <option value="Poppins">Poppins</option>
           </select>
           <input type="number" id="sizeNombreInput" min="20" max="150" step="1" title="Tamaño" />
+          <label class="width-field">Ancho
+            <input type="number" class="width-input" id="widthNombreInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
+          </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowNombreInput" /> Sombra</label>
         </div>
       </div>
@@ -276,6 +292,9 @@
             <option value="Poppins">Poppins</option>
           </select>
           <input type="number" id="sizeHoraInput" min="14" max="100" step="1" title="Tamaño" />
+          <label class="width-field">Ancho
+            <input type="number" class="width-input" id="widthHoraInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
+          </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowHoraInput" /> Sombra</label>
         </div>
       </div>
@@ -293,6 +312,9 @@
             <option value="Poppins">Poppins</option>
           </select>
           <input type="number" id="sizeDireccionInput" min="14" max="100" step="1" title="Tamaño" />
+          <label class="width-field">Ancho
+            <input type="number" class="width-input" id="widthDireccionInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
+          </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowDireccionInput" /> Sombra</label>
         </div>
       </div>
@@ -376,12 +398,15 @@ const colorHoraInput = document.getElementById('colorHoraInput');
 const colorUbicacionInput = document.getElementById('colorUbicacionInput');
 const fontNombreInput = document.getElementById('fontNombreInput');
 const sizeNombreInput = document.getElementById('sizeNombreInput');
+const widthNombreInput = document.getElementById('widthNombreInput');
 const shadowNombreInput = document.getElementById('shadowNombreInput');
 const fontHoraInput = document.getElementById('fontHoraInput');
 const sizeHoraInput = document.getElementById('sizeHoraInput');
+const widthHoraInput = document.getElementById('widthHoraInput');
 const shadowHoraInput = document.getElementById('shadowHoraInput');
 const fontDireccionInput = document.getElementById('fontDireccionInput');
 const sizeDireccionInput = document.getElementById('sizeDireccionInput');
+const widthDireccionInput = document.getElementById('widthDireccionInput');
 const shadowDireccionInput = document.getElementById('shadowDireccionInput');
 const dragPreviewWrap = document.getElementById('dragPreviewWrap');
 const dragPreviewImg = document.getElementById('dragPreviewImg');
@@ -396,6 +421,7 @@ let globalStyle = {
   fontNombre: 'League Spartan', fontHora: 'Raleway', fontDireccion: 'Raleway',
   sizeNombre: 62, sizeHora: 34, sizeDireccion: 32,
   shadowNombre: true, shadowHora: true, shadowDireccion: true,
+  anchoNombre: 80, anchoHora: 80, anchoDireccion: 80,
   posXNombre: 8, posYNombre: 76,
   posXHora: 8, posYHora: 86,
   posXDireccion: 8, posYDireccion: 92
@@ -632,9 +658,9 @@ function drawOverlay(ctx, w, h, data){
   const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion) : 'Dirección: por confirmar';
 
   const fields = [
-    { text: data.nombre || '', color: globalStyle.colorNombre, font: globalStyle.fontNombre, size: globalStyle.sizeNombre, shadow: globalStyle.shadowNombre, x: globalStyle.posXNombre, y: globalStyle.posYNombre, weight: 700, wrap: false },
-    { text: hora,             color: globalStyle.colorHora,     font: globalStyle.fontHora,     size: globalStyle.sizeHora,     shadow: globalStyle.shadowHora,     x: globalStyle.posXHora,     y: globalStyle.posYHora,     weight: 600, wrap: false },
-    { text: ubic,             color: globalStyle.colorUbicacion, font: globalStyle.fontDireccion, size: globalStyle.sizeDireccion, shadow: globalStyle.shadowDireccion, x: globalStyle.posXDireccion, y: globalStyle.posYDireccion, weight: 600, wrap: true }
+    { text: data.nombre || '', color: globalStyle.colorNombre, font: globalStyle.fontNombre, size: globalStyle.sizeNombre, shadow: globalStyle.shadowNombre, x: globalStyle.posXNombre, y: globalStyle.posYNombre, weight: 700, width: globalStyle.anchoNombre },
+    { text: hora,             color: globalStyle.colorHora,     font: globalStyle.fontHora,     size: globalStyle.sizeHora,     shadow: globalStyle.shadowHora,     x: globalStyle.posXHora,     y: globalStyle.posYHora,     weight: 600, width: globalStyle.anchoHora },
+    { text: ubic,             color: globalStyle.colorUbicacion, font: globalStyle.fontDireccion, size: globalStyle.sizeDireccion, shadow: globalStyle.shadowDireccion, x: globalStyle.posXDireccion, y: globalStyle.posYDireccion, weight: 600, width: globalStyle.anchoDireccion }
   ];
 
   ctx.textAlign = 'left';
@@ -657,12 +683,11 @@ function drawOverlay(ctx, w, h, data){
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
     }
-    if(f.wrap){
-      const maxWidth = Math.max(w*0.2, w - px - w*0.05);
-      wrapText(ctx, f.text, px, py, maxWidth, fontSizePx * 1.3);
-    } else {
-      ctx.fillText(f.text, px, py);
-    }
+    // Every field respects its own configurable width limit so text always
+    // wraps to a new line instead of overflowing past the image edge.
+    const widthPct = (typeof f.width === 'number' ? f.width : 80);
+    const maxWidth = Math.max(w*0.12, Math.min((widthPct/100)*w, w - px - w*0.02));
+    wrapText(ctx, f.text, px, py, maxWidth, fontSizePx * 1.3);
   });
 
   ctx.shadowColor = 'transparent';
@@ -937,14 +962,29 @@ function bindShadowControl(inputEl, styleKey){
     refreshAllPreviews();
   });
 }
+function bindWidthControl(inputEl, styleKey, dragKey){
+  inputEl.addEventListener('input', () => {
+    let v = parseFloat(inputEl.value);
+    if(!isNaN(v)){
+      v = Math.max(10, Math.min(95, v));
+      globalStyle[styleKey] = v;
+    }
+    scheduleSaveGlobalStyle();
+    updateDragLimitPosition(dragKey);
+    refreshAllPreviews();
+  });
+}
 bindFontControl(fontNombreInput, 'fontNombre');
 bindSizeControl(sizeNombreInput, 'sizeNombre');
+bindWidthControl(widthNombreInput, 'anchoNombre', 'nombre');
 bindShadowControl(shadowNombreInput, 'shadowNombre');
 bindFontControl(fontHoraInput, 'fontHora');
 bindSizeControl(sizeHoraInput, 'sizeHora');
+bindWidthControl(widthHoraInput, 'anchoHora', 'hora');
 bindShadowControl(shadowHoraInput, 'shadowHora');
 bindFontControl(fontDireccionInput, 'fontDireccion');
 bindSizeControl(sizeDireccionInput, 'sizeDireccion');
+bindWidthControl(widthDireccionInput, 'anchoDireccion', 'direccion');
 bindShadowControl(shadowDireccionInput, 'shadowDireccion');
 
 function updateDragLabelPosition(key){
@@ -954,6 +994,18 @@ function updateDragLabelPosition(key){
   const yKey = 'posY' + key.charAt(0).toUpperCase() + key.slice(1);
   label.style.left = globalStyle[xKey] + '%';
   label.style.top = globalStyle[yKey] + '%';
+  updateDragLimitPosition(key);
+}
+
+function updateDragLimitPosition(key){
+  const limit = dragPreviewWrap.querySelector('.drag-limit[data-key="' + key + '"]');
+  if(!limit) return;
+  const xKey = 'posX' + key.charAt(0).toUpperCase() + key.slice(1);
+  const anchoKey = 'ancho' + key.charAt(0).toUpperCase() + key.slice(1);
+  const px = globalStyle[xKey] || 0;
+  const ancho = (typeof globalStyle[anchoKey] === 'number') ? globalStyle[anchoKey] : 80;
+  const left = Math.min(98, px + ancho);
+  limit.style.left = left + '%';
 }
 
 function refreshDragPreviewImage(){
@@ -985,6 +1037,7 @@ function setupDragLabels(){
       globalStyle[yKey] = py;
       label.style.left = px + '%';
       label.style.top = py + '%';
+      updateDragLimitPosition(key);
       refreshAllPreviews();
     }
 
@@ -1021,12 +1074,15 @@ async function init(){
   colorUbicacionInput.value = globalStyle.colorUbicacion;
   fontNombreInput.value = globalStyle.fontNombre;
   sizeNombreInput.value = globalStyle.sizeNombre;
+  widthNombreInput.value = globalStyle.anchoNombre;
   shadowNombreInput.checked = globalStyle.shadowNombre;
   fontHoraInput.value = globalStyle.fontHora;
   sizeHoraInput.value = globalStyle.sizeHora;
+  widthHoraInput.value = globalStyle.anchoHora;
   shadowHoraInput.checked = globalStyle.shadowHora;
   fontDireccionInput.value = globalStyle.fontDireccion;
   sizeDireccionInput.value = globalStyle.sizeDireccion;
+  widthDireccionInput.value = globalStyle.anchoDireccion;
   shadowDireccionInput.checked = globalStyle.shadowDireccion;
   updateDragLabelPosition('nombre');
   updateDragLabelPosition('hora');
@@ -1043,3 +1099,4 @@ init();
 </script>
 </body>
 </html>
+ 
