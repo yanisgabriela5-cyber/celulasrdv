@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Invitaciones de Células</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,7 +155,10 @@
   .style-field-title{
     font-family:'Raleway',sans-serif;font-size:12.5px;font-weight:600;color:var(--cream);
   }
-  .style-controls{display:flex;align-items:center;gap:6px;}
+  .style-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .style-controls .lines-field{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .style-controls input[type=number].lines-input{width:44px;}
+  .style-controls input[type=number]{background:var(--ink-3);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 6px;font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;}
   .style-controls select{
     background:var(--ink-3);border:1px solid var(--line);color:var(--cream);
     border-radius:8px;padding:7px 8px;font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;
@@ -171,9 +174,14 @@
   .admin-only{display:none;}
   .preview-wrap{
     margin-top:2px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--ink-3);
-    aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;position:relative;
+    position:relative;min-height:120px;
   }
-  .preview-wrap canvas{width:100%;height:100%;object-fit:cover;display:block;}
+  .preview-wrap canvas{width:100%;height:auto;display:block;}
+  .preview-wrap.empty canvas{display:none;}
+  .preview-wrap.empty::after{
+    content:'Sin imagen base';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:var(--muted);
+  }
   .card-actions{display:flex;gap:8px;margin-top:2px;}
   .card-actions button{flex:1;}
   .saved-tick{font-size:10.5px;color:var(--gold-dim);opacity:0;transition:opacity .3s ease;height:12px;}
@@ -184,9 +192,30 @@
   }
   .config-warning code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:5px;}
 
-  @media (max-width:520px){
-    .app{padding:22px 14px 40px;}
-    .header{align-items:flex-start;}
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+
+  @media (max-width:640px){
+    .app{padding:20px 14px 40px;}
+    .header{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:20px;}
+    .header > div:first-child{padding-right:52px;}
+    .week-controls{width:100%;}
+    .week-controls select{flex:1;min-width:0;}
+    .base-panel{padding:14px;gap:12px;margin-bottom:20px;}
+    .base-panel .file-btn{width:100%;}
+    .style-panel{padding:14px;}
+    .drag-preview-wrap{max-width:100%;}
+    .drag-label{padding:8px 12px;font-size:13px;}
+    .style-fields{flex-direction:column;gap:12px;}
+    .style-field-group{background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+    .style-controls{gap:8px;}
+    .style-controls select{flex:1;min-width:120px;}
+    .grid{grid-template-columns:1fr;gap:14px;}
+    /* 16px evita el zoom automático de iOS al enfocar */
+    select, input[type=text], input[type=number], .hora-row select, .card .stub input.nombre, .style-controls select, .style-controls input[type=number]{font-size:16px;}
+    .hora-row select{padding:10px 6px;}
+    button, button.small{min-height:44px;font-size:14px;}
+    .card-actions{flex-direction:column;}
+    .saved-tick{height:14px;}
   }
 
   .brand-logo-top{
@@ -255,7 +284,7 @@
       <div class="drag-label" data-key="hora">Hora</div>
       <div class="drag-label" data-key="direccion">Dirección</div>
     </div>
-    <span class="drag-hint">Arrastra cada etiqueta a la posición exacta que quieras dentro de la imagen. La línea punteada dorada marca el límite de ancho: el texto se ajusta en varias líneas antes de cruzarla.</span>
+    <span class="drag-hint">Arrastra cada etiqueta a la posición exacta que quieras dentro de la imagen. La línea punteada dorada marca el límite de ancho: el texto se ajusta dentro de ese cuadro y, si supera el máximo de líneas, la letra se reduce sola para no desbordarse.</span>
 
     <div class="style-fields">
       <div class="style-field-group">
@@ -274,6 +303,15 @@
           <input type="number" id="sizeNombreInput" min="20" max="150" step="1" title="Tamaño" />
           <label class="width-field">Ancho
             <input type="number" class="width-input" id="widthNombreInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
+          </label>
+          <select id="alignNombreInput" title="Alineación del texto">
+            <option value="justify">Justificado</option>
+            <option value="left">Izquierda</option>
+            <option value="center">Centrado</option>
+            <option value="right">Derecha</option>
+          </select>
+          <label class="lines-field">Líneas
+            <input type="number" class="lines-input" id="linesNombreInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
           </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowNombreInput" /> Sombra</label>
         </div>
@@ -295,6 +333,15 @@
           <label class="width-field">Ancho
             <input type="number" class="width-input" id="widthHoraInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
           </label>
+          <select id="alignHoraInput" title="Alineación del texto">
+            <option value="justify">Justificado</option>
+            <option value="left">Izquierda</option>
+            <option value="center">Centrado</option>
+            <option value="right">Derecha</option>
+          </select>
+          <label class="lines-field">Líneas
+            <input type="number" class="lines-input" id="linesHoraInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
+          </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowHoraInput" /> Sombra</label>
         </div>
       </div>
@@ -314,6 +361,15 @@
           <input type="number" id="sizeDireccionInput" min="14" max="100" step="1" title="Tamaño" />
           <label class="width-field">Ancho
             <input type="number" class="width-input" id="widthDireccionInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
+          </label>
+          <select id="alignDireccionInput" title="Alineación del texto">
+            <option value="justify">Justificado</option>
+            <option value="left">Izquierda</option>
+            <option value="center">Centrado</option>
+            <option value="right">Derecha</option>
+          </select>
+          <label class="lines-field">Líneas
+            <input type="number" class="lines-input" id="linesDireccionInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
           </label>
           <label class="shadow-toggle"><input type="checkbox" id="shadowDireccionInput" /> Sombra</label>
         </div>
@@ -408,6 +464,12 @@ const fontDireccionInput = document.getElementById('fontDireccionInput');
 const sizeDireccionInput = document.getElementById('sizeDireccionInput');
 const widthDireccionInput = document.getElementById('widthDireccionInput');
 const shadowDireccionInput = document.getElementById('shadowDireccionInput');
+const alignNombreInput = document.getElementById('alignNombreInput');
+const alignHoraInput = document.getElementById('alignHoraInput');
+const alignDireccionInput = document.getElementById('alignDireccionInput');
+const linesNombreInput = document.getElementById('linesNombreInput');
+const linesHoraInput = document.getElementById('linesHoraInput');
+const linesDireccionInput = document.getElementById('linesDireccionInput');
 const dragPreviewWrap = document.getElementById('dragPreviewWrap');
 const dragPreviewImg = document.getElementById('dragPreviewImg');
 const dragEmptyMsg = document.getElementById('dragEmptyMsg');
@@ -422,6 +484,8 @@ let globalStyle = {
   sizeNombre: 62, sizeHora: 34, sizeDireccion: 32,
   shadowNombre: true, shadowHora: true, shadowDireccion: true,
   anchoNombre: 80, anchoHora: 80, anchoDireccion: 80,
+  alignNombre: 'justify', alignHora: 'justify', alignDireccion: 'justify',
+  linesNombre: 2, linesHora: 1, linesDireccion: 3,
   posXNombre: 8, posYNombre: 76,
   posXHora: 8, posYHora: 86,
   posXDireccion: 8, posYDireccion: 92
@@ -603,24 +667,40 @@ function scheduleSaveCelulas(cardEl){
   }, 500);
 }
 
+// Imagen base cacheada: se decodifica una sola vez para las 25 tarjetas.
+let cachedImg = null, cachedSrc = null, cachedPromise = null;
+function getBaseImage(){
+  if(!currentImage) return Promise.resolve(null);
+  if(cachedSrc === currentImage && cachedPromise) return cachedPromise;
+  cachedSrc = currentImage;
+  cachedPromise = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { cachedImg = img; resolve(img); };
+    img.onerror = () => { setStatus('La imagen no cargó correctamente.', true); resolve(null); };
+    img.src = currentImage;
+  });
+  return cachedPromise;
+}
+
 function drawPreview(canvas, id){
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
-  ctx.clearRect(0,0,w,h);
-  if(!currentImage) return;
-  const img = new Image();
-  img.onload = () => {
-    const ir = img.width / img.height, cr = w / h;
-    let sx=0, sy=0, sw=img.width, sh=img.height;
-    if(ir > cr){ sw = img.height * cr; sx = (img.width - sw)/2; }
-    else { sh = img.width / cr; sy = (img.height - sh)/2; }
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+  const wrap = canvas.parentElement;
+  if(!currentImage){ wrap && wrap.classList.add('empty'); return; }
+  getBaseImage().then(img => {
+    if(!img) return;
+    wrap && wrap.classList.remove('empty');
+    // La vista previa usa la MISMA proporción que la imagen descargada,
+    // así el texto cae exactamente en el mismo lugar y tamaño relativo.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssW = (wrap && wrap.clientWidth) || 300;
+    const w = Math.round(Math.max(480, cssW * dpr));
+    const h = Math.round(w * img.height / img.width);
+    if(canvas.width !== w) canvas.width = w;
+    if(canvas.height !== h) canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    ctx.drawImage(img, 0, 0, w, h);
     drawOverlay(ctx, w, h, celulas[id]);
-  };
-  img.onerror = () => {
-    setStatus('La imagen no cargó correctamente.', true);
-  };
-  img.src = currentImage;
+  });
 }
 
 function formatHora12(hora24){
@@ -654,23 +734,45 @@ function from12PartsTo24(h, m, ampm){
 
 function drawOverlay(ctx, w, h, data){
   const scale = w / 1080;
+  data = data || {};
   const hora = data.hora ? ('Hora: ' + formatHora12(data.hora)) : 'Hora: por confirmar';
-  const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion) : 'Dirección: por confirmar';
+  const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion.trim()) : 'Dirección: por confirmar';
+  const G = globalStyle;
 
   const fields = [
-    { text: data.nombre || '', color: globalStyle.colorNombre, font: globalStyle.fontNombre, size: globalStyle.sizeNombre, shadow: globalStyle.shadowNombre, x: globalStyle.posXNombre, y: globalStyle.posYNombre, weight: 700, width: globalStyle.anchoNombre },
-    { text: hora,             color: globalStyle.colorHora,     font: globalStyle.fontHora,     size: globalStyle.sizeHora,     shadow: globalStyle.shadowHora,     x: globalStyle.posXHora,     y: globalStyle.posYHora,     weight: 600, width: globalStyle.anchoHora },
-    { text: ubic,             color: globalStyle.colorUbicacion, font: globalStyle.fontDireccion, size: globalStyle.sizeDireccion, shadow: globalStyle.shadowDireccion, x: globalStyle.posXDireccion, y: globalStyle.posYDireccion, weight: 600, width: globalStyle.anchoDireccion }
+    { text: (data.nombre || '').trim(), color: G.colorNombre, font: G.fontNombre, size: G.sizeNombre, shadow: G.shadowNombre, x: G.posXNombre, y: G.posYNombre, weight: 700, width: G.anchoNombre, align: G.alignNombre, lines: G.linesNombre },
+    { text: hora, color: G.colorHora, font: G.fontHora, size: G.sizeHora, shadow: G.shadowHora, x: G.posXHora, y: G.posYHora, weight: 600, width: G.anchoHora, align: G.alignHora, lines: G.linesHora },
+    { text: ubic, color: G.colorUbicacion, font: G.fontDireccion, size: G.sizeDireccion, shadow: G.shadowDireccion, x: G.posXDireccion, y: G.posYDireccion, weight: 600, width: G.anchoDireccion, align: G.alignDireccion, lines: G.linesDireccion }
   ];
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 
   fields.forEach(f => {
+    if(!f.text) return;
     const px = (f.x / 100) * w;
     const py = (f.y / 100) * h;
-    const fontSizePx = Math.max(8, f.size * scale);
-    ctx.font = f.weight + ' ' + Math.round(fontSizePx) + 'px "' + f.font + '", sans-serif';
+    const widthPct = (typeof f.width === 'number' ? f.width : 80);
+    const maxWidth = Math.max(w*0.12, Math.min((widthPct/100)*w, w - px - w*0.02));
+    const maxLines = Math.max(1, Math.min(6, parseInt(f.lines, 10) || 2));
+
+    // Auto-ajuste: si el texto no cabe en el máximo de líneas, se reduce la letra
+    // (hasta 55% del tamaño elegido) en lugar de desbordarse o pisar otro campo.
+    const baseSize = Math.max(8, f.size * scale);
+    const minSize = Math.max(8, baseSize * 0.55);
+    let fontSizePx = baseSize, lines;
+    while(true){
+      ctx.font = f.weight + ' ' + Math.round(fontSizePx) + 'px "' + f.font + '", sans-serif';
+      lines = breakLines(ctx, f.text, maxWidth);
+      const fits = lines.length <= maxLines && lines.every(l => ctx.measureText(l.join(' ')).width <= maxWidth + 0.5);
+      if(fits || fontSizePx <= minSize) break;
+      fontSizePx = Math.max(minSize, fontSizePx * 0.94);
+    }
+    // No dejar que el bloque se salga por abajo de la imagen.
+    const lineHeight = fontSizePx * 1.25;
+    const bottomLimit = h - fontSizePx * 0.7;
+    const startY = Math.min(py, bottomLimit - lineHeight * (lines.length - 1));
+
     ctx.fillStyle = f.color;
     if(f.shadow){
       ctx.shadowColor = 'rgba(0,0,0,0.85)';
@@ -679,15 +781,9 @@ function drawOverlay(ctx, w, h, data){
       ctx.shadowOffsetY = Math.max(1, w*0.0025);
     } else {
       ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+      ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
     }
-    // Every field respects its own configurable width limit so text always
-    // wraps to a new line instead of overflowing past the image edge.
-    const widthPct = (typeof f.width === 'number' ? f.width : 80);
-    const maxWidth = Math.max(w*0.12, Math.min((widthPct/100)*w, w - px - w*0.02));
-    wrapText(ctx, f.text, px, py, maxWidth, fontSizePx * 1.3);
+    drawAlignedLines(ctx, lines, px, startY, maxWidth, lineHeight, f.align || 'justify');
   });
 
   ctx.shadowColor = 'transparent';
@@ -696,21 +792,49 @@ function drawOverlay(ctx, w, h, data){
   ctx.shadowOffsetY = 0;
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight){
-  const words = text.split(' ');
-  let line = '';
-  let curY = y;
-  for(let i=0;i<words.length;i++){
-    const test = line + words[i] + ' ';
-    if(ctx.measureText(test).width > maxWidth && line !== ''){
-      ctx.fillText(line, x, curY);
-      line = words[i] + ' ';
-      curY += lineHeight;
+// Divide el texto en líneas (arreglos de palabras) que caben en maxWidth.
+function breakLines(ctx, text, maxWidth){
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let cur = [];
+  for(const word of words){
+    const test = cur.length ? cur.join(' ') + ' ' + word : word;
+    if(cur.length && ctx.measureText(test).width > maxWidth){
+      lines.push(cur);
+      cur = [word];
     } else {
-      line = test;
+      cur.push(word);
     }
   }
-  ctx.fillText(line, x, curY);
+  if(cur.length) lines.push(cur);
+  return lines;
+}
+
+// Dibuja las líneas dentro del cuadro [x, x+maxWidth].
+// Justificado: todas las líneas ocupan el ancho completo excepto la última.
+function drawAlignedLines(ctx, lines, x, y, maxWidth, lineHeight, align){
+  lines.forEach((words, i) => {
+    const curY = y + i * lineHeight;
+    const lineText = words.join(' ');
+    const lineW = ctx.measureText(lineText).width;
+    const isLast = i === lines.length - 1;
+
+    if(align === 'justify' && !isLast && words.length > 1){
+      const wordsW = words.reduce((acc, wd) => acc + ctx.measureText(wd).width, 0);
+      const gap = (maxWidth - wordsW) / (words.length - 1);
+      // Evita espacios exagerados cuando la línea quedó muy corta.
+      const spaceW = ctx.measureText(' ').width;
+      if(gap <= spaceW * 4){
+        let cx = x;
+        words.forEach(wd => { ctx.fillText(wd, cx, curY); cx += ctx.measureText(wd).width + gap; });
+        return;
+      }
+    }
+    let startX = x;
+    if(align === 'center') startX = x + (maxWidth - lineW) / 2;
+    else if(align === 'right') startX = x + maxWidth - lineW;
+    ctx.fillText(lineText, startX, curY);
+  });
 }
 
 function downloadCardImage(id, weekLabel){
@@ -718,8 +842,8 @@ function downloadCardImage(id, weekLabel){
     setStatus('Sube primero la imagen base de la semana.', true);
     return;
   }
-  const img = new Image();
-  img.onload = () => {
+  getBaseImage().then(img => {
+    if(!img){ setStatus('No se pudo cargar la imagen para descargar.', true); return; }
     // Use the image's own aspect ratio so nothing gets cropped.
     // Cap the largest side for a reasonable file size while keeping quality.
     const maxSide = 1600;
@@ -745,9 +869,7 @@ function downloadCardImage(id, weekLabel){
       a.remove();
       setTimeout(()=> URL.revokeObjectURL(url), 4000);
     }, 'image/png');
-  };
-  img.onerror = () => setStatus('No se pudo cargar la imagen para descargar.', true);
-  img.src = currentImage;
+  });
 }
 
 function compressImageToDataUrl(file, maxTargetBytes){
@@ -835,8 +957,8 @@ function renderGrid(){
           <label>Dirección</label>
           <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
         </div>
-        <div class="preview-wrap">
-          <canvas width="260" height="325"></canvas>
+        <div class="preview-wrap${currentImage ? '' : ' empty'}">
+          <canvas width="480" height="600"></canvas>
         </div>
         <div class="card-actions">
           <button class="ghost small" data-action="preview">Actualizar vista</button>
@@ -986,6 +1108,27 @@ bindFontControl(fontDireccionInput, 'fontDireccion');
 bindSizeControl(sizeDireccionInput, 'sizeDireccion');
 bindWidthControl(widthDireccionInput, 'anchoDireccion', 'direccion');
 bindShadowControl(shadowDireccionInput, 'shadowDireccion');
+function bindLinesControl(inputEl, styleKey){
+  inputEl.addEventListener('input', () => {
+    const v = parseInt(inputEl.value, 10);
+    if(!isNaN(v)) globalStyle[styleKey] = Math.max(1, Math.min(6, v));
+    scheduleSaveGlobalStyle();
+    refreshAllPreviews();
+  });
+}
+bindFontControl(alignNombreInput, 'alignNombre');
+bindFontControl(alignHoraInput, 'alignHora');
+bindFontControl(alignDireccionInput, 'alignDireccion');
+bindLinesControl(linesNombreInput, 'linesNombre');
+bindLinesControl(linesHoraInput, 'linesHora');
+bindLinesControl(linesDireccionInput, 'linesDireccion');
+
+// Redibuja al rotar el celular o cambiar el tamaño de ventana.
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(refreshAllPreviews, 200);
+});
 
 function updateDragLabelPosition(key){
   const label = dragPreviewWrap.querySelector('.drag-label[data-key="' + key + '"]');
@@ -1084,6 +1227,12 @@ async function init(){
   sizeDireccionInput.value = globalStyle.sizeDireccion;
   widthDireccionInput.value = globalStyle.anchoDireccion;
   shadowDireccionInput.checked = globalStyle.shadowDireccion;
+  alignNombreInput.value = globalStyle.alignNombre || 'justify';
+  alignHoraInput.value = globalStyle.alignHora || 'justify';
+  alignDireccionInput.value = globalStyle.alignDireccion || 'justify';
+  linesNombreInput.value = globalStyle.linesNombre || 2;
+  linesHoraInput.value = globalStyle.linesHora || 1;
+  linesDireccionInput.value = globalStyle.linesDireccion || 3;
   updateDragLabelPosition('nombre');
   updateDragLabelPosition('hora');
   updateDragLabelPosition('direccion');
@@ -1099,4 +1248,3 @@ init();
 </script>
 </body>
 </html>
- 
