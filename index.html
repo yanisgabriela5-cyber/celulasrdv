@@ -1,1250 +1,923 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Invitaciones de Células</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&family=Bebas+Neue&family=Raleway:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Montserrat:wght@500;700&family=Oswald:wght@500;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#000000;
-    --ink-2:#1a1512;
-    --ink-3:#26201b;
-    --gold:#ffcc4d;
-    --gold-dim:#c6a867;
-    --brown:#7a594c;
-    --cream:#ffffff;
-    --muted:#c8ad8f;
-    --line:rgba(255,204,77,0.25);
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--ink);color:var(--cream);font-family:'Raleway',sans-serif;}
-  .app{
-    position:relative;
-    background: radial-gradient(1200px 600px at 15% -10%, #2a2018 0%, var(--ink) 55%);
-    min-height:100vh;
-    padding:32px 24px 60px;
-  }
-  .header{max-width:1180px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;}
-  .header h1{
-    font-family:'League Spartan',sans-serif;font-weight:700;font-size:clamp(26px,3.4vw,38px);
-    margin:0 0 6px;letter-spacing:.2px;color:var(--cream);
-  }
-  .header .eyebrow{
-    font-family:'Bebas Neue',sans-serif;text-transform:uppercase;letter-spacing:3px;
-    font-size:14px;color:var(--gold);margin-bottom:8px;font-weight:400;
-  }
-  .header p.sub{margin:0;color:var(--muted);font-size:14px;max-width:520px;font-family:'Raleway',sans-serif;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roca de Vida Panamá - Gestor de Tarjetas de Células</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f0d0b',
+                            card: '#181512',
+                            border: '#2a241e',
+                            gold: '#ffcc4d',
+                            goldHover: '#e6b840',
+                            sec: '#c8ad8f',
+                            light: '#f5f0eb'
+                        }
+                    },
+                    fontFamily: {
+                        spartan: ['"League Spartan"', 'sans-serif'],
+                        bebas: ['"Bebas Neue"', 'cursive'],
+                        raleway: ['Raleway', 'sans-serif'],
+                        playfair: ['"Playfair Display"', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        oswald: ['Oswald', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 
-  .week-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-  select, input[type=text], input[type=time]{
-    background:var(--ink-2);border:1px solid var(--line);color:var(--cream);
-    border-radius:9px;padding:9px 12px;font-family:'Raleway',sans-serif;font-size:13.5px;
-    outline:none;transition:border-color .15s ease;
-  }
-  select:focus, input:focus{border-color:var(--gold);}
-  button{
-    font-family:'Raleway',sans-serif;font-weight:600;font-size:13.5px;
-    border:none;border-radius:9px;padding:10px 16px;cursor:pointer;transition:transform .1s ease, opacity .15s ease;
-  }
-  button:active{transform:scale(0.97);}
-  button.primary{background:var(--gold);color:#241d0a;}
-  button.primary:hover{opacity:.9;}
-  button.ghost{background:transparent;border:1px solid var(--line);color:var(--cream);}
-  button.ghost:hover{border-color:var(--gold);color:var(--gold);}
-  button.small{padding:7px 12px;font-size:12.5px;}
-  button:disabled{opacity:.45;cursor:not-allowed;}
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@400;600;700;800&family=Montserrat:wght@400;600;700&family=Oswald:wght@500;700&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  .base-panel{
-    max-width:1180px;margin:0 auto 34px;background:var(--ink-2);border:1px solid var(--line);
-    border-radius:var(--radius);padding:18px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;
-  }
-  .base-panel .thumb{
-    width:64px;height:80px;border-radius:8px;object-fit:cover;background:var(--ink-3);
-    border:1px solid var(--line);flex-shrink:0;
-  }
-  .base-panel .thumb.empty{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;text-align:center;padding:4px;}
-  .base-panel .info{flex:1;min-width:180px;}
-  .base-panel .info .lbl{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:400;margin-bottom:4px;}
-  .base-panel .info .name{font-size:14px;color:var(--cream);}
-  .file-btn{position:relative;overflow:hidden;}
-  .file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-
-  .status{max-width:1180px;margin:0 auto 18px;font-size:12.5px;color:var(--muted);min-height:16px;}
-  .status.err{color:#e88a6c;}
-
-  .grid{
-    max-width:1180px;margin:0 auto;display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;
-  }
-  .card{
-    background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);
-    overflow:hidden;display:flex;flex-direction:column;
-  }
-  .card .stub{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    padding:12px 14px;border-bottom:1px dashed var(--line);background:var(--ink-3);
-  }
-  .card .stub .num{
-    font-family:'Bebas Neue',sans-serif;color:var(--gold);font-size:14px;font-weight:400;letter-spacing:1.5px;
-  }
-  .card .stub input.nombre{
-    font-family:'League Spartan',sans-serif;font-weight:600;font-size:15px;background:transparent;border:none;
-    color:var(--cream);width:100%;padding:2px 0;
-  }
-  .card .stub input.nombre:focus{outline:none;border-bottom:1px solid var(--gold);}
-  .card .body{padding:14px;display:flex;flex-direction:column;gap:10px;}
-  .field{display:flex;flex-direction:column;gap:4px;}
-  .field label{font-family:'Bebas Neue',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:400;}
-  .field input{width:100%;}
-  .hora-row{display:flex;align-items:center;gap:4px;}
-  .hora-row select{
-    background:var(--ink-2);border:1px solid var(--line);color:var(--cream);
-    border-radius:8px;padding:8px 6px;font-family:'Raleway',sans-serif;font-size:13px;
-    outline:none;flex:1;min-width:0;
-  }
-  .hora-row select:focus{border-color:var(--gold);}
-  .hora-colon{color:var(--muted);font-weight:600;}
-
-  .style-panel{
-    max-width:1180px;margin:0 auto 24px;background:var(--ink-2);border:1px solid var(--line);
-    border-radius:var(--radius);padding:16px 20px;display:flex;flex-direction:column;gap:14px;
-  }
-  .style-panel .lbl{
-    font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.8px;text-transform:uppercase;
-    color:var(--gold);
-  }
-  .style-fields{display:flex;gap:22px;flex-wrap:wrap;}
-  .drag-preview-wrap{
-    position:relative;width:100%;max-width:420px;min-height:140px;border-radius:10px;
-    overflow:hidden;border:1px solid var(--line);background:var(--ink-3);
-  }
-  .drag-preview-wrap img{width:100%;height:auto;display:block;}
-  .drag-empty{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    text-align:center;padding:16px;font-size:12px;color:var(--muted);font-family:'Raleway',sans-serif;
-  }
-  .drag-label{
-    position:absolute;transform:translate(0,-50%);padding:5px 11px;
-    background:rgba(0,0,0,0.6);border:1.5px dashed var(--gold);border-radius:7px;
-    font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;color:#fff;
-    cursor:grab;user-select:none;white-space:nowrap;touch-action:none;z-index:2;
-  }
-  .drag-label:active{cursor:grabbing;background:rgba(0,0,0,0.8);}
-  .drag-hint{font-size:11.5px;color:var(--muted);font-family:'Raleway',sans-serif;font-style:italic;}
-  .drag-limit{
-    position:absolute;top:0;bottom:0;width:0;border-left:2px dashed rgba(255,204,77,0.6);
-    pointer-events:none;z-index:1;
-  }
-  .drag-limit::after{
-    content:'';position:absolute;top:-1px;left:-3px;width:6px;height:6px;border-radius:50%;
-    background:var(--gold);
-  }
-  .style-controls .width-field{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);white-space:nowrap;}
-  .style-controls input[type=number].width-input{width:48px;}
-  .shadow-toggle{
-    display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);
-    font-family:'Raleway',sans-serif;white-space:nowrap;
-  }
-  .shadow-toggle input{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;}
-  .style-controls input[type=number]{width:56px;}
-  .style-field-group{display:flex;flex-direction:column;gap:6px;}
-  .style-field-title{
-    font-family:'Raleway',sans-serif;font-size:12.5px;font-weight:600;color:var(--cream);
-  }
-  .style-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .style-controls .lines-field{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);white-space:nowrap;}
-  .style-controls input[type=number].lines-input{width:44px;}
-  .style-controls input[type=number]{background:var(--ink-3);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 6px;font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;}
-  .style-controls select{
-    background:var(--ink-3);border:1px solid var(--line);color:var(--cream);
-    border-radius:8px;padding:7px 8px;font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;
-  }
-  .style-controls select:focus{border-color:var(--gold);}
-  .color-dot{
-    -webkit-appearance:none;appearance:none;width:22px;height:22px;flex-shrink:0;
-    padding:0;border:2px solid var(--line);border-radius:50%;cursor:pointer;background:none;
-  }
-  .color-dot::-webkit-color-swatch-wrapper{padding:0;border-radius:50%;}
-  .color-dot::-webkit-color-swatch{border:none;border-radius:50%;}
-  .color-dot::-moz-color-swatch{border:none;border-radius:50%;}
-  .admin-only{display:none;}
-  .preview-wrap{
-    margin-top:2px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--ink-3);
-    position:relative;min-height:120px;
-  }
-  .preview-wrap canvas{width:100%;height:auto;display:block;}
-  .preview-wrap.empty canvas{display:none;}
-  .preview-wrap.empty::after{
-    content:'Sin imagen base';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:12px;color:var(--muted);
-  }
-  .card-actions{display:flex;gap:8px;margin-top:2px;}
-  .card-actions button{flex:1;}
-  .saved-tick{font-size:10.5px;color:var(--gold-dim);opacity:0;transition:opacity .3s ease;height:12px;}
-  .saved-tick.show{opacity:1;}
-  .config-warning{
-    max-width:1180px;margin:0 auto 24px;background:#3a2020;border:1px solid #e88a6c;
-    border-radius:var(--radius);padding:16px 20px;font-size:13px;color:#f3d9d0;line-height:1.5;
-  }
-  .config-warning code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:5px;}
-
-  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
-
-  @media (max-width:640px){
-    .app{padding:20px 14px 40px;}
-    .header{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:20px;}
-    .header > div:first-child{padding-right:52px;}
-    .week-controls{width:100%;}
-    .week-controls select{flex:1;min-width:0;}
-    .base-panel{padding:14px;gap:12px;margin-bottom:20px;}
-    .base-panel .file-btn{width:100%;}
-    .style-panel{padding:14px;}
-    .drag-preview-wrap{max-width:100%;}
-    .drag-label{padding:8px 12px;font-size:13px;}
-    .style-fields{flex-direction:column;gap:12px;}
-    .style-field-group{background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
-    .style-controls{gap:8px;}
-    .style-controls select{flex:1;min-width:120px;}
-    .grid{grid-template-columns:1fr;gap:14px;}
-    /* 16px evita el zoom automático de iOS al enfocar */
-    select, input[type=text], input[type=number], .hora-row select, .card .stub input.nombre, .style-controls select, .style-controls input[type=number]{font-size:16px;}
-    .hora-row select{padding:10px 6px;}
-    button, button.small{min-height:44px;font-size:14px;}
-    .card-actions{flex-direction:column;}
-    .saved-tick{height:14px;}
-  }
-
-  .brand-logo-top{
-    position:absolute;top:22px;right:24px;display:flex;align-items:center;gap:8px;opacity:0.55;
-    transition:opacity .2s ease;
-  }
-  .brand-logo-top:hover{opacity:0.9;}
-  .brand-logo-top img{width:38px;height:38px;display:block;}
-  .brand-logo-top span{
-    font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;
-    text-transform:uppercase;color:var(--muted);white-space:nowrap;
-  }
-  @media (max-width:640px){
-    .brand-logo-top span{display:none;}
-    .brand-logo-top{top:16px;right:16px;}
-  }
-</style>
+    <style>
+        /* Custom scrollbars & canvas handles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f0d0b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a241e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffcc4d;
+        }
+        /* Touch safety on mobile inputs */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        .canvas-container {
+            position: relative;
+            user-select: none;
+        }
+        .draggable-handle {
+            position: absolute;
+            cursor: move;
+            border: 2px dashed #ffcc4d;
+            background: rgba(255, 204, 77, 0.15);
+            border-radius: 6px;
+            padding: 4px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            touch-action: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .draggable-handle:hover, .draggable-handle.active {
+            border-color: #ffffff;
+            background: rgba(255, 204, 77, 0.35);
+        }
+    </style>
 </head>
-<body>
-<div class="app">
-  <div class="brand-logo-top">
-    <img src="data:image/png;base64,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" alt="Roca de Vida Panamá" />
-    <span>Roca de Vida Panamá</span>
-  </div>
-  <div class="header">
-    <div>
-      <div class="eyebrow">Ministerio de Células</div>
-      <h1>Invitaciones semanales</h1>
-      <p class="sub">Cada célula edita su hora y ubicación.</p>
-    </div>
-    <div class="week-controls admin-only" id="weekControls">
-      <select id="weekSelect"></select>
-      <button class="ghost small" id="newWeekBtn">+ Nueva semana</button>
-    </div>
-  </div>
+<body class="bg-brand-dark text-white font-montserrat min-h-screen flex flex-col antialiased">
 
-  <div class="config-warning" id="configWarning" style="display:none;">
-    ⚠️ Falta configurar Firebase. Abre este archivo <code>index.html</code>, busca el bloque
-    <code>const firebaseConfig = { ... }</code> cerca del final, y pega ahí los datos de tu proyecto
-    de Firebase (Configuración del proyecto → tus apps → SDK de Firebase).
-  </div>
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur border-b border-brand-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo / Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-gold to-yellow-200 p-0.5 flex items-center justify-center shadow-lg shadow-brand-gold/10">
+                    <div class="w-full h-full bg-brand-dark rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-cross text-brand-gold text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-spartan font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        ROCA DE VIDA <span class="text-brand-gold text-xs px-2 py-0.5 bg-brand-gold/10 rounded-full border border-brand-gold/30">PANAMÁ</span>
+                    </h1>
+                    <p class="text-xs text-brand-sec">Gestor de Invitaciones de Células</p>
+                </div>
+            </div>
 
-  <div class="base-panel admin-only" id="basePanel">
-    <img class="thumb" id="baseThumb" style="display:none;" />
-    <div class="thumb empty" id="baseThumbEmpty">sin imagen</div>
-    <div class="info">
-      <div class="lbl">Imagen base de esta semana</div>
-      <div class="name" id="baseName">Ninguna imagen subida todavía</div>
-    </div>
-    <button class="primary file-btn" id="uploadBtnLabel">
-      Subir / reemplazar imagen
-      <input type="file" id="uploadInput" accept="image/*" />
-    </button>
-  </div>
-
-  <div class="style-panel admin-only" id="stylePanel">
-    <span class="lbl">Editor de texto sobre la imagen (aplica a las 25 tarjetas)</span>
-
-    <div class="drag-preview-wrap" id="dragPreviewWrap">
-      <img id="dragPreviewImg" alt="" />
-      <div class="drag-empty" id="dragEmptyMsg">Sube una imagen para poder ubicar los textos</div>
-      <div class="drag-limit" data-key="nombre"></div>
-      <div class="drag-limit" data-key="hora"></div>
-      <div class="drag-limit" data-key="direccion"></div>
-      <div class="drag-label" data-key="nombre">Nombre</div>
-      <div class="drag-label" data-key="hora">Hora</div>
-      <div class="drag-label" data-key="direccion">Dirección</div>
-    </div>
-    <span class="drag-hint">Arrastra cada etiqueta a la posición exacta que quieras dentro de la imagen. La línea punteada dorada marca el límite de ancho: el texto se ajusta dentro de ese cuadro y, si supera el máximo de líneas, la letra se reduce sola para no desbordarse.</span>
-
-    <div class="style-fields">
-      <div class="style-field-group">
-        <div class="style-field-title">Nombre de célula</div>
-        <div class="style-controls">
-          <input type="color" class="color-dot" id="colorNombreInput" value="#ffcc4d" title="Color" />
-          <select id="fontNombreInput" title="Tipo de letra">
-            <option value="League Spartan">League Spartan</option>
-            <option value="Bebas Neue">Bebas Neue</option>
-            <option value="Raleway">Raleway</option>
-            <option value="Playfair Display">Playfair Display</option>
-            <option value="Montserrat">Montserrat</option>
-            <option value="Oswald">Oswald</option>
-            <option value="Poppins">Poppins</option>
-          </select>
-          <input type="number" id="sizeNombreInput" min="20" max="150" step="1" title="Tamaño" />
-          <label class="width-field">Ancho
-            <input type="number" class="width-input" id="widthNombreInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
-          </label>
-          <select id="alignNombreInput" title="Alineación del texto">
-            <option value="justify">Justificado</option>
-            <option value="left">Izquierda</option>
-            <option value="center">Centrado</option>
-            <option value="right">Derecha</option>
-          </select>
-          <label class="lines-field">Líneas
-            <input type="number" class="lines-input" id="linesNombreInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
-          </label>
-          <label class="shadow-toggle"><input type="checkbox" id="shadowNombreInput" /> Sombra</label>
+            <!-- Header Controls & Mode Switcher -->
+            <div class="flex items-center space-x-3">
+                <span id="currentWeekBadge" class="hidden md:inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-brand-border text-brand-gold border border-brand-gold/20">
+                    <i class="fa-regular fa-calendar-check mr-2"></i> <span id="weekNameDisplay">Semana Actual</span>
+                </span>
+                
+                <button id="toggleAdminBtn" onclick="toggleAdminView()" class="relative inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 border border-brand-gold/40 bg-brand-card hover:bg-brand-border text-brand-gold shadow-md">
+                    <i class="fa-solid fa-sliders mr-2"></i>
+                    <span id="adminBtnText">Modo Admin</span>
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="style-field-group">
-        <div class="style-field-title">Hora</div>
-        <div class="style-controls">
-          <input type="color" class="color-dot" id="colorHoraInput" value="#ffffff" title="Color" />
-          <select id="fontHoraInput" title="Tipo de letra">
-            <option value="League Spartan">League Spartan</option>
-            <option value="Bebas Neue">Bebas Neue</option>
-            <option value="Raleway">Raleway</option>
-            <option value="Playfair Display">Playfair Display</option>
-            <option value="Montserrat">Montserrat</option>
-            <option value="Oswald">Oswald</option>
-            <option value="Poppins">Poppins</option>
-          </select>
-          <input type="number" id="sizeHoraInput" min="14" max="100" step="1" title="Tamaño" />
-          <label class="width-field">Ancho
-            <input type="number" class="width-input" id="widthHoraInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
-          </label>
-          <select id="alignHoraInput" title="Alineación del texto">
-            <option value="justify">Justificado</option>
-            <option value="left">Izquierda</option>
-            <option value="center">Centrado</option>
-            <option value="right">Derecha</option>
-          </select>
-          <label class="lines-field">Líneas
-            <input type="number" class="lines-input" id="linesHoraInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
-          </label>
-          <label class="shadow-toggle"><input type="checkbox" id="shadowHoraInput" /> Sombra</label>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- PUBLIC USER VIEW HEADER / FILTERS -->
+        <div id="userHeaderSection" class="mb-8 bg-brand-card p-6 rounded-2xl border border-brand-border shadow-xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold font-spartan text-white">Tarjetas Personalizables</h2>
+                    <p class="text-sm text-brand-sec mt-1">Selecciona tu célula, ingresa el horario y dirección para descargar tu tarjeta de invitación semanal en alta calidad.</p>
+                </div>
+                <!-- Search Input -->
+                <div class="relative min-w-[260px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-brand-sec"></i>
+                    <input type="text" id="searchInput" oninput="filterCells()" placeholder="Buscar célula..." class="w-full pl-10 pr-4 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-sm text-white placeholder-brand-sec/60 focus:outline-none focus:border-brand-gold transition">
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="style-field-group">
-        <div class="style-field-title">Dirección</div>
-        <div class="style-controls">
-          <input type="color" class="color-dot" id="colorUbicacionInput" value="#ffffff" title="Color" />
-          <select id="fontDireccionInput" title="Tipo de letra">
-            <option value="League Spartan">League Spartan</option>
-            <option value="Bebas Neue">Bebas Neue</option>
-            <option value="Raleway">Raleway</option>
-            <option value="Playfair Display">Playfair Display</option>
-            <option value="Montserrat">Montserrat</option>
-            <option value="Oswald">Oswald</option>
-            <option value="Poppins">Poppins</option>
-          </select>
-          <input type="number" id="sizeDireccionInput" min="14" max="100" step="1" title="Tamaño" />
-          <label class="width-field">Ancho
-            <input type="number" class="width-input" id="widthDireccionInput" min="10" max="95" step="1" title="Ancho máximo del texto (%) antes de saltar de línea" />%
-          </label>
-          <select id="alignDireccionInput" title="Alineación del texto">
-            <option value="justify">Justificado</option>
-            <option value="left">Izquierda</option>
-            <option value="center">Centrado</option>
-            <option value="right">Derecha</option>
-          </select>
-          <label class="lines-field">Líneas
-            <input type="number" class="lines-input" id="linesDireccionInput" min="1" max="6" step="1" title="Máximo de líneas. Si el texto no cabe, la letra se reduce automáticamente." />
-          </label>
-          <label class="shadow-toggle"><input type="checkbox" id="shadowDireccionInput" /> Sombra</label>
+
+        <!-- ADMIN CONFIGURATION PANEL (Hidden by Default) -->
+        <div id="adminPanel" class="hidden mb-10 bg-brand-card rounded-2xl border border-brand-gold/30 p-6 shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-brand-border pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-brand-gold/10 rounded-lg text-brand-gold">
+                        <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white font-spartan">Panel de Administración de Plantilla</h2>
+                        <p class="text-xs text-brand-sec">Ajusta la imagen de fondo semanal y configura la posición y estilos del texto.</p>
+                    </div>
+                </div>
+                <button onclick="saveAdminSettings()" class="px-5 py-2.5 bg-brand-gold text-brand-dark font-bold text-sm rounded-xl hover:bg-brand-goldHover transition flex items-center gap-2 shadow-lg shadow-brand-gold/20">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Controls -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- Week Title & Background Image Upload -->
+                    <div class="bg-brand-dark/60 p-4 rounded-xl border border-brand-border space-y-4">
+                        <h3 class="text-sm font-semibold text-brand-gold uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-regular fa-image"></i> 1. Plantilla e Información Semanal
+                        </h3>
+                        
+                        <div>
+                            <label class="block text-xs text-brand-sec mb-1">Nombre / Título de la Semana</label>
+                            <input type="text" id="adminWeekName" oninput="updateConfigFromForm()" class="w-full px-3 py-2 bg-brand-card border border-brand-border rounded-lg text-sm text-white focus:outline-none focus:border-brand-gold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-brand-sec mb-1">Imagen de Fondo Base</label>
+                            <div id="dropZone" class="border-2 border-dashed border-brand-border hover:border-brand-gold rounded-xl p-4 text-center cursor-pointer transition bg-brand-card/50">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-sec mb-2"></i>
+                                <p class="text-xs text-white">Haz clic o arrastra una imagen aquí</p>
+                                <p class="text-[10px] text-brand-sec mt-1">Formatos sugeridos: JPG, PNG (1080x1350 px)</p>
+                                <input type="file" id="bgImageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Typography & Formatting Controls -->
+                    <div class="bg-brand-dark/60 p-4 rounded-xl border border-brand-border space-y-4">
+                        <h3 class="text-sm font-semibold text-brand-gold uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-font"></i> 2. Estilos Globales de Texto
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Tipografía Base</label>
+                                <select id="adminFontFamily" onchange="updateConfigFromForm()" class="w-full px-3 py-2 bg-brand-card border border-brand-border rounded-lg text-xs text-white focus:outline-none focus:border-brand-gold">
+                                    <option value="League Spartan">League Spartan</option>
+                                    <option value="Bebas Neue">Bebas Neue</option>
+                                    <option value="Raleway">Raleway</option>
+                                    <option value="Playfair Display">Playfair Display</option>
+                                    <option value="Montserrat">Montserrat</option>
+                                    <option value="Oswald">Oswald</option>
+                                    <option value="Poppins">Poppins</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Color del Texto</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="adminTextColor" onchange="updateConfigFromForm()" class="h-9 w-12 bg-transparent rounded cursor-pointer border border-brand-border p-1">
+                                    <input type="text" id="adminTextColorHex" onchange="syncColorInput(this.value)" class="flex-1 px-2 py-1 bg-brand-card border border-brand-border rounded text-xs text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Tamaño Título (px)</label>
+                                <input type="number" id="adminTitleFontSize" min="16" max="120" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Tamaño Detalles (px)</label>
+                                <input type="number" id="adminDetailFontSize" min="12" max="80" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Alineación</label>
+                                <select id="adminTextAlign" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
+                                    <option value="center">Centrado</option>
+                                    <option value="left">Izquierda</option>
+                                    <option value="right">Derecha</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-brand-sec mb-1">Máx. Líneas Dirección</label>
+                                <input type="number" id="adminMaxLines" min="1" max="5" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs text-brand-sec">Activar Sombra Paralela</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="adminTextShadow" onchange="updateConfigFromForm()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-brand-card peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-gold"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Editor / Drag Canvas -->
+                <div class="lg:col-span-7 flex flex-col items-center justify-center bg-brand-dark/80 p-6 rounded-xl border border-brand-border relative">
+                    <div class="w-full flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-brand-gold flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-up-down-left-right"></i> Posicionamiento Visual Interactivo
+                        </span>
+                        <span class="text-[11px] text-brand-sec">Arrastra las etiquetas sobre la vista previa</span>
+                    </div>
+
+                    <!-- Canvas Wrapper -->
+                    <div id="interactiveCanvasWrapper" class="canvas-container relative max-w-sm w-full bg-black rounded-lg overflow-hidden border border-brand-border shadow-2xl">
+                        <canvas id="adminPreviewCanvas" class="w-full h-auto block"></canvas>
+
+                        <!-- Draggable Overlay Elements -->
+                        <div id="dragTitle" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
+                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragTitleLabel">Nombre Célula</span>
+                        </div>
+                        <div id="dragTime" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
+                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragTimeLabel">Hora y Día</span>
+                        </div>
+                        <div id="dragAddress" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
+                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragAddressLabel">Dirección</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- PUBLIC CARDS GRID -->
+        <div id="cellsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic cell cards inserted via JS -->
+        </div>
+
+        <!-- Empty state fallback -->
+        <div id="noResults" class="hidden text-center py-16 bg-brand-card rounded-2xl border border-brand-border">
+            <i class="fa-solid fa-circle-exclamation text-4xl text-brand-sec mb-3"></i>
+            <h3 class="text-lg font-bold text-white">No se encontraron células</h3>
+            <p class="text-sm text-brand-sec mt-1">Prueba con otro término de búsqueda.</p>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-brand-border bg-brand-dark mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-brand-sec space-y-2">
+            <p>© <span id="yearSpan"></span> Iglesia Roca de Vida Panamá. Todos los derechos reservados.</p>
+            <p class="text-[11px] opacity-75">Diseñado para la edificación y crecimiento del cuerpo de Cristo.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-brand-card border border-brand-gold/40 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-brand-gold text-lg"></i>
+        <span id="toastMessage" class="text-xs font-semibold">Configuración guardada</span>
     </div>
-  </div>
 
-  <div class="status" id="statusLine"></div>
+    <script>
+        // ------------------------------------------------------------------
+        // 1. DATA & INITIAL STATE
+        // ------------------------------------------------------------------
+        const DEFAULT_CELLS = [
+            'Célula La Chorrera', 'Célula Las Acacias (Arraiján)', 'Célula Bello Horizonte',
+            'San Antonio', 'Punta del Este', 'Villas Don Bosco', 'Célula Fe Sin Fronteras',
+            'Villa Zaita', 'San Francisco', 'Brisas Del Golf', 'Parque Lefevre', 'La Locería',
+            'Célula Las Villas de Arraiján', 'Tocumen', 'Obarrio', 'La Cascada', 'Juan Pablo II',
+            'Cerro Viento', 'Célula Versalles', 'La Cascada de Arraiján', 'Célula Parque Real',
+            'Ernesto T. Lefevre', 'Próxima Célula #23', 'Próxima Célula #24', 'Próxima Célula #25'
+        ];
 
-  <div class="grid" id="grid"></div>
-</div>
+        // Default Config Settings
+        const DEFAULT_CONFIG = {
+            weekName: 'Semana de Impacto y Bendición',
+            bgImage: '', // Fallback generated on load if empty
+            fontFamily: 'League Spartan',
+            textColor: '#ffffff',
+            titleFontSize: 54,
+            detailFontSize: 36,
+            textAlign: 'center',
+            maxLines: 2,
+            textShadow: true,
+            positions: {
+                title: { x: 0.5, y: 0.60 },
+                time: { x: 0.5, y: 0.72 },
+                address: { x: 0.5, y: 0.82 }
+            }
+        };
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Application State
+        let config = { ...DEFAULT_CONFIG };
+        let cellsData = [];
+        let loadedBgImage = null;
+        let isAdminMode = false;
+        let activeDragElement = null;
 
-/* =======================================================================
-   PEGA AQUI TU CONFIGURACION DE FIREBASE
-   (Firebase console -> Configuración del proyecto -> tus apps -> SDK)
-   ======================================================================= */
+        // ------------------------------------------------------------------
+        // 2. LOCAL STORAGE & INITIALIZATION
+        // ------------------------------------------------------------------
+        function initApp() {
+            document.getElementById('yearSpan').textContent = new Date().getFullYear();
+
+            // Load saved config
+            const savedConfig = localStorage.getItem('roca_cell_config');
+            if (savedConfig) {
+                try { config = JSON.parse(savedConfig); } catch(e) { console.error(e); }
+            }
+
+            // Load saved cell user inputs
+            const savedCells = localStorage.getItem('roca_cell_data');
+            if (savedCells) {
+                try { cellsData = JSON.parse(savedCells); } catch(e) { console.error(e); }
+            } else {
+                cellsData = DEFAULT_CELLS.map((name, idx) => ({
+                    id: idx + 1,
+                    name: name,
+                    day: 'Miércoles',
+                    time: '07:30',
+                    ampm: 'PM',
+                    address: 'Calle principal, Casa #123'
+                }));
+            }
+
+            // Set up background image
+            if (config.bgImage) {
+                loadBgImageSrc(config.bgImage);
+            } else {
+                generateDefaultTemplateImage();
+            }
+
+            // Drag and drop listeners
+            setupDragAndDrop();
+            setupInteractiveHandles();
+            
+            // Sync Admin inputs with Config
+            populateAdminForm();
+        }
+
+        function saveStateToLocalStorage() {
+            localStorage.setItem('roca_cell_config', JSON.stringify(config));
+            localStorage.setItem('roca_cell_data', JSON.stringify(cellsData));
+        }
+
+        // Generate a elegant dark background template if user hasn't uploaded an image yet
+        function generateDefaultTemplateImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1350;
+            const ctx = canvas.getContext('2d');
+
+            // Dark gradient
+            const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
+            grad.addColorStop(0, '#15120e');
+            grad.addColorStop(0.5, '#0f0d0b');
+            grad.addColorStop(1, '#050403');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1080, 1350);
+
+            // Gold decorative elements
+            ctx.strokeStyle = '#ffcc4d';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(40, 40, 1000, 1270);
+            
+            ctx.lineWidth = 1;
+            ctx.strokeRect(55, 55, 970, 1240);
+
+            // Subtle Cross / Header graphics
+            ctx.fillStyle = '#ffcc4d';
+            ctx.font = 'bold 32px Montserrat';
+            ctx.textAlign = 'center';
+            ctx.fillText('IGLESIA ROCA DE VIDA PANAMÁ', 540, 140);
+
+            ctx.fillStyle = '#c8ad8f';
+            ctx.font = '24px Montserrat';
+            ctx.fillText('TE INVITAMOS A NUESTRA CÉLULA', 540, 180);
+
+            // Divider
+            ctx.beginPath();
+            ctx.moveTo(340, 220);
+            ctx.lineTo(740, 220);
+            ctx.strokeStyle = '#ffcc4d';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            const dataUrl = canvas.toDataURL('image/png');
+            config.bgImage = dataUrl;
+            loadBgImageSrc(dataUrl);
+        }
+
+        function loadBgImageSrc(src) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                loadedBgImage = img;
+                renderAllCellCards();
+                if (isAdminMode) renderAdminPreview();
+            };
+            img.src = src;
+        }
+
+        // ------------------------------------------------------------------
+        // 3. RENDER PUBLIC CELLS & CARD CANVAS
+        // ------------------------------------------------------------------
+        function renderAllCellCards() {
+            const grid = document.getElementById('cellsGrid');
+            grid.innerHTML = '';
+
+            document.getElementById('weekNameDisplay').textContent = config.weekName || 'Semana de Célula';
+
+            cellsData.forEach((cell, index) => {
+                const card = document.createElement('div');
+                card.className = 'cell-card bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-xl hover:border-brand-gold/40 transition duration-300 flex flex-col';
+                card.dataset.name = cell.name.toLowerCase();
+
+                card.innerHTML = `
+                    <div class="p-4 bg-brand-dark/40 border-b border-brand-border flex items-center justify-between">
+                        <h3 class="font-bold text-base text-white font-spartan truncate" title="${cell.name}">${cell.name}</h3>
+                        <span class="text-[10px] bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/20 font-semibold">#${cell.id}</span>
+                    </div>
+
+                    <!-- Canvas Preview -->
+                    <div class="p-4 bg-black/40 flex justify-center items-center">
+                        <canvas id="cellCanvas_${cell.id}" class="max-w-full h-auto rounded-lg border border-brand-border shadow-md"></canvas>
+                    </div>
+
+                    <!-- Form Controls -->
+                    <div class="p-4 space-y-3 flex-1 flex flex-col justify-between bg-brand-card">
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-12 gap-2">
+                                <div class="col-span-5">
+                                    <label class="block text-[11px] text-brand-sec mb-1">Día</label>
+                                    <select onchange="updateCellData(${index}, 'day', this.value)" class="w-full px-2 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
+                                        <option value="Lunes" ${cell.day === 'Lunes' ? 'selected' : ''}>Lunes</option>
+                                        <option value="Martes" ${cell.day === 'Martes' ? 'selected' : ''}>Martes</option>
+                                        <option value="Miércoles" ${cell.day === 'Miércoles' ? 'selected' : ''}>Miércoles</option>
+                                        <option value="Jueves" ${cell.day === 'Jueves' ? 'selected' : ''}>Jueves</option>
+                                        <option value="Viernes" ${cell.day === 'Viernes' ? 'selected' : ''}>Viernes</option>
+                                        <option value="Sábado" ${cell.day === 'Sábado' ? 'selected' : ''}>Sábado</option>
+                                        <option value="Domingo" ${cell.day === 'Domingo' ? 'selected' : ''}>Domingo</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-4">
+                                    <label class="block text-[11px] text-brand-sec mb-1">Hora</label>
+                                    <input type="text" value="${cell.time}" oninput="updateCellData(${index}, 'time', this.value)" placeholder="07:30" class="w-full px-2 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
+                                </div>
+                                <div class="col-span-3">
+                                    <label class="block text-[11px] text-brand-sec mb-1">AM/PM</label>
+                                    <select onchange="updateCellData(${index}, 'ampm', this.value)" class="w-full px-1 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
+                                        <option value="AM" ${cell.ampm === 'AM' ? 'selected' : ''}>AM</option>
+                                        <option value="PM" ${cell.ampm === 'PM' ? 'selected' : ''}>PM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] text-brand-sec mb-1">Ubicación / Dirección</label>
+                                <textarea rows="2" oninput="updateCellData(${index}, 'address', this.value)" placeholder="Escribe la dirección..." class="w-full px-2.5 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none resize-none">${cell.address}</textarea>
+                            </div>
+                        </div>
+
+                        <button onclick="downloadCellCard(${cell.id})" class="w-full mt-2 py-2.5 bg-gradient-to-r from-brand-gold to-yellow-400 text-brand-dark font-bold text-xs rounded-xl hover:brightness-110 transition flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/10">
+                            <i class="fa-solid fa-download"></i> Descargar Invitación
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+                
+                // Draw individual canvas preview
+                setTimeout(() => drawCardCanvas(`cellCanvas_${cell.id}`, cell), 50);
+            });
+        }
+
+        function updateCellData(index, key, value) {
+            cellsData[index][key] = value;
+            saveStateToLocalStorage();
+            drawCardCanvas(`cellCanvas_${cellsData[index].id}`, cellsData[index]);
+        }
+
+        // ------------------------------------------------------------------
+        // 4. CANVAS CORE DRAWING ENGINE
+        // ------------------------------------------------------------------
+        function drawCardCanvas(canvasId, cell) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            
+            // High Resolution standard: 1080x1350
+            const W = 1080;
+            const H = 1350;
+            canvas.width = W;
+            canvas.height = H;
+
+            // Draw Background Image
+            if (loadedBgImage) {
+                ctx.drawImage(loadedBgImage, 0, 0, W, H);
+            } else {
+                ctx.fillStyle = '#181512';
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            // Setup Text Styles
+            const fontName = config.fontFamily || 'League Spartan';
+            const color = config.textColor || '#ffffff';
+            const align = config.textAlign || 'center';
+
+            ctx.textAlign = align;
+            ctx.fillStyle = color;
+
+            if (config.textShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+            } else {
+                ctx.shadowColor = 'transparent';
+            }
+
+            // Calculate exact position coordinates
+            function getX(relX) {
+                if (align === 'left') return W * 0.1;
+                if (align === 'right') return W * 0.9;
+                return W * relX;
+            }
+
+            // 1. Draw Cell Title
+            ctx.font = `bold ${config.titleFontSize * 1.5}px "${fontName}", sans-serif`;
+            const titleX = getX(config.positions.title.x);
+            const titleY = H * config.positions.title.y;
+            ctx.fillText(cell.name.toUpperCase(), titleX, titleY);
+
+            // 2. Draw Day & Time
+            ctx.font = `600 ${config.detailFontSize * 1.3}px "${fontName}", sans-serif`;
+            const timeX = getX(config.positions.time.x);
+            const timeY = H * config.positions.time.y;
+            const timeText = `📅 ${cell.day} - ⏰ ${cell.time} ${cell.ampm}`;
+            ctx.fillText(timeText, timeX, timeY);
+
+            // 3. Draw Address with auto line wrapping
+            ctx.font = `500 ${config.detailFontSize * 1.1}px "${fontName}", sans-serif`;
+            const addressX = getX(config.positions.address.x);
+            const addressY = H * config.positions.address.y;
+            const maxLineWidth = W * 0.8;
+            const lineHeight = config.detailFontSize * 1.4;
+
+            wrapText(ctx, `📍 ${cell.address}`, addressX, addressY, maxLineWidth, lineHeight, config.maxLines);
+        }
+
+        // Helper function for canvas text wrapping
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+            let lineCount = 0;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                    lineCount++;
+                    if (lineCount >= maxLines - 1) {
+                        // Ellipsis for excess lines
+                        let remaining = words.slice(n).join(' ');
+                        while (ctx.measureText(remaining + '...').width > maxWidth && remaining.length > 0) {
+                            remaining = remaining.substring(0, remaining.length - 1);
+                        }
+                        ctx.fillText(remaining + '...', x, currentY);
+                        return;
+                    }
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+        }
+
+        // ------------------------------------------------------------------
+        // 5. DOWNLOAD CARD FUNCTION
+        // ------------------------------------------------------------------
+        function downloadCellCard(cellId) {
+            const sourceCanvas = document.getElementById(`cellCanvas_${cellId}`);
+            if (!sourceCanvas) return;
+
+            const cell = cellsData.find(c => c.id === cellId);
+            const fileName = `Invitacion_${cell.name.replace(/[^a-zA-Z0-0]/g, '_')}.png`;
+
+            // Trigger download via hidden anchor
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = sourceCanvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast(`¡Tarjeta de ${cell.name} descargada!`);
+        }
+
+        // ------------------------------------------------------------------
+        // 6. SEARCH & FILTERING
+        // ------------------------------------------------------------------
+        function filterCells() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.cell-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                if (name.includes(query)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('noResults').classList.toggle('hidden', visibleCount > 0);
+        }
+
+        // ------------------------------------------------------------------
+        // 7. ADMIN MODE & INTERACTIVE DRAG HANDLES
+        // ------------------------------------------------------------------
+        function toggleAdminView() {
+            isAdminMode = !isAdminMode;
+            const adminPanel = document.getElementById('adminPanel');
+            const userHeaderSection = document.getElementById('userHeaderSection');
+            const adminBtnText = document.getElementById('adminBtnText');
+
+            if (isAdminMode) {
+                adminPanel.classList.remove('hidden');
+                userHeaderSection.classList.add('opacity-50', 'pointer-events-none');
+                adminBtnText.textContent = 'Ver Vista Pública';
+                populateAdminForm();
+                renderAdminPreview();
+                showToast('Modo Administración Activado');
+            } else {
+                adminPanel.classList.add('hidden');
+                userHeaderSection.classList.remove('opacity-50', 'pointer-events-none');
+                adminBtnText.textContent = 'Modo Admin';
+                renderAllCellCards();
+            }
+        }
+
+        function populateAdminForm() {
+            document.getElementById('adminWeekName').value = config.weekName || '';
+            document.getElementById('adminFontFamily').value = config.fontFamily || 'League Spartan';
+            document.getElementById('adminTextColor').value = config.textColor || '#ffffff';
+            document.getElementById('adminTextColorHex').value = config.textColor || '#ffffff';
+            document.getElementById('adminTitleFontSize').value = config.titleFontSize || 54;
+            document.getElementById('adminDetailFontSize').value = config.detailFontSize || 36;
+            document.getElementById('adminTextAlign').value = config.textAlign || 'center';
+            document.getElementById('adminMaxLines').value = config.maxLines || 2;
+            document.getElementById('adminTextShadow').checked = config.textShadow;
+        }
+
+        function syncColorInput(hex) {
+            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                document.getElementById('adminTextColor').value = hex;
+                updateConfigFromForm();
+            }
+        }
+
+        function updateConfigFromForm() {
+            config.weekName = document.getElementById('adminWeekName').value;
+            config.fontFamily = document.getElementById('adminFontFamily').value;
+            config.textColor = document.getElementById('adminTextColor').value;
+            document.getElementById('adminTextColorHex').value = config.textColor;
+            config.titleFontSize = parseInt(document.getElementById('adminTitleFontSize').value) || 54;
+            config.detailFontSize = parseInt(document.getElementById('adminDetailFontSize').value) || 36;
+            config.textAlign = document.getElementById('adminTextAlign').value;
+            config.maxLines = parseInt(document.getElementById('adminMaxLines').value) || 2;
+            config.textShadow = document.getElementById('adminTextShadow').checked;
+
+            renderAdminPreview();
+        }
+
+        function renderAdminPreview() {
+            // Render on the admin preview canvas using sample data
+            const sampleCell = {
+                id: 0,
+                name: 'CÉLULA DE EJEMPLO',
+                day: 'Miércoles',
+                time: '07:30',
+                ampm: 'PM',
+                address: 'Ejemplo de Dirección, San Francisco, Calle 50'
+            };
+
+            drawCardCanvas('adminPreviewCanvas', sampleCell);
+            positionDragHandles();
+        }
+
+        // Position HTML draggable overlay handles over canvas
+        function positionDragHandles() {
+            const wrapper = document.getElementById('interactiveCanvasWrapper');
+            const rect = wrapper.getBoundingClientRect();
+
+            if (!rect.width || !rect.height) return;
+
+            const titleH = document.getElementById('dragTitle');
+            const timeH = document.getElementById('dragTime');
+            const addressH = document.getElementById('dragAddress');
+
+            // Convert relative percentages (0.0 to 1.0) to pixels inside wrapper
+            titleH.style.left = `${config.positions.title.x * 100}%`;
+            titleH.style.top = `${config.positions.title.y * 100}%`;
+            titleH.style.transform = 'translate(-50%, -50%)';
+
+            timeH.style.left = `${config.positions.time.x * 100}%`;
+            timeH.style.top = `${config.positions.time.y * 100}%`;
+            timeH.style.transform = 'translate(-50%, -50%)';
+
+            addressH.style.left = `${config.positions.address.x * 100}%`;
+            addressH.style.top = `${config.positions.address.y * 100}%`;
+            addressH.style.transform = 'translate(-50%, -50%)';
+        }
+
+        // ------------------------------------------------------------------
+        // 8. INTERACTIVE DRAG ENGINE FOR TEXT POSITIONS
+        // ------------------------------------------------------------------
+        function setupInteractiveHandles() {
+            const handles = [
+                { id: 'dragTitle', key: 'title' },
+                { id: 'dragTime', key: 'time' },
+                { id: 'dragAddress', key: 'address' }
+            ];
+
+            handles.forEach(item => {
+                const el = document.getElementById(item.id);
+
+                const startDrag = (e) => {
+                    e.preventDefault();
+                    activeDragElement = { el, key: item.key };
+                    el.classList.add('active');
+
+                    window.addEventListener('mousemove', onDrag);
+                    window.addEventListener('mouseup', stopDrag);
+                    window.addEventListener('touchmove', onDrag, { passive: false });
+                    window.addEventListener('touchend', stopDrag);
+                };
+
+                el.addEventListener('mousedown', startDrag);
+                el.addEventListener('touchstart', startDrag, { passive: false });
+            });
+        }
+
+        function onDrag(e) {
+            if (!activeDragElement) return;
+            e.preventDefault();
+
+            const wrapper = document.getElementById('interactiveCanvasWrapper');
+            const rect = wrapper.getBoundingClientRect();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // Calculate position relative to canvas wrapper
+            let relX = (clientX - rect.left) / rect.width;
+            let relY = (clientY - rect.top) / rect.height;
+
+            // Clamp bounds
+            relX = Math.max(0.05, Math.min(0.95, relX));
+            relY = Math.max(0.05, Math.min(0.95, relY));
+
+            config.positions[activeDragElement.key] = { x: relX, y: relY };
+
+            positionDragHandles();
+            renderAdminPreview();
+        }
+
+        function stopDrag() {
+            if (activeDragElement) {
+                activeDragElement.el.classList.remove('active');
+                activeDragElement = null;
+            }
+            window.removeEventListener('mousemove', onDrag);
+            window.removeEventListener('mouseup', stopDrag);
+            window.removeEventListener('touchmove', onDrag);
+            window.removeEventListener('touchend', stopDrag);
+        }
+
+        // ------------------------------------------------------------------
+        // 9. IMAGE UPLOAD & DRAG & DROP
+        // ------------------------------------------------------------------
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('bgImageInput');
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-brand-gold', 'bg-brand-gold/10');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-brand-gold', 'bg-brand-gold/10');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length) handleFile(files[0]);
+            });
+        }
+
+        function handleImageUpload(e) {
+            const files = e.target.files;
+            if (files.length) handleFile(files[0]);
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor selecciona una imagen válida');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                config.bgImage = e.target.result;
+                loadBgImageSrc(e.target.result);
+                showToast('Imagen cargada con éxito');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveAdminSettings() {
+            saveStateToLocalStorage();
+            renderAllCellCards();
+            showToast('¡Configuración guardada correctamente!');
+        }
+
+        // ------------------------------------------------------------------
+        // 10. TOAST NOTIFICATIONS
+        // ------------------------------------------------------------------
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyB0fQXXlHQjRCOnvTvkbjsgAuRQ2JBPZBk",
   authDomain: "celular-rdv.firebaseapp.com",
   projectId: "celular-rdv",
   storageBucket: "celular-rdv.firebasestorage.app",
   messagingSenderId: "830620018609",
-  appId: "1:830620018609:web:154e90874b83cfe00a7f90"
+  appId: "1:830620018609:web:154e90874b83cfe00a7f90",
+  measurementId: "G-4Y8PW9QR7W"
 };
-/* ======================================================================= */
 
-const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith('PON_'));
-if(!isConfigured){
-  document.getElementById('configWarning').style.display = 'block';
-}
-
-let db = null;
-if(isConfigured){
-  const fbApp = initializeApp(firebaseConfig);
-  db = getFirestore(fbApp);
-}
-
-const NUM_CELULAS = 25;
-const FIXED_NAMES = [
-  'Célula La Chorrera',
-  'Célula Las Acacias (Arraiján)',
-  'Célula Bello Horizonte',
-  'San Antonio',
-  'Punta del Este',
-  'Villas Don Bosco',
-  'Célula Fe Sin Fronteras',
-  'Villa Zaita',
-  'San Francisco',
-  'Brisas Del Golf',
-  'Parque Lefevre',
-  'La Locería',
-  'Célula Las Villas de Arraiján',
-  'Tocumen',
-  'Obarrio',
-  'La Cascada',
-  'Juan Pablo II',
-  'Cerro Viento',
-  'Célula Versalles',
-  'La Cascada de Arraiján',
-  'Célula Parque Real',
-  'Ernesto T. Lefevre',
-  'Próxima Célula',
-  'Próxima Célula',
-  'Próxima Célula'
-];
-const gridEl = document.getElementById('grid');
-const weekSelect = document.getElementById('weekSelect');
-const newWeekBtn = document.getElementById('newWeekBtn');
-const uploadInput = document.getElementById('uploadInput');
-const baseThumb = document.getElementById('baseThumb');
-const baseThumbEmpty = document.getElementById('baseThumbEmpty');
-const baseName = document.getElementById('baseName');
-const statusLine = document.getElementById('statusLine');
-const colorNombreInput = document.getElementById('colorNombreInput');
-const colorHoraInput = document.getElementById('colorHoraInput');
-const colorUbicacionInput = document.getElementById('colorUbicacionInput');
-const fontNombreInput = document.getElementById('fontNombreInput');
-const sizeNombreInput = document.getElementById('sizeNombreInput');
-const widthNombreInput = document.getElementById('widthNombreInput');
-const shadowNombreInput = document.getElementById('shadowNombreInput');
-const fontHoraInput = document.getElementById('fontHoraInput');
-const sizeHoraInput = document.getElementById('sizeHoraInput');
-const widthHoraInput = document.getElementById('widthHoraInput');
-const shadowHoraInput = document.getElementById('shadowHoraInput');
-const fontDireccionInput = document.getElementById('fontDireccionInput');
-const sizeDireccionInput = document.getElementById('sizeDireccionInput');
-const widthDireccionInput = document.getElementById('widthDireccionInput');
-const shadowDireccionInput = document.getElementById('shadowDireccionInput');
-const alignNombreInput = document.getElementById('alignNombreInput');
-const alignHoraInput = document.getElementById('alignHoraInput');
-const alignDireccionInput = document.getElementById('alignDireccionInput');
-const linesNombreInput = document.getElementById('linesNombreInput');
-const linesHoraInput = document.getElementById('linesHoraInput');
-const linesDireccionInput = document.getElementById('linesDireccionInput');
-const dragPreviewWrap = document.getElementById('dragPreviewWrap');
-const dragPreviewImg = document.getElementById('dragPreviewImg');
-const dragEmptyMsg = document.getElementById('dragEmptyMsg');
-
-let weeks = [];          // [{key,label}]
-let currentWeekKey = null;
-let currentImage = null; // download URL
-let celulas = {};        // {1:{nombre,hora,ubicacion}, ...}
-let globalStyle = {
-  colorNombre: '#ffcc4d', colorHora: '#ffffff', colorUbicacion: '#ffffff',
-  fontNombre: 'League Spartan', fontHora: 'Raleway', fontDireccion: 'Raleway',
-  sizeNombre: 62, sizeHora: 34, sizeDireccion: 32,
-  shadowNombre: true, shadowHora: true, shadowDireccion: true,
-  anchoNombre: 80, anchoHora: 80, anchoDireccion: 80,
-  alignNombre: 'justify', alignHora: 'justify', alignDireccion: 'justify',
-  linesNombre: 2, linesHora: 1, linesDireccion: 3,
-  posXNombre: 8, posYNombre: 76,
-  posXHora: 8, posYHora: 86,
-  posXDireccion: 8, posYDireccion: 92
-};
-const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
-let cardRenderers = [];
-function refreshAllPreviews(){ cardRenderers.forEach(fn => fn()); }
-
-function setStatus(msg, isErr){
-  statusLine.textContent = msg || '';
-  statusLine.className = 'status' + (isErr ? ' err' : '');
-}
-
-function slugify(str){
-  return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'semana';
-}
-
-async function loadFonts(){
-  try{
-    await Promise.all([
-      document.fonts.load('700 20px "League Spartan"'),
-      document.fonts.load('600 20px "League Spartan"'),
-      document.fonts.load('400 20px "Raleway"'),
-      document.fonts.load('600 20px "Raleway"'),
-      document.fonts.load('400 20px "Bebas Neue"'),
-      document.fonts.load('700 20px "Playfair Display"'),
-      document.fonts.load('600 20px "Playfair Display"'),
-      document.fonts.load('700 20px "Montserrat"'),
-      document.fonts.load('500 20px "Montserrat"'),
-      document.fonts.load('700 20px "Oswald"'),
-      document.fonts.load('500 20px "Oswald"'),
-      document.fonts.load('700 20px "Poppins"'),
-      document.fonts.load('500 20px "Poppins"')
-    ]);
-  }catch(e){ /* fallback fonts are fine */ }
-}
-
-function defaultCelulas(){
-  const obj = {};
-  for(let i=1;i<=NUM_CELULAS;i++){
-    obj[i] = { nombre: FIXED_NAMES[i-1] || ('Célula ' + i), hora: '', ubicacion: '' };
-  }
-  return obj;
-}
-
-async function loadGlobalStyle(){
-  if(!db) return;
-  try{
-    const snap = await getDoc(doc(db, 'meta', 'estilo'));
-    if(snap.exists()){
-      globalStyle = Object.assign({}, globalStyle, snap.data());
-    } else {
-      await setDoc(doc(db, 'meta', 'estilo'), globalStyle);
-    }
-  }catch(e){ /* keep defaults */ }
-}
-
-let styleSaveTimer = null;
-function scheduleSaveGlobalStyle(){
-  if(styleSaveTimer) clearTimeout(styleSaveTimer);
-  styleSaveTimer = setTimeout(async () => {
-    try{ await setDoc(doc(db, 'meta', 'estilo'), globalStyle); }catch(e){ /* ignore */ }
-  }, 400);
-}
-
-async function loadWeeksList(){
-  if(!db) { weeks = []; return; }
-  try{
-    const metaSnap = await getDoc(doc(db, 'meta', 'weeks'));
-    if(metaSnap.exists()){
-      weeks = metaSnap.data().weeks || [];
-    }
-  }catch(e){
-    setStatus('No se pudo conectar con Firebase: ' + e.message, true);
-  }
-  if(!weeks || weeks.length === 0){
-    const today = new Date();
-    const label = today.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
-    const key = slugify(label) + '-' + Date.now();
-    weeks = [{ key, label }];
-    if(db){
-      await setDoc(doc(db, 'meta', 'weeks'), { weeks });
-      await setDoc(doc(db, 'weeks', key), { label, imageUrl: null, celulas: defaultCelulas() });
-    }
-  }
-}
-
-function renderWeekSelect(){
-  weekSelect.innerHTML = '';
-  weeks.slice().reverse().forEach(w => {
-    const opt = document.createElement('option');
-    opt.value = w.key;
-    opt.textContent = w.label;
-    weekSelect.appendChild(opt);
-  });
-  weekSelect.value = currentWeekKey;
-}
-
-async function loadWeekData(key){
-  if(!db) return;
-  setStatus('Cargando semana…');
-  currentWeekKey = key;
-  try{
-    const snap = await getDoc(doc(db, 'weeks', key));
-    if(snap.exists()){
-      const data = snap.data();
-      currentImage = data.imageUrl || null;
-      celulas = data.celulas || defaultCelulas();
-      const healed = healLegacyNames(celulas);
-      if(healed){
-        await updateDoc(doc(db, 'weeks', key), { celulas });
-      }
-    } else {
-      currentImage = null;
-      celulas = defaultCelulas();
-      await setDoc(doc(db, 'weeks', key), { label: key, imageUrl: null, celulas });
-    }
-  }catch(e){
-    setStatus('Error cargando la semana: ' + e.message, true);
-    celulas = defaultCelulas();
-  }
-  renderBasePanel();
-  renderGrid();
-  setStatus('');
-}
-
-function healLegacyNames(celulasObj){
-  // Fixes generic auto-generated names ("Célula 1", "Célula 2"...) left over from
-  // before the fixed roster was set, without touching names someone already customized.
-  let changed = false;
-  for(let i=1;i<=NUM_CELULAS;i++){
-    if(!celulasObj[i]){
-      celulasObj[i] = { nombre: FIXED_NAMES[i-1] || ('Célula ' + i), hora: '', ubicacion: '' };
-      changed = true;
-      continue;
-    }
-    const nombre = celulasObj[i].nombre || '';
-    if(nombre === ('Célula ' + i) && FIXED_NAMES[i-1] && FIXED_NAMES[i-1] !== nombre){
-      celulasObj[i].nombre = FIXED_NAMES[i-1];
-      changed = true;
-    }
-  }
-  return changed;
-}
-
-function renderBasePanel(){
-  if(currentImage){
-    baseThumb.src = currentImage;
-    baseThumb.style.display = 'block';
-    baseThumbEmpty.style.display = 'none';
-    const w = weeks.find(w => w.key === currentWeekKey);
-    baseName.textContent = 'Imagen lista para: ' + (w ? w.label : currentWeekKey);
-  } else {
-    baseThumb.style.display = 'none';
-    baseThumbEmpty.style.display = 'flex';
-    baseName.textContent = 'Ninguna imagen subida todavía';
-  }
-  refreshDragPreviewImage();
-}
-
-let saveTimer = null;
-function scheduleSaveCelulas(cardEl){
-  if(saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    let ok = false;
-    try{
-      await updateDoc(doc(db, 'weeks', currentWeekKey), { celulas });
-      ok = true;
-    }catch(e){ ok = false; }
-    if(cardEl){
-      const tick = cardEl.querySelector('.saved-tick');
-      if(tick){
-        tick.textContent = ok ? 'Guardado ✓' : 'No se pudo guardar';
-        tick.classList.add('show');
-        setTimeout(()=> tick.classList.remove('show'), 1400);
-      }
-    }
-  }, 500);
-}
-
-// Imagen base cacheada: se decodifica una sola vez para las 25 tarjetas.
-let cachedImg = null, cachedSrc = null, cachedPromise = null;
-function getBaseImage(){
-  if(!currentImage) return Promise.resolve(null);
-  if(cachedSrc === currentImage && cachedPromise) return cachedPromise;
-  cachedSrc = currentImage;
-  cachedPromise = new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => { cachedImg = img; resolve(img); };
-    img.onerror = () => { setStatus('La imagen no cargó correctamente.', true); resolve(null); };
-    img.src = currentImage;
-  });
-  return cachedPromise;
-}
-
-function drawPreview(canvas, id){
-  const wrap = canvas.parentElement;
-  if(!currentImage){ wrap && wrap.classList.add('empty'); return; }
-  getBaseImage().then(img => {
-    if(!img) return;
-    wrap && wrap.classList.remove('empty');
-    // La vista previa usa la MISMA proporción que la imagen descargada,
-    // así el texto cae exactamente en el mismo lugar y tamaño relativo.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cssW = (wrap && wrap.clientWidth) || 300;
-    const w = Math.round(Math.max(480, cssW * dpr));
-    const h = Math.round(w * img.height / img.width);
-    if(canvas.width !== w) canvas.width = w;
-    if(canvas.height !== h) canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,w,h);
-    ctx.drawImage(img, 0, 0, w, h);
-    drawOverlay(ctx, w, h, celulas[id]);
-  });
-}
-
-function formatHora12(hora24){
-  if(!hora24) return '';
-  const parts = hora24.split(':');
-  let h = parseInt(parts[0], 10);
-  const m = parts[1] || '00';
-  const suffix = h >= 12 ? 'PM' : 'AM';
-  h = h % 12;
-  if(h === 0) h = 12;
-  return h + ':' + m + suffix;
-}
-
-function to12Parts(hora24){
-  if(!hora24) return { h: '7', m: '00', ampm: 'PM' };
-  const parts = hora24.split(':');
-  let h = parseInt(parts[0], 10);
-  const m = parts[1] || '00';
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12;
-  if(h === 0) h = 12;
-  return { h: String(h), m: m, ampm: ampm };
-}
-
-function from12PartsTo24(h, m, ampm){
-  h = parseInt(h, 10);
-  if(ampm === 'AM'){ if(h === 12) h = 0; }
-  else { if(h !== 12) h += 12; }
-  return String(h).padStart(2,'0') + ':' + m;
-}
-
-function drawOverlay(ctx, w, h, data){
-  const scale = w / 1080;
-  data = data || {};
-  const hora = data.hora ? ('Hora: ' + formatHora12(data.hora)) : 'Hora: por confirmar';
-  const ubic = data.ubicacion ? ('Dirección: ' + data.ubicacion.trim()) : 'Dirección: por confirmar';
-  const G = globalStyle;
-
-  const fields = [
-    { text: (data.nombre || '').trim(), color: G.colorNombre, font: G.fontNombre, size: G.sizeNombre, shadow: G.shadowNombre, x: G.posXNombre, y: G.posYNombre, weight: 700, width: G.anchoNombre, align: G.alignNombre, lines: G.linesNombre },
-    { text: hora, color: G.colorHora, font: G.fontHora, size: G.sizeHora, shadow: G.shadowHora, x: G.posXHora, y: G.posYHora, weight: 600, width: G.anchoHora, align: G.alignHora, lines: G.linesHora },
-    { text: ubic, color: G.colorUbicacion, font: G.fontDireccion, size: G.sizeDireccion, shadow: G.shadowDireccion, x: G.posXDireccion, y: G.posYDireccion, weight: 600, width: G.anchoDireccion, align: G.alignDireccion, lines: G.linesDireccion }
-  ];
-
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-
-  fields.forEach(f => {
-    if(!f.text) return;
-    const px = (f.x / 100) * w;
-    const py = (f.y / 100) * h;
-    const widthPct = (typeof f.width === 'number' ? f.width : 80);
-    const maxWidth = Math.max(w*0.12, Math.min((widthPct/100)*w, w - px - w*0.02));
-    const maxLines = Math.max(1, Math.min(6, parseInt(f.lines, 10) || 2));
-
-    // Auto-ajuste: si el texto no cabe en el máximo de líneas, se reduce la letra
-    // (hasta 55% del tamaño elegido) en lugar de desbordarse o pisar otro campo.
-    const baseSize = Math.max(8, f.size * scale);
-    const minSize = Math.max(8, baseSize * 0.55);
-    let fontSizePx = baseSize, lines;
-    while(true){
-      ctx.font = f.weight + ' ' + Math.round(fontSizePx) + 'px "' + f.font + '", sans-serif';
-      lines = breakLines(ctx, f.text, maxWidth);
-      const fits = lines.length <= maxLines && lines.every(l => ctx.measureText(l.join(' ')).width <= maxWidth + 0.5);
-      if(fits || fontSizePx <= minSize) break;
-      fontSizePx = Math.max(minSize, fontSizePx * 0.94);
-    }
-    // No dejar que el bloque se salga por abajo de la imagen.
-    const lineHeight = fontSizePx * 1.25;
-    const bottomLimit = h - fontSizePx * 0.7;
-    const startY = Math.min(py, bottomLimit - lineHeight * (lines.length - 1));
-
-    ctx.fillStyle = f.color;
-    if(f.shadow){
-      ctx.shadowColor = 'rgba(0,0,0,0.85)';
-      ctx.shadowBlur = Math.max(2, w*0.012);
-      ctx.shadowOffsetX = Math.max(1, w*0.0025);
-      ctx.shadowOffsetY = Math.max(1, w*0.0025);
-    } else {
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-    }
-    drawAlignedLines(ctx, lines, px, startY, maxWidth, lineHeight, f.align || 'justify');
-  });
-
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-}
-
-// Divide el texto en líneas (arreglos de palabras) que caben en maxWidth.
-function breakLines(ctx, text, maxWidth){
-  const words = String(text).split(/\s+/).filter(Boolean);
-  const lines = [];
-  let cur = [];
-  for(const word of words){
-    const test = cur.length ? cur.join(' ') + ' ' + word : word;
-    if(cur.length && ctx.measureText(test).width > maxWidth){
-      lines.push(cur);
-      cur = [word];
-    } else {
-      cur.push(word);
-    }
-  }
-  if(cur.length) lines.push(cur);
-  return lines;
-}
-
-// Dibuja las líneas dentro del cuadro [x, x+maxWidth].
-// Justificado: todas las líneas ocupan el ancho completo excepto la última.
-function drawAlignedLines(ctx, lines, x, y, maxWidth, lineHeight, align){
-  lines.forEach((words, i) => {
-    const curY = y + i * lineHeight;
-    const lineText = words.join(' ');
-    const lineW = ctx.measureText(lineText).width;
-    const isLast = i === lines.length - 1;
-
-    if(align === 'justify' && !isLast && words.length > 1){
-      const wordsW = words.reduce((acc, wd) => acc + ctx.measureText(wd).width, 0);
-      const gap = (maxWidth - wordsW) / (words.length - 1);
-      // Evita espacios exagerados cuando la línea quedó muy corta.
-      const spaceW = ctx.measureText(' ').width;
-      if(gap <= spaceW * 4){
-        let cx = x;
-        words.forEach(wd => { ctx.fillText(wd, cx, curY); cx += ctx.measureText(wd).width + gap; });
-        return;
-      }
-    }
-    let startX = x;
-    if(align === 'center') startX = x + (maxWidth - lineW) / 2;
-    else if(align === 'right') startX = x + maxWidth - lineW;
-    ctx.fillText(lineText, startX, curY);
-  });
-}
-
-function downloadCardImage(id, weekLabel){
-  if(!currentImage){
-    setStatus('Sube primero la imagen base de la semana.', true);
-    return;
-  }
-  getBaseImage().then(img => {
-    if(!img){ setStatus('No se pudo cargar la imagen para descargar.', true); return; }
-    // Use the image's own aspect ratio so nothing gets cropped.
-    // Cap the largest side for a reasonable file size while keeping quality.
-    const maxSide = 1600;
-    let outW = img.width, outH = img.height;
-    if(Math.max(outW, outH) > maxSide){
-      const scale = maxSide / Math.max(outW, outH);
-      outW = Math.round(outW * scale);
-      outH = Math.round(outH * scale);
-    }
-    const off = document.createElement('canvas');
-    off.width = outW; off.height = outH;
-    const ctx = off.getContext('2d');
-    ctx.drawImage(img, 0, 0, outW, outH);
-    drawOverlay(ctx, outW, outH, celulas[id]);
-    off.toBlob((blob) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const safeName = slugify(celulas[id].nombre || ('celula-' + id));
-      a.href = url;
-      a.download = safeName + '-' + slugify(weekLabel || '') + '.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=> URL.revokeObjectURL(url), 4000);
-    }, 'image/png');
-  });
-}
-
-function compressImageToDataUrl(file, maxTargetBytes){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('No se pudo procesar la imagen'));
-      img.onload = () => {
-        let maxW = 1200;
-        let quality = 0.82;
-        const tryEncode = () => {
-          const scale = Math.min(1, maxW / img.width);
-          const w = Math.round(img.width * scale);
-          const h = Math.round(img.height * scale);
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          if(dataUrl.length > maxTargetBytes && (quality > 0.4 || maxW > 500)){
-            if(quality > 0.4){ quality -= 0.1; }
-            else { maxW = Math.round(maxW * 0.8); }
-            tryEncode();
-          } else {
-            resolve(dataUrl);
-          }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        window.onload = function() {
+            initApp();
         };
-        tryEncode();
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function hourOptions(selected){
-  let out = '';
-  for(let h=1; h<=12; h++){
-    out += `<option value="${h}" ${String(h)===String(selected)?'selected':''}>${h}</option>`;
-  }
-  return out;
-}
-function minuteOptions(selected){
-  let out = '';
-  for(let m=0; m<60; m+=5){
-    const mm = String(m).padStart(2,'0');
-    out += `<option value="${mm}" ${mm===selected?'selected':''}>${mm}</option>`;
-  }
-  return out;
-}
-function ampmOptions(selected){
-  return `<option value="AM" ${selected==='AM'?'selected':''}>AM</option><option value="PM" ${selected==='PM'?'selected':''}>PM</option>`;
-}
-
-function escapeHtml(str){
-  return (str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-}
-
-function renderGrid(){
-  gridEl.innerHTML = '';
-  cardRenderers = [];
-  for(let i=1;i<=NUM_CELULAS;i++){
-    const data = celulas[i] || { nombre:'Célula '+i, hora:'', ubicacion:'' };
-    const horaParts = to12Parts(data.hora);
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="stub">
-        <span class="num">#${String(i).padStart(2,'0')}</span>
-        <input class="nombre" data-field="nombre" value="${escapeHtml(data.nombre)}" />
-      </div>
-      <div class="body">
-        <div class="field">
-          <label>Hora</label>
-          <div class="hora-row">
-            <select class="hora-h" data-hora-part="h">${hourOptions(horaParts.h)}</select>
-            <span class="hora-colon">:</span>
-            <select class="hora-m" data-hora-part="m">${minuteOptions(horaParts.m)}</select>
-            <select class="hora-ampm" data-hora-part="ampm">${ampmOptions(horaParts.ampm)}</select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Dirección</label>
-          <input type="text" placeholder="Dirección o casa de..." data-field="ubicacion" value="${escapeHtml(data.ubicacion)}" />
-        </div>
-        <div class="preview-wrap${currentImage ? '' : ' empty'}">
-          <canvas width="480" height="600"></canvas>
-        </div>
-        <div class="card-actions">
-          <button class="ghost small" data-action="preview">Actualizar vista</button>
-          <button class="primary small" data-action="download">Descargar imagen</button>
-
-        </div>
-        <div class="saved-tick">Guardado ✓</div>
-      </div>
-    `;
-    gridEl.appendChild(card);
-
-    const canvas = card.querySelector('canvas');
-    const renderThis = () => drawPreview(canvas, i);
-    cardRenderers.push(renderThis);
-
-    card.querySelectorAll('input[data-field]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        celulas[i] = celulas[i] || {};
-        celulas[i][inp.dataset.field] = inp.value;
-        scheduleSaveCelulas(card);
-        renderThis();
-      });
-    });
-
-    card.querySelectorAll('select[data-hora-part]').forEach(sel => {
-      sel.addEventListener('change', () => {
-        celulas[i] = celulas[i] || {};
-        const hSel = card.querySelector('.hora-h');
-        const mSel = card.querySelector('.hora-m');
-        const aSel = card.querySelector('.hora-ampm');
-        celulas[i].hora = from12PartsTo24(hSel.value, mSel.value, aSel.value);
-        scheduleSaveCelulas(card);
-        renderThis();
-      });
-    });
-
-    card.querySelector('[data-action="preview"]').addEventListener('click', renderThis);
-    card.querySelector('[data-action="download"]').addEventListener('click', () => {
-      const w = weeks.find(w => w.key === currentWeekKey);
-      downloadCardImage(i, w ? w.label : '');
-    });
-
-    if(currentImage) renderThis();
-  }
-}
-
-uploadInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if(!file || !db) return;
-  setStatus('Procesando y guardando imagen…');
-  try{
-    const dataUrl = await compressImageToDataUrl(file, 700000);
-    currentImage = dataUrl;
-    await updateDoc(doc(db, 'weeks', currentWeekKey), { imageUrl: dataUrl });
-    renderBasePanel();
-    renderGrid();
-    setStatus('Imagen guardada para esta semana.');
-  }catch(e){
-    setStatus('No se pudo guardar la imagen: ' + e.message, true);
-  }
-});
-
-weekSelect.addEventListener('change', () => {
-  loadWeekData(weekSelect.value);
-});
-
-newWeekBtn.addEventListener('click', async () => {
-  const label = prompt('Escribe la fecha o nombre de la nueva semana (ej: 17 de Agosto 2026):');
-  if(!label || !db) return;
-  const key = slugify(label) + '-' + Date.now();
-  weeks.push({ key, label });
-  try{
-    await setDoc(doc(db, 'meta', 'weeks'), { weeks });
-    await setDoc(doc(db, 'weeks', key), { label, imageUrl: null, celulas: defaultCelulas() });
-    renderWeekSelect();
-    weekSelect.value = key;
-    await loadWeekData(key);
-  }catch(e){
-    setStatus('No se pudo crear la semana: ' + e.message, true);
-  }
-});
-
-function applyAdminVisibility(){
-  if(isAdmin){
-    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('admin-only'));
-  }
-}
-
-colorNombreInput.addEventListener('input', () => {
-  globalStyle.colorNombre = colorNombreInput.value;
-  scheduleSaveGlobalStyle();
-  refreshAllPreviews();
-});
-colorHoraInput.addEventListener('input', () => {
-  globalStyle.colorHora = colorHoraInput.value;
-  scheduleSaveGlobalStyle();
-  refreshAllPreviews();
-});
-colorUbicacionInput.addEventListener('input', () => {
-  globalStyle.colorUbicacion = colorUbicacionInput.value;
-  scheduleSaveGlobalStyle();
-  refreshAllPreviews();
-});
-function bindFontControl(selectEl, styleKey){
-  selectEl.addEventListener('change', () => {
-    globalStyle[styleKey] = selectEl.value;
-    scheduleSaveGlobalStyle();
-    refreshAllPreviews();
-  });
-}
-function bindSizeControl(inputEl, styleKey){
-  inputEl.addEventListener('input', () => {
-    const v = parseFloat(inputEl.value);
-    if(!isNaN(v)) globalStyle[styleKey] = v;
-    scheduleSaveGlobalStyle();
-    refreshAllPreviews();
-  });
-}
-function bindShadowControl(inputEl, styleKey){
-  inputEl.addEventListener('change', () => {
-    globalStyle[styleKey] = inputEl.checked;
-    scheduleSaveGlobalStyle();
-    refreshAllPreviews();
-  });
-}
-function bindWidthControl(inputEl, styleKey, dragKey){
-  inputEl.addEventListener('input', () => {
-    let v = parseFloat(inputEl.value);
-    if(!isNaN(v)){
-      v = Math.max(10, Math.min(95, v));
-      globalStyle[styleKey] = v;
-    }
-    scheduleSaveGlobalStyle();
-    updateDragLimitPosition(dragKey);
-    refreshAllPreviews();
-  });
-}
-bindFontControl(fontNombreInput, 'fontNombre');
-bindSizeControl(sizeNombreInput, 'sizeNombre');
-bindWidthControl(widthNombreInput, 'anchoNombre', 'nombre');
-bindShadowControl(shadowNombreInput, 'shadowNombre');
-bindFontControl(fontHoraInput, 'fontHora');
-bindSizeControl(sizeHoraInput, 'sizeHora');
-bindWidthControl(widthHoraInput, 'anchoHora', 'hora');
-bindShadowControl(shadowHoraInput, 'shadowHora');
-bindFontControl(fontDireccionInput, 'fontDireccion');
-bindSizeControl(sizeDireccionInput, 'sizeDireccion');
-bindWidthControl(widthDireccionInput, 'anchoDireccion', 'direccion');
-bindShadowControl(shadowDireccionInput, 'shadowDireccion');
-function bindLinesControl(inputEl, styleKey){
-  inputEl.addEventListener('input', () => {
-    const v = parseInt(inputEl.value, 10);
-    if(!isNaN(v)) globalStyle[styleKey] = Math.max(1, Math.min(6, v));
-    scheduleSaveGlobalStyle();
-    refreshAllPreviews();
-  });
-}
-bindFontControl(alignNombreInput, 'alignNombre');
-bindFontControl(alignHoraInput, 'alignHora');
-bindFontControl(alignDireccionInput, 'alignDireccion');
-bindLinesControl(linesNombreInput, 'linesNombre');
-bindLinesControl(linesHoraInput, 'linesHora');
-bindLinesControl(linesDireccionInput, 'linesDireccion');
-
-// Redibuja al rotar el celular o cambiar el tamaño de ventana.
-let resizeTimer = null;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(refreshAllPreviews, 200);
-});
-
-function updateDragLabelPosition(key){
-  const label = dragPreviewWrap.querySelector('.drag-label[data-key="' + key + '"]');
-  if(!label) return;
-  const xKey = 'posX' + key.charAt(0).toUpperCase() + key.slice(1);
-  const yKey = 'posY' + key.charAt(0).toUpperCase() + key.slice(1);
-  label.style.left = globalStyle[xKey] + '%';
-  label.style.top = globalStyle[yKey] + '%';
-  updateDragLimitPosition(key);
-}
-
-function updateDragLimitPosition(key){
-  const limit = dragPreviewWrap.querySelector('.drag-limit[data-key="' + key + '"]');
-  if(!limit) return;
-  const xKey = 'posX' + key.charAt(0).toUpperCase() + key.slice(1);
-  const anchoKey = 'ancho' + key.charAt(0).toUpperCase() + key.slice(1);
-  const px = globalStyle[xKey] || 0;
-  const ancho = (typeof globalStyle[anchoKey] === 'number') ? globalStyle[anchoKey] : 80;
-  const left = Math.min(98, px + ancho);
-  limit.style.left = left + '%';
-}
-
-function refreshDragPreviewImage(){
-  if(currentImage){
-    dragPreviewImg.src = currentImage;
-    dragPreviewImg.style.display = 'block';
-    dragEmptyMsg.style.display = 'none';
-  } else {
-    dragPreviewImg.style.display = 'none';
-    dragEmptyMsg.style.display = 'flex';
-  }
-}
-
-function setupDragLabels(){
-  const labels = dragPreviewWrap.querySelectorAll('.drag-label');
-  labels.forEach(label => {
-    const key = label.dataset.key;
-    const xKey = 'posX' + key.charAt(0).toUpperCase() + key.slice(1);
-    const yKey = 'posY' + key.charAt(0).toUpperCase() + key.slice(1);
-    let dragging = false;
-
-    function moveTo(clientX, clientY){
-      const rect = dragPreviewWrap.getBoundingClientRect();
-      let px = ((clientX - rect.left) / rect.width) * 100;
-      let py = ((clientY - rect.top) / rect.height) * 100;
-      px = Math.max(2, Math.min(85, px));
-      py = Math.max(4, Math.min(96, py));
-      globalStyle[xKey] = px;
-      globalStyle[yKey] = py;
-      label.style.left = px + '%';
-      label.style.top = py + '%';
-      updateDragLimitPosition(key);
-      refreshAllPreviews();
-    }
-
-    label.addEventListener('pointerdown', (e) => {
-      dragging = true;
-      label.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    });
-    label.addEventListener('pointermove', (e) => {
-      if(!dragging) return;
-      moveTo(e.clientX, e.clientY);
-    });
-    label.addEventListener('pointerup', () => {
-      if(dragging){
-        dragging = false;
-        scheduleSaveGlobalStyle();
-      }
-    });
-    label.addEventListener('pointercancel', () => { dragging = false; });
-  });
-}
-setupDragLabels();
-
-async function init(){
-  await loadFonts();
-  applyAdminVisibility();
-  if(!isConfigured){
-    setStatus('Falta pegar tu configuración de Firebase en el código (ver aviso arriba).', true);
-    return;
-  }
-  await loadGlobalStyle();
-  colorNombreInput.value = globalStyle.colorNombre;
-  colorHoraInput.value = globalStyle.colorHora;
-  colorUbicacionInput.value = globalStyle.colorUbicacion;
-  fontNombreInput.value = globalStyle.fontNombre;
-  sizeNombreInput.value = globalStyle.sizeNombre;
-  widthNombreInput.value = globalStyle.anchoNombre;
-  shadowNombreInput.checked = globalStyle.shadowNombre;
-  fontHoraInput.value = globalStyle.fontHora;
-  sizeHoraInput.value = globalStyle.sizeHora;
-  widthHoraInput.value = globalStyle.anchoHora;
-  shadowHoraInput.checked = globalStyle.shadowHora;
-  fontDireccionInput.value = globalStyle.fontDireccion;
-  sizeDireccionInput.value = globalStyle.sizeDireccion;
-  widthDireccionInput.value = globalStyle.anchoDireccion;
-  shadowDireccionInput.checked = globalStyle.shadowDireccion;
-  alignNombreInput.value = globalStyle.alignNombre || 'justify';
-  alignHoraInput.value = globalStyle.alignHora || 'justify';
-  alignDireccionInput.value = globalStyle.alignDireccion || 'justify';
-  linesNombreInput.value = globalStyle.linesNombre || 2;
-  linesHoraInput.value = globalStyle.linesHora || 1;
-  linesDireccionInput.value = globalStyle.linesDireccion || 3;
-  updateDragLabelPosition('nombre');
-  updateDragLabelPosition('hora');
-  updateDragLabelPosition('direccion');
-  await loadWeeksList();
-  renderWeekSelect();
-  const last = weeks[weeks.length - 1];
-  if(last) await loadWeekData(last.key);
-  refreshDragPreviewImage();
-}
-
-
-init();
-</script>
+    </script>
 </body>
 </html>
