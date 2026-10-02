@@ -1,923 +1,872 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Roca de Vida Panamá - Gestor de Tarjetas de Células</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#0f0d0b',
-                            card: '#181512',
-                            border: '#2a241e',
-                            gold: '#ffcc4d',
-                            goldHover: '#e6b840',
-                            sec: '#c8ad8f',
-                            light: '#f5f0eb'
-                        }
-                    },
-                    fontFamily: {
-                        spartan: ['"League Spartan"', 'sans-serif'],
-                        bebas: ['"Bebas Neue"', 'cursive'],
-                        raleway: ['Raleway', 'sans-serif'],
-                        playfair: ['"Playfair Display"', 'serif'],
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        oswald: ['Oswald', 'sans-serif'],
-                        poppins: ['Poppins', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invitaciones de Célula · Roca de Vida Panamá</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@500;600;700;800&family=Poppins:wght@500;600;700;800&family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14110e; --surface:#1d1915; --surface-2:#251f1a; --line:#352d25;
+  --gold:#ffcc4d; --gold-ink:#231a05; --text:#f5f0eb; --muted:#c8ad8f; --danger:#ff8a7a;
+  --radius-lg:18px; --radius:10px;
+  --ui:"Raleway",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"League Spartan","Raleway",system-ui,sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@400;600;700;800&family=Montserrat:wght@400;600;700&family=Oswald:wght@500;700&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(20,17,14,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.mark{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--gold);display:grid;place-items:center;flex:none}
+.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:1.1rem;line-height:1.1;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;font-size:.82rem;color:var(--muted)}
+.top .spacer{flex:1}
+.week{font-size:.82rem;color:var(--gold);border:1px solid rgba(255,204,77,.35);padding:5px 12px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45vw}
 
-    <style>
-        /* Custom scrollbars & canvas handles */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f0d0b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2a241e;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #ffcc4d;
-        }
-        /* Touch safety on mobile inputs */
-        input, select, textarea {
-            font-size: 16px !important;
-        }
-        .canvas-container {
-            position: relative;
-            user-select: none;
-        }
-        .draggable-handle {
-            position: absolute;
-            cursor: move;
-            border: 2px dashed #ffcc4d;
-            background: rgba(255, 204, 77, 0.15);
-            border-radius: 6px;
-            padding: 4px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            touch-action: none;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .draggable-handle:hover, .draggable-handle.active {
-            border-color: #ffffff;
-            background: rgba(255, 204, 77, 0.35);
-        }
-    </style>
+main{max-width:1100px;margin:0 auto;padding:24px 20px 48px}
+
+/* Leader layout */
+.leader{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){
+  .leader{grid-template-columns:minmax(0,420px) minmax(0,1fr);grid-template-areas:"intro stage" "form stage";align-items:start;row-gap:0}
+  .leader .intro{grid-area:intro}.leader .form{grid-area:form}.leader .stage{grid-area:stage}
+}
+.intro h2{font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,5vw,2.4rem);line-height:1.02;letter-spacing:-.02em;margin:0 0 8px}
+.intro p{margin:0 0 22px;color:var(--muted);max-width:42ch}
+
+.field{display:block;margin-bottom:16px}
+.field > span{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
+.field small{display:block;color:var(--muted);font-size:.78rem;margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.control{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;font-size:16px;transition:border-color .15s}
+.control:hover{border-color:#4a3f34}
+.control:focus{border-color:var(--gold);outline:none}
+select.control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23c8ad8f' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+textarea.control{resize:vertical;min-height:84px}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius);padding:13px 18px;font-weight:700;font-size:.95rem;border:1px solid transparent;cursor:pointer;transition:filter .15s,background .15s,border-color .15s}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-primary{background:var(--gold);color:var(--gold-ink);flex:1 1 auto}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-sm{padding:8px 12px;font-size:.85rem}
+.hint{font-size:.82rem;color:var(--muted);margin:0 0 12px;min-height:1.2em}
+
+/* Preview — the hero */
+.stage{position:relative;justify-self:center;width:100%;max-width:480px}
+@media (min-width:860px){.stage{position:sticky;top:92px}}
+.frame{position:relative;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 30px 60px -20px rgba(0,0,0,.7),0 0 0 1px var(--line)}
+.frame canvas{display:block;width:100%;height:auto}
+.stage-cap{text-align:center;color:var(--muted);font-size:.8rem;margin-top:10px}
+
+.notice{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:var(--radius);padding:12px 14px;font-size:.88rem;margin-bottom:20px}
+.notice.err{border-left-color:var(--danger)}
+
+/* Admin */
+.admin{display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.admin{grid-template-columns:minmax(0,1fr) minmax(0,440px);align-items:start}}
+.admin-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px}
+.admin-bar h2{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;flex:1 1 220px;letter-spacing:-.01em}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px}
+.panel h3{font-family:var(--display);font-size:1.05rem;font-weight:700;margin:0 0 4px}
+.panel > p{color:var(--muted);font-size:.84rem;margin:0 0 14px}
+.panel .control{background:var(--bg)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.el-row{display:grid;grid-template-columns:110px repeat(3,minmax(0,1fr));gap:10px;align-items:end;padding:10px 0;border-top:1px solid var(--line)}
+.el-row:first-of-type{border-top:0}
+.el-row b{font-size:.9rem;padding-bottom:12px}
+.el-row .field{margin:0}
+.el-row .field > span{font-size:.75rem;color:var(--muted);font-weight:500}
+.el-row .control{padding:9px 10px}
+@media (max-width:520px){.el-row{grid-template-columns:repeat(3,minmax(0,1fr))}.el-row b{grid-column:1/-1;padding:0}}
+.check{display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--gold)}
+input[type=color].control{padding:4px;height:46px;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.drop{border:1.5px dashed var(--line);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--gold);background:rgba(255,204,77,.06)}
+.drop strong{display:block;font-size:.92rem}
+.drop span{font-size:.78rem;color:var(--muted)}
+
+.handle{position:absolute;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;
+  font:700 11px/1 var(--ui);color:var(--gold-ink);background:var(--gold);padding:5px 8px;border-radius:999px;
+  box-shadow:0 2px 8px rgba(0,0,0,.6);white-space:nowrap;opacity:.6}
+.handle:hover{opacity:1}
+.handle::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;border:2px solid var(--gold-ink);top:50%;transform:translateY(-50%)}
+.handle[data-align=center]::before{left:50%;margin-left:-3.5px;top:-9px;transform:none}
+.handle[data-align=left]::before{left:-4px}
+.handle[data-align=right]::before{right:-4px}
+.handle.dragging{cursor:grabbing;opacity:1}
+.guide{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--gold);opacity:0;pointer-events:none}
+.guide.on{opacity:.7}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--gold);padding:12px 16px;border-radius:var(--radius);font-size:.9rem;font-weight:600;transition:opacity .2s,transform .2s;z-index:50;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{border-left-color:var(--danger)}
+footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 32px;border-top:1px solid var(--line)}
+/* ---------- Celular ---------- */
+@media (max-width:859px){
+  .top-in{padding:10px 16px}
+  main{padding:16px 16px 32px}
+  .leader{gap:18px}
+  .intro h2{font-size:1.7rem}
+  .intro p{margin-bottom:0;font-size:.95rem}
+  /* La vista previa cabe en media pantalla para ver el formulario debajo */
+  .leader .stage{max-width:min(100%,calc(52vh * .8));max-width:min(100%,calc(52svh * .8))}
+  .leader .stage-cap{display:none}
+  /* Botones siempre a mano mientras se completa el formulario */
+  .bar{position:sticky;bottom:0;z-index:15;margin:0 -16px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+       background:rgba(20,17,14,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+  .bar .btn{flex:1 1 0}
+}
+@media (max-width:899px){
+  .admin-bar h2{flex-basis:100%;font-size:1.4rem}
+  .admin-bar .btn{flex:1 1 auto!important}
+  /* En admin la vista previa queda fija arriba mientras se ajustan los controles */
+  .admin .stage{order:-1;position:sticky;top:calc(61px + env(safe-area-inset-top,0px));z-index:10;align-self:start;
+       background:var(--bg);padding:8px 0 10px;margin:0;max-width:none;border-bottom:1px solid var(--line)}
+  .admin .stage .field{max-width:480px;margin:0 auto 8px}
+  .admin .stage .field > span{display:none}
+  .admin .stage .control{padding:9px 12px}
+  #aFrame{width:min(100%,calc(36vh * .8));width:min(100%,calc(36svh * .8));margin:0 auto}
+  .admin .stage-cap{display:none}
+}
+@media (max-width:520px){
+  .grid3{grid-template-columns:1fr 1fr}
+  .grid3 .field:first-child{grid-column:1/-1}
+  .panel{padding:16px}
+}
+.hl-short{display:none}
+@media (max-width:899px){
+  /* En la vista previa chica, marcadores redondos con la inicial para no tapar el texto */
+  .handle{width:30px;height:30px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:13px;opacity:.7;
+          transform:translate(-50%,-50%)!important}
+  .handle::before{display:none}
+  .hl-long{display:none}.hl-short{display:inline}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
-<body class="bg-brand-dark text-white font-montserrat min-h-screen flex flex-col antialiased">
+<body>
 
-    <!-- HEADER -->
-    <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur border-b border-brand-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo / Title -->
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-gold to-yellow-200 p-0.5 flex items-center justify-center shadow-lg shadow-brand-gold/10">
-                    <div class="w-full h-full bg-brand-dark rounded-full flex items-center justify-center">
-                        <i class="fa-solid fa-cross text-brand-gold text-xl"></i>
-                    </div>
-                </div>
-                <div>
-                    <h1 class="font-spartan font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
-                        ROCA DE VIDA <span class="text-brand-gold text-xs px-2 py-0.5 bg-brand-gold/10 rounded-full border border-brand-gold/30">PANAMÁ</span>
-                    </h1>
-                    <p class="text-xs text-brand-sec">Gestor de Invitaciones de Células</p>
-                </div>
-            </div>
+<header class="top">
+  <div class="top-in">
+    <div class="mark" aria-hidden="true">
+      <svg width="18" height="22" viewBox="0 0 18 22" fill="#ffcc4d"><rect x="7" y="0" width="4" height="22" rx="1"/><rect x="0" y="6" width="18" height="4" rx="1"/></svg>
+    </div>
+    <div class="brand">
+      <h1>Roca de Vida Panamá</h1>
+      <p>Invitaciones de célula</p>
+    </div>
+    <div class="spacer"></div>
+    <span class="week" id="weekBadge" hidden></span>
+  </div>
+</header>
 
-            <!-- Header Controls & Mode Switcher -->
-            <div class="flex items-center space-x-3">
-                <span id="currentWeekBadge" class="hidden md:inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-brand-border text-brand-gold border border-brand-gold/20">
-                    <i class="fa-regular fa-calendar-check mr-2"></i> <span id="weekNameDisplay">Semana Actual</span>
-                </span>
-                
-                <button id="toggleAdminBtn" onclick="toggleAdminView()" class="relative inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 border border-brand-gold/40 bg-brand-card hover:bg-brand-border text-brand-gold shadow-md">
-                    <i class="fa-solid fa-sliders mr-2"></i>
-                    <span id="adminBtnText">Modo Admin</span>
-                </button>
-            </div>
-        </div>
-    </header>
+<main>
+  <div id="notice" class="notice" hidden></div>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <!-- PUBLIC USER VIEW HEADER / FILTERS -->
-        <div id="userHeaderSection" class="mb-8 bg-brand-card p-6 rounded-2xl border border-brand-border shadow-xl">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-bold font-spartan text-white">Tarjetas Personalizables</h2>
-                    <p class="text-sm text-brand-sec mt-1">Selecciona tu célula, ingresa el horario y dirección para descargar tu tarjeta de invitación semanal en alta calidad.</p>
-                </div>
-                <!-- Search Input -->
-                <div class="relative min-w-[260px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-brand-sec"></i>
-                    <input type="text" id="searchInput" oninput="filterCells()" placeholder="Buscar célula..." class="w-full pl-10 pr-4 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-sm text-white placeholder-brand-sec/60 focus:outline-none focus:border-brand-gold transition">
-                </div>
-            </div>
-        </div>
-
-        <!-- ADMIN CONFIGURATION PANEL (Hidden by Default) -->
-        <div id="adminPanel" class="hidden mb-10 bg-brand-card rounded-2xl border border-brand-gold/30 p-6 shadow-2xl space-y-6">
-            <div class="flex items-center justify-between border-b border-brand-border pb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-brand-gold/10 rounded-lg text-brand-gold">
-                        <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white font-spartan">Panel de Administración de Plantilla</h2>
-                        <p class="text-xs text-brand-sec">Ajusta la imagen de fondo semanal y configura la posición y estilos del texto.</p>
-                    </div>
-                </div>
-                <button onclick="saveAdminSettings()" class="px-5 py-2.5 bg-brand-gold text-brand-dark font-bold text-sm rounded-xl hover:bg-brand-goldHover transition flex items-center gap-2 shadow-lg shadow-brand-gold/20">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Left Column: Controls -->
-                <div class="lg:col-span-5 space-y-6">
-                    <!-- Week Title & Background Image Upload -->
-                    <div class="bg-brand-dark/60 p-4 rounded-xl border border-brand-border space-y-4">
-                        <h3 class="text-sm font-semibold text-brand-gold uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-regular fa-image"></i> 1. Plantilla e Información Semanal
-                        </h3>
-                        
-                        <div>
-                            <label class="block text-xs text-brand-sec mb-1">Nombre / Título de la Semana</label>
-                            <input type="text" id="adminWeekName" oninput="updateConfigFromForm()" class="w-full px-3 py-2 bg-brand-card border border-brand-border rounded-lg text-sm text-white focus:outline-none focus:border-brand-gold">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-brand-sec mb-1">Imagen de Fondo Base</label>
-                            <div id="dropZone" class="border-2 border-dashed border-brand-border hover:border-brand-gold rounded-xl p-4 text-center cursor-pointer transition bg-brand-card/50">
-                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-sec mb-2"></i>
-                                <p class="text-xs text-white">Haz clic o arrastra una imagen aquí</p>
-                                <p class="text-[10px] text-brand-sec mt-1">Formatos sugeridos: JPG, PNG (1080x1350 px)</p>
-                                <input type="file" id="bgImageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Typography & Formatting Controls -->
-                    <div class="bg-brand-dark/60 p-4 rounded-xl border border-brand-border space-y-4">
-                        <h3 class="text-sm font-semibold text-brand-gold uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-font"></i> 2. Estilos Globales de Texto
-                        </h3>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Tipografía Base</label>
-                                <select id="adminFontFamily" onchange="updateConfigFromForm()" class="w-full px-3 py-2 bg-brand-card border border-brand-border rounded-lg text-xs text-white focus:outline-none focus:border-brand-gold">
-                                    <option value="League Spartan">League Spartan</option>
-                                    <option value="Bebas Neue">Bebas Neue</option>
-                                    <option value="Raleway">Raleway</option>
-                                    <option value="Playfair Display">Playfair Display</option>
-                                    <option value="Montserrat">Montserrat</option>
-                                    <option value="Oswald">Oswald</option>
-                                    <option value="Poppins">Poppins</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Color del Texto</label>
-                                <div class="flex gap-2">
-                                    <input type="color" id="adminTextColor" onchange="updateConfigFromForm()" class="h-9 w-12 bg-transparent rounded cursor-pointer border border-brand-border p-1">
-                                    <input type="text" id="adminTextColorHex" onchange="syncColorInput(this.value)" class="flex-1 px-2 py-1 bg-brand-card border border-brand-border rounded text-xs text-white">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Tamaño Título (px)</label>
-                                <input type="number" id="adminTitleFontSize" min="16" max="120" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Tamaño Detalles (px)</label>
-                                <input type="number" id="adminDetailFontSize" min="12" max="80" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Alineación</label>
-                                <select id="adminTextAlign" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
-                                    <option value="center">Centrado</option>
-                                    <option value="left">Izquierda</option>
-                                    <option value="right">Derecha</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-brand-sec mb-1">Máx. Líneas Dirección</label>
-                                <input type="number" id="adminMaxLines" min="1" max="5" onchange="updateConfigFromForm()" class="w-full px-3 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white">
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between pt-2">
-                            <span class="text-xs text-brand-sec">Activar Sombra Paralela</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="adminTextShadow" onchange="updateConfigFromForm()" class="sr-only peer">
-                                <div class="w-9 h-5 bg-brand-card peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-gold"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Interactive Editor / Drag Canvas -->
-                <div class="lg:col-span-7 flex flex-col items-center justify-center bg-brand-dark/80 p-6 rounded-xl border border-brand-border relative">
-                    <div class="w-full flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-brand-gold flex items-center gap-2">
-                            <i class="fa-solid fa-arrows-up-down-left-right"></i> Posicionamiento Visual Interactivo
-                        </span>
-                        <span class="text-[11px] text-brand-sec">Arrastra las etiquetas sobre la vista previa</span>
-                    </div>
-
-                    <!-- Canvas Wrapper -->
-                    <div id="interactiveCanvasWrapper" class="canvas-container relative max-w-sm w-full bg-black rounded-lg overflow-hidden border border-brand-border shadow-2xl">
-                        <canvas id="adminPreviewCanvas" class="w-full h-auto block"></canvas>
-
-                        <!-- Draggable Overlay Elements -->
-                        <div id="dragTitle" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
-                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragTitleLabel">Nombre Célula</span>
-                        </div>
-                        <div id="dragTime" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
-                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragTimeLabel">Hora y Día</span>
-                        </div>
-                        <div id="dragAddress" class="draggable-handle text-xs font-bold text-white flex items-center gap-1 select-none">
-                            <i class="fa-solid fa-grip-dots-vertical opacity-60"></i> <span id="dragAddressLabel">Dirección</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PUBLIC CARDS GRID -->
-        <div id="cellsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Dynamic cell cards inserted via JS -->
-        </div>
-
-        <!-- Empty state fallback -->
-        <div id="noResults" class="hidden text-center py-16 bg-brand-card rounded-2xl border border-brand-border">
-            <i class="fa-solid fa-circle-exclamation text-4xl text-brand-sec mb-3"></i>
-            <h3 class="text-lg font-bold text-white">No se encontraron células</h3>
-            <p class="text-sm text-brand-sec mt-1">Prueba con otro término de búsqueda.</p>
-        </div>
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="border-t border-brand-border bg-brand-dark mt-12 py-8">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-brand-sec space-y-2">
-            <p>© <span id="yearSpan"></span> Iglesia Roca de Vida Panamá. Todos los derechos reservados.</p>
-            <p class="text-[11px] opacity-75">Diseñado para la edificación y crecimiento del cuerpo de Cristo.</p>
-        </div>
-    </footer>
-
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-brand-card border border-brand-gold/40 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-brand-gold text-lg"></i>
-        <span id="toastMessage" class="text-xs font-semibold">Configuración guardada</span>
+  <!-- ============ VISTA LÍDER ============ -->
+  <section id="leaderView" class="leader" hidden>
+    <div class="intro">
+      <h2>Arma la invitación de tu célula</h2>
+      <p>Elige tu célula, indica cuándo y dónde se reúnen, y descarga la imagen lista para compartir.</p>
     </div>
 
-    <script>
-        // ------------------------------------------------------------------
-        // 1. DATA & INITIAL STATE
-        // ------------------------------------------------------------------
-        const DEFAULT_CELLS = [
-            'Célula La Chorrera', 'Célula Las Acacias (Arraiján)', 'Célula Bello Horizonte',
-            'San Antonio', 'Punta del Este', 'Villas Don Bosco', 'Célula Fe Sin Fronteras',
-            'Villa Zaita', 'San Francisco', 'Brisas Del Golf', 'Parque Lefevre', 'La Locería',
-            'Célula Las Villas de Arraiján', 'Tocumen', 'Obarrio', 'La Cascada', 'Juan Pablo II',
-            'Cerro Viento', 'Célula Versalles', 'La Cascada de Arraiján', 'Célula Parque Real',
-            'Ernesto T. Lefevre', 'Próxima Célula #23', 'Próxima Célula #24', 'Próxima Célula #25'
-        ];
-
-        // Default Config Settings
-        const DEFAULT_CONFIG = {
-            weekName: 'Semana de Impacto y Bendición',
-            bgImage: '', // Fallback generated on load if empty
-            fontFamily: 'League Spartan',
-            textColor: '#ffffff',
-            titleFontSize: 54,
-            detailFontSize: 36,
-            textAlign: 'center',
-            maxLines: 2,
-            textShadow: true,
-            positions: {
-                title: { x: 0.5, y: 0.60 },
-                time: { x: 0.5, y: 0.72 },
-                address: { x: 0.5, y: 0.82 }
-            }
-        };
-
-        // Application State
-        let config = { ...DEFAULT_CONFIG };
-        let cellsData = [];
-        let loadedBgImage = null;
-        let isAdminMode = false;
-        let activeDragElement = null;
-
-        // ------------------------------------------------------------------
-        // 2. LOCAL STORAGE & INITIALIZATION
-        // ------------------------------------------------------------------
-        function initApp() {
-            document.getElementById('yearSpan').textContent = new Date().getFullYear();
-
-            // Load saved config
-            const savedConfig = localStorage.getItem('roca_cell_config');
-            if (savedConfig) {
-                try { config = JSON.parse(savedConfig); } catch(e) { console.error(e); }
-            }
-
-            // Load saved cell user inputs
-            const savedCells = localStorage.getItem('roca_cell_data');
-            if (savedCells) {
-                try { cellsData = JSON.parse(savedCells); } catch(e) { console.error(e); }
-            } else {
-                cellsData = DEFAULT_CELLS.map((name, idx) => ({
-                    id: idx + 1,
-                    name: name,
-                    day: 'Miércoles',
-                    time: '07:30',
-                    ampm: 'PM',
-                    address: 'Calle principal, Casa #123'
-                }));
-            }
-
-            // Set up background image
-            if (config.bgImage) {
-                loadBgImageSrc(config.bgImage);
-            } else {
-                generateDefaultTemplateImage();
-            }
-
-            // Drag and drop listeners
-            setupDragAndDrop();
-            setupInteractiveHandles();
-            
-            // Sync Admin inputs with Config
-            populateAdminForm();
-        }
-
-        function saveStateToLocalStorage() {
-            localStorage.setItem('roca_cell_config', JSON.stringify(config));
-            localStorage.setItem('roca_cell_data', JSON.stringify(cellsData));
-        }
-
-        // Generate a elegant dark background template if user hasn't uploaded an image yet
-        function generateDefaultTemplateImage() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1080;
-            canvas.height = 1350;
-            const ctx = canvas.getContext('2d');
-
-            // Dark gradient
-            const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
-            grad.addColorStop(0, '#15120e');
-            grad.addColorStop(0.5, '#0f0d0b');
-            grad.addColorStop(1, '#050403');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1080, 1350);
-
-            // Gold decorative elements
-            ctx.strokeStyle = '#ffcc4d';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(40, 40, 1000, 1270);
-            
-            ctx.lineWidth = 1;
-            ctx.strokeRect(55, 55, 970, 1240);
-
-            // Subtle Cross / Header graphics
-            ctx.fillStyle = '#ffcc4d';
-            ctx.font = 'bold 32px Montserrat';
-            ctx.textAlign = 'center';
-            ctx.fillText('IGLESIA ROCA DE VIDA PANAMÁ', 540, 140);
-
-            ctx.fillStyle = '#c8ad8f';
-            ctx.font = '24px Montserrat';
-            ctx.fillText('TE INVITAMOS A NUESTRA CÉLULA', 540, 180);
-
-            // Divider
-            ctx.beginPath();
-            ctx.moveTo(340, 220);
-            ctx.lineTo(740, 220);
-            ctx.strokeStyle = '#ffcc4d';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            const dataUrl = canvas.toDataURL('image/png');
-            config.bgImage = dataUrl;
-            loadBgImageSrc(dataUrl);
-        }
-
-        function loadBgImageSrc(src) {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                loadedBgImage = img;
-                renderAllCellCards();
-                if (isAdminMode) renderAdminPreview();
-            };
-            img.src = src;
-        }
-
-        // ------------------------------------------------------------------
-        // 3. RENDER PUBLIC CELLS & CARD CANVAS
-        // ------------------------------------------------------------------
-        function renderAllCellCards() {
-            const grid = document.getElementById('cellsGrid');
-            grid.innerHTML = '';
-
-            document.getElementById('weekNameDisplay').textContent = config.weekName || 'Semana de Célula';
-
-            cellsData.forEach((cell, index) => {
-                const card = document.createElement('div');
-                card.className = 'cell-card bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-xl hover:border-brand-gold/40 transition duration-300 flex flex-col';
-                card.dataset.name = cell.name.toLowerCase();
-
-                card.innerHTML = `
-                    <div class="p-4 bg-brand-dark/40 border-b border-brand-border flex items-center justify-between">
-                        <h3 class="font-bold text-base text-white font-spartan truncate" title="${cell.name}">${cell.name}</h3>
-                        <span class="text-[10px] bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/20 font-semibold">#${cell.id}</span>
-                    </div>
-
-                    <!-- Canvas Preview -->
-                    <div class="p-4 bg-black/40 flex justify-center items-center">
-                        <canvas id="cellCanvas_${cell.id}" class="max-w-full h-auto rounded-lg border border-brand-border shadow-md"></canvas>
-                    </div>
-
-                    <!-- Form Controls -->
-                    <div class="p-4 space-y-3 flex-1 flex flex-col justify-between bg-brand-card">
-                        <div class="space-y-3">
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-5">
-                                    <label class="block text-[11px] text-brand-sec mb-1">Día</label>
-                                    <select onchange="updateCellData(${index}, 'day', this.value)" class="w-full px-2 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
-                                        <option value="Lunes" ${cell.day === 'Lunes' ? 'selected' : ''}>Lunes</option>
-                                        <option value="Martes" ${cell.day === 'Martes' ? 'selected' : ''}>Martes</option>
-                                        <option value="Miércoles" ${cell.day === 'Miércoles' ? 'selected' : ''}>Miércoles</option>
-                                        <option value="Jueves" ${cell.day === 'Jueves' ? 'selected' : ''}>Jueves</option>
-                                        <option value="Viernes" ${cell.day === 'Viernes' ? 'selected' : ''}>Viernes</option>
-                                        <option value="Sábado" ${cell.day === 'Sábado' ? 'selected' : ''}>Sábado</option>
-                                        <option value="Domingo" ${cell.day === 'Domingo' ? 'selected' : ''}>Domingo</option>
-                                    </select>
-                                </div>
-                                <div class="col-span-4">
-                                    <label class="block text-[11px] text-brand-sec mb-1">Hora</label>
-                                    <input type="text" value="${cell.time}" oninput="updateCellData(${index}, 'time', this.value)" placeholder="07:30" class="w-full px-2 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
-                                </div>
-                                <div class="col-span-3">
-                                    <label class="block text-[11px] text-brand-sec mb-1">AM/PM</label>
-                                    <select onchange="updateCellData(${index}, 'ampm', this.value)" class="w-full px-1 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none">
-                                        <option value="AM" ${cell.ampm === 'AM' ? 'selected' : ''}>AM</option>
-                                        <option value="PM" ${cell.ampm === 'PM' ? 'selected' : ''}>PM</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] text-brand-sec mb-1">Ubicación / Dirección</label>
-                                <textarea rows="2" oninput="updateCellData(${index}, 'address', this.value)" placeholder="Escribe la dirección..." class="w-full px-2.5 py-1.5 bg-brand-dark border border-brand-border rounded-lg text-xs text-white focus:border-brand-gold focus:outline-none resize-none">${cell.address}</textarea>
-                            </div>
-                        </div>
-
-                        <button onclick="downloadCellCard(${cell.id})" class="w-full mt-2 py-2.5 bg-gradient-to-r from-brand-gold to-yellow-400 text-brand-dark font-bold text-xs rounded-xl hover:brightness-110 transition flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/10">
-                            <i class="fa-solid fa-download"></i> Descargar Invitación
-                        </button>
-                    </div>
-                `;
-
-                grid.appendChild(card);
-                
-                // Draw individual canvas preview
-                setTimeout(() => drawCardCanvas(`cellCanvas_${cell.id}`, cell), 50);
-            });
-        }
-
-        function updateCellData(index, key, value) {
-            cellsData[index][key] = value;
-            saveStateToLocalStorage();
-            drawCardCanvas(`cellCanvas_${cellsData[index].id}`, cellsData[index]);
-        }
-
-        // ------------------------------------------------------------------
-        // 4. CANVAS CORE DRAWING ENGINE
-        // ------------------------------------------------------------------
-        function drawCardCanvas(canvasId, cell) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            
-            // High Resolution standard: 1080x1350
-            const W = 1080;
-            const H = 1350;
-            canvas.width = W;
-            canvas.height = H;
-
-            // Draw Background Image
-            if (loadedBgImage) {
-                ctx.drawImage(loadedBgImage, 0, 0, W, H);
-            } else {
-                ctx.fillStyle = '#181512';
-                ctx.fillRect(0, 0, W, H);
-            }
-
-            // Setup Text Styles
-            const fontName = config.fontFamily || 'League Spartan';
-            const color = config.textColor || '#ffffff';
-            const align = config.textAlign || 'center';
-
-            ctx.textAlign = align;
-            ctx.fillStyle = color;
-
-            if (config.textShadow) {
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
-                ctx.shadowBlur = 12;
-                ctx.shadowOffsetX = 3;
-                ctx.shadowOffsetY = 3;
-            } else {
-                ctx.shadowColor = 'transparent';
-            }
-
-            // Calculate exact position coordinates
-            function getX(relX) {
-                if (align === 'left') return W * 0.1;
-                if (align === 'right') return W * 0.9;
-                return W * relX;
-            }
-
-            // 1. Draw Cell Title
-            ctx.font = `bold ${config.titleFontSize * 1.5}px "${fontName}", sans-serif`;
-            const titleX = getX(config.positions.title.x);
-            const titleY = H * config.positions.title.y;
-            ctx.fillText(cell.name.toUpperCase(), titleX, titleY);
-
-            // 2. Draw Day & Time
-            ctx.font = `600 ${config.detailFontSize * 1.3}px "${fontName}", sans-serif`;
-            const timeX = getX(config.positions.time.x);
-            const timeY = H * config.positions.time.y;
-            const timeText = `📅 ${cell.day} - ⏰ ${cell.time} ${cell.ampm}`;
-            ctx.fillText(timeText, timeX, timeY);
-
-            // 3. Draw Address with auto line wrapping
-            ctx.font = `500 ${config.detailFontSize * 1.1}px "${fontName}", sans-serif`;
-            const addressX = getX(config.positions.address.x);
-            const addressY = H * config.positions.address.y;
-            const maxLineWidth = W * 0.8;
-            const lineHeight = config.detailFontSize * 1.4;
-
-            wrapText(ctx, `📍 ${cell.address}`, addressX, addressY, maxLineWidth, lineHeight, config.maxLines);
-        }
-
-        // Helper function for canvas text wrapping
-        function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-            const words = text.split(' ');
-            let line = '';
-            let currentY = y;
-            let lineCount = 0;
-
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                const metrics = ctx.measureText(testLine);
-                const testWidth = metrics.width;
-
-                if (testWidth > maxWidth && n > 0) {
-                    ctx.fillText(line, x, currentY);
-                    line = words[n] + ' ';
-                    currentY += lineHeight;
-                    lineCount++;
-                    if (lineCount >= maxLines - 1) {
-                        // Ellipsis for excess lines
-                        let remaining = words.slice(n).join(' ');
-                        while (ctx.measureText(remaining + '...').width > maxWidth && remaining.length > 0) {
-                            remaining = remaining.substring(0, remaining.length - 1);
-                        }
-                        ctx.fillText(remaining + '...', x, currentY);
-                        return;
-                    }
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line, x, currentY);
-        }
-
-        // ------------------------------------------------------------------
-        // 5. DOWNLOAD CARD FUNCTION
-        // ------------------------------------------------------------------
-        function downloadCellCard(cellId) {
-            const sourceCanvas = document.getElementById(`cellCanvas_${cellId}`);
-            if (!sourceCanvas) return;
-
-            const cell = cellsData.find(c => c.id === cellId);
-            const fileName = `Invitacion_${cell.name.replace(/[^a-zA-Z0-0]/g, '_')}.png`;
-
-            // Trigger download via hidden anchor
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = sourceCanvas.toDataURL('image/png', 1.0);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast(`¡Tarjeta de ${cell.name} descargada!`);
-        }
-
-        // ------------------------------------------------------------------
-        // 6. SEARCH & FILTERING
-        // ------------------------------------------------------------------
-        function filterCells() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.cell-card');
-            let visibleCount = 0;
-
-            cards.forEach(card => {
-                const name = card.dataset.name;
-                if (name.includes(query)) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            document.getElementById('noResults').classList.toggle('hidden', visibleCount > 0);
-        }
-
-        // ------------------------------------------------------------------
-        // 7. ADMIN MODE & INTERACTIVE DRAG HANDLES
-        // ------------------------------------------------------------------
-        function toggleAdminView() {
-            isAdminMode = !isAdminMode;
-            const adminPanel = document.getElementById('adminPanel');
-            const userHeaderSection = document.getElementById('userHeaderSection');
-            const adminBtnText = document.getElementById('adminBtnText');
-
-            if (isAdminMode) {
-                adminPanel.classList.remove('hidden');
-                userHeaderSection.classList.add('opacity-50', 'pointer-events-none');
-                adminBtnText.textContent = 'Ver Vista Pública';
-                populateAdminForm();
-                renderAdminPreview();
-                showToast('Modo Administración Activado');
-            } else {
-                adminPanel.classList.add('hidden');
-                userHeaderSection.classList.remove('opacity-50', 'pointer-events-none');
-                adminBtnText.textContent = 'Modo Admin';
-                renderAllCellCards();
-            }
-        }
-
-        function populateAdminForm() {
-            document.getElementById('adminWeekName').value = config.weekName || '';
-            document.getElementById('adminFontFamily').value = config.fontFamily || 'League Spartan';
-            document.getElementById('adminTextColor').value = config.textColor || '#ffffff';
-            document.getElementById('adminTextColorHex').value = config.textColor || '#ffffff';
-            document.getElementById('adminTitleFontSize').value = config.titleFontSize || 54;
-            document.getElementById('adminDetailFontSize').value = config.detailFontSize || 36;
-            document.getElementById('adminTextAlign').value = config.textAlign || 'center';
-            document.getElementById('adminMaxLines').value = config.maxLines || 2;
-            document.getElementById('adminTextShadow').checked = config.textShadow;
-        }
-
-        function syncColorInput(hex) {
-            if (/^#[0-9A-F]{6}$/i.test(hex)) {
-                document.getElementById('adminTextColor').value = hex;
-                updateConfigFromForm();
-            }
-        }
-
-        function updateConfigFromForm() {
-            config.weekName = document.getElementById('adminWeekName').value;
-            config.fontFamily = document.getElementById('adminFontFamily').value;
-            config.textColor = document.getElementById('adminTextColor').value;
-            document.getElementById('adminTextColorHex').value = config.textColor;
-            config.titleFontSize = parseInt(document.getElementById('adminTitleFontSize').value) || 54;
-            config.detailFontSize = parseInt(document.getElementById('adminDetailFontSize').value) || 36;
-            config.textAlign = document.getElementById('adminTextAlign').value;
-            config.maxLines = parseInt(document.getElementById('adminMaxLines').value) || 2;
-            config.textShadow = document.getElementById('adminTextShadow').checked;
-
-            renderAdminPreview();
-        }
-
-        function renderAdminPreview() {
-            // Render on the admin preview canvas using sample data
-            const sampleCell = {
-                id: 0,
-                name: 'CÉLULA DE EJEMPLO',
-                day: 'Miércoles',
-                time: '07:30',
-                ampm: 'PM',
-                address: 'Ejemplo de Dirección, San Francisco, Calle 50'
-            };
-
-            drawCardCanvas('adminPreviewCanvas', sampleCell);
-            positionDragHandles();
-        }
-
-        // Position HTML draggable overlay handles over canvas
-        function positionDragHandles() {
-            const wrapper = document.getElementById('interactiveCanvasWrapper');
-            const rect = wrapper.getBoundingClientRect();
-
-            if (!rect.width || !rect.height) return;
-
-            const titleH = document.getElementById('dragTitle');
-            const timeH = document.getElementById('dragTime');
-            const addressH = document.getElementById('dragAddress');
-
-            // Convert relative percentages (0.0 to 1.0) to pixels inside wrapper
-            titleH.style.left = `${config.positions.title.x * 100}%`;
-            titleH.style.top = `${config.positions.title.y * 100}%`;
-            titleH.style.transform = 'translate(-50%, -50%)';
-
-            timeH.style.left = `${config.positions.time.x * 100}%`;
-            timeH.style.top = `${config.positions.time.y * 100}%`;
-            timeH.style.transform = 'translate(-50%, -50%)';
-
-            addressH.style.left = `${config.positions.address.x * 100}%`;
-            addressH.style.top = `${config.positions.address.y * 100}%`;
-            addressH.style.transform = 'translate(-50%, -50%)';
-        }
-
-        // ------------------------------------------------------------------
-        // 8. INTERACTIVE DRAG ENGINE FOR TEXT POSITIONS
-        // ------------------------------------------------------------------
-        function setupInteractiveHandles() {
-            const handles = [
-                { id: 'dragTitle', key: 'title' },
-                { id: 'dragTime', key: 'time' },
-                { id: 'dragAddress', key: 'address' }
-            ];
-
-            handles.forEach(item => {
-                const el = document.getElementById(item.id);
-
-                const startDrag = (e) => {
-                    e.preventDefault();
-                    activeDragElement = { el, key: item.key };
-                    el.classList.add('active');
-
-                    window.addEventListener('mousemove', onDrag);
-                    window.addEventListener('mouseup', stopDrag);
-                    window.addEventListener('touchmove', onDrag, { passive: false });
-                    window.addEventListener('touchend', stopDrag);
-                };
-
-                el.addEventListener('mousedown', startDrag);
-                el.addEventListener('touchstart', startDrag, { passive: false });
-            });
-        }
-
-        function onDrag(e) {
-            if (!activeDragElement) return;
-            e.preventDefault();
-
-            const wrapper = document.getElementById('interactiveCanvasWrapper');
-            const rect = wrapper.getBoundingClientRect();
-
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            // Calculate position relative to canvas wrapper
-            let relX = (clientX - rect.left) / rect.width;
-            let relY = (clientY - rect.top) / rect.height;
-
-            // Clamp bounds
-            relX = Math.max(0.05, Math.min(0.95, relX));
-            relY = Math.max(0.05, Math.min(0.95, relY));
-
-            config.positions[activeDragElement.key] = { x: relX, y: relY };
-
-            positionDragHandles();
-            renderAdminPreview();
-        }
-
-        function stopDrag() {
-            if (activeDragElement) {
-                activeDragElement.el.classList.remove('active');
-                activeDragElement = null;
-            }
-            window.removeEventListener('mousemove', onDrag);
-            window.removeEventListener('mouseup', stopDrag);
-            window.removeEventListener('touchmove', onDrag);
-            window.removeEventListener('touchend', stopDrag);
-        }
-
-        // ------------------------------------------------------------------
-        // 9. IMAGE UPLOAD & DRAG & DROP
-        // ------------------------------------------------------------------
-        function setupDragAndDrop() {
-            const dropZone = document.getElementById('dropZone');
-            const fileInput = document.getElementById('bgImageInput');
-
-            dropZone.addEventListener('click', () => fileInput.click());
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('border-brand-gold', 'bg-brand-gold/10');
-                });
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('border-brand-gold', 'bg-brand-gold/10');
-                });
-            });
-
-            dropZone.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
-                if (files.length) handleFile(files[0]);
-            });
-        }
-
-        function handleImageUpload(e) {
-            const files = e.target.files;
-            if (files.length) handleFile(files[0]);
-        }
-
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                showToast('Por favor selecciona una imagen válida');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                config.bgImage = e.target.result;
-                loadBgImageSrc(e.target.result);
-                showToast('Imagen cargada con éxito');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function saveAdminSettings() {
-            saveStateToLocalStorage();
-            renderAllCellCards();
-            showToast('¡Configuración guardada correctamente!');
-        }
-
-        // ------------------------------------------------------------------
-        // 10. TOAST NOTIFICATIONS
-        // ------------------------------------------------------------------
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyB0fQXXlHQjRCOnvTvkbjsgAuRQ2JBPZBk",
-  authDomain: "celular-rdv.firebaseapp.com",
-  projectId: "celular-rdv",
-  storageBucket: "celular-rdv.firebasestorage.app",
-  messagingSenderId: "830620018609",
-  appId: "1:830620018609:web:154e90874b83cfe00a7f90",
-  measurementId: "G-4Y8PW9QR7W"
+    <div class="stage">
+      <div class="frame"><canvas id="lCanvas" width="1080" height="1350" aria-label="Vista previa de la invitación"></canvas></div>
+      <p class="stage-cap">Vista previa · 1080 × 1350 px</p>
+    </div>
+
+    <div class="form">
+
+      <label class="field">
+        <span>Célula</span>
+        <select id="lCell" class="control"></select>
+      </label>
+
+      <div class="row">
+        <label class="field">
+          <span>Día</span>
+          <select id="lDay" class="control">
+            <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+            <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Hora</span>
+          <input id="lTime" type="time" class="control" value="19:30">
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Dirección</span>
+        <textarea id="lAddress" class="control" rows="3" maxlength="140" placeholder="Ej.: Calle 50, Edificio Las Palmas, Apto 4B"></textarea>
+        <small id="lCount">0 / 140</small>
+      </label>
+
+      <p class="hint" id="lHint">Completa la dirección para habilitar la descarga.</p>
+      <div class="actions bar">
+        <button id="lDownload" class="btn btn-primary" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          Descargar invitación
+        </button>
+        <button id="lShare" class="btn btn-ghost" hidden disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          Compartir
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA ADMIN ============ -->
+  <section id="adminView" hidden>
+    <div class="admin-bar">
+      <h2>Plantilla de la semana</h2>
+      <button class="btn btn-ghost btn-sm" id="aImportBtn">Abrir config.json</button>
+      <input type="file" id="aImportFile" accept="application/json,.json" hidden>
+      <button class="btn btn-ghost btn-sm" id="aReload">Volver a la publicada</button>
+      <button class="btn btn-primary btn-sm" id="aExport" style="flex:0 0 auto">Exportar config.json</button>
+    </div>
+
+    <div class="admin">
+      <div>
+        <div class="panel">
+          <h3>Semana y fondo</h3>
+          <p>Sube el arte en 1080 × 1350 px. Si es de otra medida, se recorta al centro.</p>
+          <label class="field"><span>Nombre de la semana</span>
+            <input class="control" data-path="weekName" type="text" placeholder="Ej.: Semana de la Familia">
+          </label>
+          <div class="drop" id="aDrop" tabindex="0" role="button">
+            <strong id="aDropTitle">Toca o arrastra la imagen de fondo</strong>
+            <span>JPG o PNG</span>
+          </div>
+          <input type="file" id="aBgFile" accept="image/*" hidden>
+          <div class="actions"><button class="btn btn-ghost btn-sm" id="aBgClear">Usar fondo por defecto</button></div>
+        </div>
+
+        <div class="panel">
+          <h3>Texto</h3>
+          <p>Arrastra los marcadores sobre la vista previa para ubicar cada bloque.</p>
+          <div class="grid3">
+            <label class="field"><span>Tipografía</span>
+              <select class="control" data-path="font">
+                <option>League Spartan</option><option>Bebas Neue</option><option>Montserrat</option>
+                <option>Oswald</option><option>Poppins</option><option>Raleway</option><option>Playfair Display</option>
+              </select>
+            </label>
+            <label class="field"><span>Color</span><input class="control" type="color" data-path="color"></label>
+            <label class="field"><span>Alineación</span>
+              <select class="control" data-path="align">
+                <option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option>
+              </select>
+            </label>
+          </div>
+          <label class="field"><span>Ancho máximo del texto: <output id="aMaxWOut"></output></span>
+            <input type="range" min="0.4" max="0.95" step="0.01" data-path="maxWidth">
+          </label>
+          <label class="check"><input type="checkbox" data-path="shadow"> Sombra detrás del texto</label>
+        </div>
+
+        <div class="panel">
+          <h3>Bloques</h3>
+          <p>Si un texto no cabe, se achica solo hasta un 55 % del tamaño indicado.</p>
+          <div class="el-row">
+            <b>Nombre</b>
+            <label class="field"><span>Tamaño</span><input class="control" type="number" min="20" max="200" data-path="elements.title.size"></label>
+            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="3" data-path="elements.title.maxLines"></label>
+            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.title.uppercase"> Mayús.</label>
+          </div>
+          <div class="el-row">
+            <b>Día y hora</b>
+            <label class="field"><span>Tamaño</span><input class="control" type="number" min="16" max="150" data-path="elements.when.size"></label>
+            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="2" data-path="elements.when.maxLines"></label>
+            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.when.uppercase"> Mayús.</label>
+          </div>
+          <div class="el-row">
+            <b>Dirección</b>
+            <label class="field"><span>Tamaño</span><input class="control" type="number" min="14" max="120" data-path="elements.address.size"></label>
+            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="5" data-path="elements.address.maxLines"></label>
+            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.address.uppercase"> Mayús.</label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Células</h3>
+          <p>Una por línea. Este es el listado que verán los líderes.</p>
+          <textarea class="control" id="aCells" rows="10" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <label class="field"><span>Probar con</span>
+          <select class="control" id="aSample"></select>
+        </label>
+        <div class="frame" id="aFrame">
+          <canvas id="aCanvas" width="1080" height="1350"></canvas>
+          <div class="guide" id="aGuide"></div>
+        </div>
+        <p class="stage-cap">Los cambios se guardan como borrador en este navegador. Para publicarlos, exporta config.json y súbelo al repositorio.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="year"></span> Iglesia Roca de Vida Panamá</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------------- Constantes y estado ---------------- */
+const W = 1080, H = 1350;
+const CONFIG_URL = 'config.json';
+const DRAFT_KEY = 'roca_admin_draft_v2';
+const LAST_CELL_KEY = 'roca_last_cell';
+const CELL_KEY = name => 'roca_cell:' + name;
+const IS_ADMIN = new URLSearchParams(location.search).has('admin');
+
+const DEFAULT_CONFIG = {
+  version: 2,
+  weekName: '',
+  bgImage: '',
+  font: 'League Spartan',
+  color: '#ffffff',
+  align: 'center',
+  maxWidth: 0.84,
+  shadow: true,
+  elements: {
+    title:   { label: 'Nombre',     x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true },
+    when:    { label: 'Día y hora', x: 0.5, y: 0.71, size: 52, weight: 600, maxLines: 1, uppercase: true },
+    address: { label: 'Dirección',  x: 0.5, y: 0.81, size: 40, weight: 500, maxLines: 3, uppercase: false }
+  },
+  cells: [
+    'Célula La Chorrera','Célula Las Acacias (Arraiján)','Célula Bello Horizonte','San Antonio','Punta del Este',
+    'Villas Don Bosco','Célula Fe Sin Fronteras','Villa Zaita','San Francisco','Brisas del Golf','Parque Lefevre',
+    'La Locería','Célula Las Villas de Arraiján','Tocumen','Obarrio','La Cascada','Juan Pablo II','Cerro Viento',
+    'Célula Versalles','La Cascada de Arraiján','Célula Parque Real','Ernesto T. Lefevre'
+  ]
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-        window.onload = function() {
-            initApp();
+let config = clone(DEFAULT_CONFIG);
+let bgImg = null;
+let renderQueued = false;
+
+const $ = id => document.getElementById(id);
+
+/* ---------------- Utilidades ---------------- */
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+function mergeConfig(raw){
+  const d = clone(DEFAULT_CONFIG);
+  if (!raw || typeof raw !== 'object') return d;
+  const out = { ...d, ...raw, elements: {} };
+  for (const k of Object.keys(d.elements)) out.elements[k] = { ...d.elements[k], ...(raw.elements?.[k] || {}) };
+  if (!Array.isArray(out.cells) || !out.cells.length) out.cells = d.cells;
+  return out;
+}
+
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch { return false; } }
+};
+
+let toastTimer;
+function toast(msg, isErr){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function showNotice(html, isErr){
+  const n = $('notice');
+  n.innerHTML = html;
+  n.classList.toggle('err', !!isErr);
+  n.hidden = false;
+}
+
+function formatTime(hhmm){
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  if (isNaN(h)) return hhmm;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m || 0).padStart(2,'0')} ${ampm}`;
+}
+
+function slug(s){
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+}
+
+function loadImage(src){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function ensureFonts(){
+  const f = config.font;
+  const weights = new Set(Object.values(config.elements).map(e => e.weight));
+  try {
+    await Promise.all([...weights].map(w => document.fonts.load(`${w} 40px "${f}"`, 'ÁÉÍÓÚÑáéíóúñ')));
+  } catch { /* sigue con la fuente de respaldo */ }
+}
+
+async function applyBackground(){
+  bgImg = null;
+  if (config.bgImage) {
+    try { bgImg = await loadImage(config.bgImage); }
+    catch { toast('No se pudo cargar la imagen de fondo. Se usa el fondo por defecto.', true); }
+  }
+}
+
+/* ---------------- Motor de dibujo ---------------- */
+function drawDefaultBackground(ctx){
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#1e1913'); g.addColorStop(.55, '#14110e'); g.addColorStop(1, '#070605');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#ffcc4d'; ctx.lineWidth = 4; ctx.strokeRect(40, 40, W - 80, H - 80);
+  ctx.lineWidth = 1; ctx.strokeRect(56, 56, W - 112, H - 112);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#ffcc4d'; ctx.font = '700 34px Montserrat, sans-serif';
+  ctx.fillText('IGLESIA ROCA DE VIDA PANAMÁ', W/2, 150);
+  ctx.fillStyle = '#c8ad8f'; ctx.font = '500 28px Montserrat, sans-serif';
+  ctx.fillText('Te invitamos a nuestra célula', W/2, 196);
+  ctx.beginPath(); ctx.moveTo(390, 236); ctx.lineTo(690, 236);
+  ctx.strokeStyle = '#ffcc4d'; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function drawCover(ctx, img){
+  const s = Math.max(W / img.width, H / img.height);
+  const w = img.width * s, h = img.height * s;
+  ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+}
+
+function wrapWords(ctx, text, maxW){
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width <= maxW || !line) line = test;
+    else { lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function truncate(ctx, text, maxW){
+  if (ctx.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t.trimEnd() + '…';
+}
+
+// Ajusta el texto: envuelve en líneas y achica la fuente hasta que quepa.
+function layoutBlock(ctx, text, el, maxW){
+  const minSize = Math.max(14, Math.round(el.size * 0.55));
+  let size = el.size, lines;
+  for (;;) {
+    ctx.font = `${el.weight} ${size}px "${config.font}", sans-serif`;
+    lines = wrapWords(ctx, text, maxW);
+    const fits = lines.length <= el.maxLines && lines.every(l => ctx.measureText(l).width <= maxW);
+    if (fits || size <= minSize) break;
+    size -= 2;
+  }
+  if (lines.length > el.maxLines) {
+    const keep = lines.slice(0, el.maxLines);
+    keep[keep.length - 1] = lines.slice(el.maxLines - 1).join(' ');
+    lines = keep;
+  }
+  lines = lines.map(l => truncate(ctx, l, maxW));
+  return { lines, size };
+}
+
+function blockMaxWidth(el){
+  const cap = W * config.maxWidth;
+  const margin = W * 0.04;
+  if (config.align === 'left')  return Math.min(cap, W * (1 - el.x) - margin);
+  if (config.align === 'right') return Math.min(cap, W * el.x - margin);
+  return Math.min(cap, 2 * W * Math.min(el.x, 1 - el.x) - margin);
+}
+
+function drawBlock(ctx, text, el){
+  if (!text) return;
+  if (el.uppercase) text = text.toLocaleUpperCase('es');
+  const maxW = Math.max(120, blockMaxWidth(el));
+  const { lines, size } = layoutBlock(ctx, text, el, maxW);
+  const lh = size * 1.12;
+  const x = el.x * W;
+  let y = el.y * H - ((lines.length - 1) * lh) / 2;
+  for (const l of lines) { ctx.fillText(l, x, y); y += lh; }
+}
+
+function drawCard(canvas, data){
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  if (bgImg) drawCover(ctx, bgImg); else drawDefaultBackground(ctx);
+  ctx.restore();
+
+  ctx.fillStyle = config.color;
+  ctx.textAlign = config.align;
+  ctx.textBaseline = 'middle';
+  if (config.shadow) {
+    ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
+  }
+  const when = [data.day, formatTime(data.time)].filter(Boolean).join(', ');
+  drawBlock(ctx, data.name, config.elements.title);
+  drawBlock(ctx, when, config.elements.when);
+  drawBlock(ctx, data.address, config.elements.address);
+}
+
+/* ---------------- Vista líder ---------------- */
+const leader = {
+  init(){
+    $('leaderView').hidden = false;
+    const sel = $('lCell');
+    sel.innerHTML = '<option value="">Selecciona tu célula…</option>' +
+      config.cells.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+    const last = store.get(LAST_CELL_KEY);
+    if (last && config.cells.includes(last)) sel.value = last;
+    this.loadCell();
+
+    sel.addEventListener('change', () => { store.set(LAST_CELL_KEY, sel.value); this.loadCell(); });
+    ['lDay','lTime','lAddress'].forEach(id => $(id).addEventListener('input', () => this.changed()));
+    $('lDownload').addEventListener('click', () => this.download());
+    $('lShare').addEventListener('click', () => this.share());
+
+    try {
+      const probe = new File([new Blob(['x'], { type: 'image/png' })], 'x.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [probe] })) $('lShare').hidden = false;
+    } catch {}
+  },
+  data(){
+    return { name: $('lCell').value, day: $('lDay').value, time: $('lTime').value, address: $('lAddress').value.trim() };
+  },
+  loadCell(){
+    const name = $('lCell').value;
+    let saved = null;
+    if (name) { try { saved = JSON.parse(store.get(CELL_KEY(name)) || 'null'); } catch {} }
+    $('lDay').value = saved?.day || 'Miércoles';
+    $('lTime').value = saved?.time || '19:30';
+    $('lAddress').value = saved?.address || '';
+    this.refresh();
+  },
+  changed(){
+    const d = this.data();
+    if (d.name) store.set(CELL_KEY(d.name), JSON.stringify({ day: d.day, time: d.time, address: d.address }));
+    this.refresh();
+  },
+  refresh(){
+    const d = this.data();
+    $('lCount').textContent = `${$('lAddress').value.length} / 140`;
+    const missing = !d.name ? 'Selecciona tu célula.' : !d.time ? 'Indica la hora.' : !d.address ? 'Completa la dirección para habilitar la descarga.' : '';
+    $('lHint').textContent = missing || 'Lista. Tus datos quedan guardados en este dispositivo para la próxima semana.';
+    $('lDownload').disabled = $('lShare').disabled = !!missing;
+    queueRender(() => drawCard($('lCanvas'), { ...d, name: d.name || 'Nombre de tu célula', address: d.address || 'Dirección de la reunión' }));
+  },
+  blob(){
+    return new Promise(res => {
+      const c = document.createElement('canvas');
+      drawCard(c, this.data());
+      c.toBlob(res, 'image/png');
+    });
+  },
+  fileName(){ return `invitacion-${slug(this.data().name)}.png`; },
+  async download(){
+    const blob = await this.blob();
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: this.fileName() });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Invitación descargada');
+  },
+  async share(){
+    const blob = await this.blob();
+    const file = new File([blob], this.fileName(), { type: 'image/png' });
+    try {
+      await navigator.share({ files: [file], title: 'Invitación ' + this.data().name });
+    } catch (e) {
+      if (e.name !== 'AbortError') toast('No se pudo compartir. Usa Descargar invitación.', true);
+    }
+  }
+};
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function queueRender(fn){
+  queueRender.fn = fn;
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; queueRender.fn(); });
+}
+
+/* ---------------- Vista admin ---------------- */
+const admin = {
+  handles: {},
+  draftWarned: false,
+  saveTimer: null,
+
+  init(){
+    $('adminView').hidden = false;
+    document.title = 'Admin · ' + document.title;
+    this.buildHandles();
+    this.bindForm();
+    this.fillForm();
+
+    $('aCells').addEventListener('input', () => {
+      config.cells = $('aCells').value.split('\n').map(s => s.trim()).filter(Boolean);
+      this.fillSamples(); this.changed();
+    });
+    $('aSample').addEventListener('change', () => this.render());
+
+    const drop = $('aDrop'), file = $('aBgFile');
+    drop.addEventListener('click', () => file.click());
+    drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } });
+    ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => e.dataTransfer.files[0] && this.setBackground(e.dataTransfer.files[0]));
+    file.addEventListener('change', () => { file.files[0] && this.setBackground(file.files[0]); file.value = ''; });
+    $('aBgClear').addEventListener('click', async () => { config.bgImage = ''; await applyBackground(); this.updateDropLabel(); this.changed(); });
+
+    $('aExport').addEventListener('click', () => this.exportConfig());
+    $('aImportBtn').addEventListener('click', () => $('aImportFile').click());
+    $('aImportFile').addEventListener('change', e => { e.target.files[0] && this.importConfig(e.target.files[0]); e.target.value = ''; });
+    $('aReload').addEventListener('click', () => this.reloadPublished());
+
+    window.addEventListener('resize', () => this.placeHandles());
+  },
+
+  bindForm(){
+    document.querySelectorAll('#adminView [data-path]').forEach(input => {
+      const ev = (input.type === 'checkbox' || input.tagName === 'SELECT') ? 'change' : 'input';
+      input.addEventListener(ev, async () => {
+        let v = input.type === 'checkbox' ? input.checked
+              : (input.type === 'number' || input.type === 'range') ? parseFloat(input.value) : input.value;
+        if (typeof v === 'number' && isNaN(v)) return;
+        setPath(config, input.dataset.path, v);
+        if (input.dataset.path === 'font') await ensureFonts();
+        this.changed();
+      });
+    });
+  },
+
+  fillForm(){
+    document.querySelectorAll('#adminView [data-path]').forEach(input => {
+      const v = getPath(config, input.dataset.path);
+      if (input.type === 'checkbox') input.checked = !!v; else input.value = v ?? '';
+    });
+    $('aCells').value = config.cells.join('\n');
+    this.fillSamples();
+    this.updateDropLabel();
+    this.changed(true);
+  },
+
+  fillSamples(){
+    const sel = $('aSample'), prev = sel.value;
+    const longest = [...config.cells].sort((a, b) => b.length - a.length)[0] || '';
+    sel.innerHTML = `<option value="__longest">Nombre más largo (${escapeHtml(longest)})</option>` +
+      config.cells.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+    sel.value = [...sel.options].some(o => o.value === prev) ? prev : '__longest';
+  },
+
+  sample(){
+    let name = $('aSample').value;
+    if (name === '__longest') name = [...config.cells].sort((a, b) => b.length - a.length)[0] || 'Célula de ejemplo';
+    return { name, day: 'Miércoles', time: '19:30', address: 'Calle 50, Edificio Torres del Mar, apartamento 12B, frente al parque' };
+  },
+
+  updateDropLabel(){
+    $('aDropTitle').textContent = config.bgImage ? 'Fondo cargado. Toca para reemplazarlo' : 'Toca o arrastra la imagen de fondo';
+  },
+
+  changed(skipSave){
+    $('aMaxWOut').textContent = Math.round(config.maxWidth * 100) + ' %';
+    $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = !config.weekName;
+    this.render();
+    if (!skipSave) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = setTimeout(() => {
+        if (!store.set(DRAFT_KEY, JSON.stringify(config)) && !this.draftWarned) {
+          this.draftWarned = true;
+          toast('El borrador es muy pesado para guardarse en el navegador. Exporta config.json para no perder cambios.', true);
+        }
+      }, 400);
+    }
+  },
+
+  render(){
+    queueRender(() => { drawCard($('aCanvas'), this.sample()); this.placeHandles(); });
+  },
+
+  buildHandles(){
+    const frame = $('aFrame');
+    for (const key of Object.keys(config.elements)) {
+      const h = document.createElement('div');
+      h.className = 'handle';
+      const label = DEFAULT_CONFIG.elements[key].label;
+      h.innerHTML = `<span class="hl-long">${label}</span><span class="hl-short">${label[0]}</span>`;
+      h.setAttribute('aria-label', 'Mover ' + label);
+      frame.appendChild(h);
+      this.handles[key] = h;
+
+      h.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        h.setPointerCapture(e.pointerId);
+        h.classList.add('dragging');
+        const move = ev => {
+          const r = frame.getBoundingClientRect();
+          let x = (ev.clientX - r.left) / r.width;
+          let y = (ev.clientY - r.top) / r.height;
+          x = Math.min(.98, Math.max(.02, x)); y = Math.min(.97, Math.max(.03, y));
+          const snap = Math.abs(x - .5) < .015;
+          if (snap) x = .5;
+          $('aGuide').classList.toggle('on', snap);
+          config.elements[key].x = +x.toFixed(4);
+          config.elements[key].y = +y.toFixed(4);
+          this.render();
         };
-    </script>
+        const up = () => {
+          h.classList.remove('dragging'); $('aGuide').classList.remove('on');
+          h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up);
+          this.changed();
+        };
+        h.addEventListener('pointermove', move);
+        h.addEventListener('pointerup', up);
+        h.addEventListener('pointercancel', up);
+      });
+    }
+  },
+
+  placeHandles(){
+    const tf = { center: 'translate(-50%, -50%)', left: 'translate(0, -50%)', right: 'translate(-100%, -50%)' }[config.align];
+    for (const [key, h] of Object.entries(this.handles)) {
+      const el = config.elements[key];
+      h.style.left = el.x * 100 + '%';
+      h.style.top = el.y * 100 + '%';
+      h.style.transform = tf;
+      h.dataset.align = config.align;
+    }
+  },
+
+  async setBackground(file){
+    if (!file.type.startsWith('image/')) return toast('El archivo no es una imagen. Usa JPG o PNG.', true);
+    try {
+      const url = URL.createObjectURL(file);
+      const img = await loadImage(url);
+      URL.revokeObjectURL(url);
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      const s = Math.max(W / img.width, H / img.height);
+      ctx.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+      config.bgImage = c.toDataURL('image/jpeg', 0.9);
+      await applyBackground();
+      this.updateDropLabel();
+      this.changed();
+      if (img.width / img.height < .78 || img.width / img.height > .82) toast('Imagen cargada. No era 4:5, se recortó al centro.');
+      else toast('Imagen de fondo cargada');
+    } catch { toast('No se pudo leer la imagen. Prueba con otro archivo.', true); }
+  },
+
+  exportConfig(){
+    if (!config.cells.length) return toast('Agrega al menos una célula antes de exportar.', true);
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: 'config.json' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('config.json exportado. Súbelo al repositorio para publicarlo.');
+  },
+
+  async importConfig(file){
+    try {
+      config = mergeConfig(JSON.parse(await file.text()));
+      await Promise.all([ensureFonts(), applyBackground()]);
+      this.fillForm(); this.changed();
+      toast('Configuración abierta');
+    } catch { toast('El archivo no es un config.json válido.', true); }
+  },
+
+  async reloadPublished(){
+    const pub = await fetchPublished();
+    if (!pub) return toast('No se encontró config.json publicado.', true);
+    config = mergeConfig(pub);
+    await Promise.all([ensureFonts(), applyBackground()]);
+    this.fillForm(); this.changed();
+    toast('Se cargó la configuración publicada');
+  }
+};
+
+function getPath(o, p){ return p.split('.').reduce((a, k) => a?.[k], o); }
+function setPath(o, p, v){
+  const ks = p.split('.'); const last = ks.pop();
+  ks.reduce((a, k) => a[k], o)[last] = v;
+}
+
+async function fetchPublished(){
+  try {
+    const r = await fetch(CONFIG_URL, { cache: 'no-store' });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+/* ---------------- Arranque ---------------- */
+async function boot(){
+  $('year').textContent = new Date().getFullYear();
+
+  let raw = null, source = 'published';
+  if (IS_ADMIN) {
+    try { raw = JSON.parse(store.get(DRAFT_KEY) || 'null'); } catch {}
+    if (raw) source = 'draft';
+  }
+  if (!raw) raw = await fetchPublished();
+  if (!raw) source = 'default';
+  config = mergeConfig(raw);
+
+  await Promise.all([ensureFonts(), applyBackground()]);
+
+  if (config.weekName) { $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = false; }
+
+  if (IS_ADMIN) {
+    if (source === 'draft') showNotice('Estás editando tu borrador guardado. Usa <b>Volver a la publicada</b> para descartarlo.');
+    if (source === 'default') showNotice('No se encontró <b>config.json</b> junto a esta página. Arma la plantilla y expórtala para publicarla.');
+    admin.init();
+  } else {
+    if (source === 'default' && location.protocol === 'file:')
+      showNotice('Abriste el archivo local: el navegador no deja leer config.json así. Súbelo a GitHub Pages o pruébalo con un servidor local.', true);
+    leader.init();
+  }
+}
+
+boot();
+})();
+</script>
 </body>
 </html>
