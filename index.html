@@ -68,7 +68,7 @@ textarea.control{resize:vertical;min-height:84px}
 .hint{font-size:.82rem;color:var(--muted);margin:0 0 12px;min-height:1.2em}
 
 /* Preview — the hero */
-.stage{position:relative;justify-self:center;width:100%;max-width:480px}
+.stage{position:relative;justify-self:center;width:100%;max-width:min(480px,calc(78vh * var(--ratio,.8)))}
 @media (min-width:860px){.stage{position:sticky;top:92px}}
 .frame{position:relative;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 30px 60px -20px rgba(0,0,0,.7),0 0 0 1px var(--line)}
 .frame canvas{display:block;width:100%;height:auto}
@@ -85,15 +85,20 @@ textarea.control{resize:vertical;min-height:84px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px}
 .panel h3{font-family:var(--display);font-size:1.05rem;font-weight:700;margin:0 0 4px}
 .panel > p{color:var(--muted);font-size:.84rem;margin:0 0 14px}
-.panel .control{background:var(--bg)}
+.panel .control{background-color:var(--bg)}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.el-row{display:grid;grid-template-columns:110px repeat(3,minmax(0,1fr));gap:10px;align-items:end;padding:10px 0;border-top:1px solid var(--line)}
+.el-row{display:grid;grid-template-columns:96px repeat(4,minmax(0,1fr));gap:10px;align-items:end;padding:10px 0;border-top:1px solid var(--line)}
 .el-row:first-of-type{border-top:0}
 .el-row b{font-size:.9rem;padding-bottom:12px}
 .el-row .field{margin:0}
 .el-row .field > span{font-size:.75rem;color:var(--muted);font-weight:500}
 .el-row .control{padding:9px 10px}
-@media (max-width:520px){.el-row{grid-template-columns:repeat(3,minmax(0,1fr))}.el-row b{grid-column:1/-1;padding:0}}
+@media (max-width:620px){.el-row{grid-template-columns:repeat(2,minmax(0,1fr))}.el-row b{grid-column:1/-1;padding:0}}
+.time{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.time .control{padding-left:12px;padding-right:30px;background-position:right 10px center}
+.static{background:var(--surface-2);color:var(--text);font-weight:600;cursor:default}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row2{grid-template-columns:1fr}}
 .check{display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer}
 .check input{width:18px;height:18px;accent-color:var(--gold)}
 input[type=color].control{padding:4px;height:46px;cursor:pointer}
@@ -108,7 +113,7 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   box-shadow:0 2px 8px rgba(0,0,0,.6);white-space:nowrap;opacity:.6}
 .handle:hover{opacity:1}
 .handle::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;border:2px solid var(--gold-ink);top:50%;transform:translateY(-50%)}
-.handle[data-align=center]::before{left:50%;margin-left:-3.5px;top:-9px;transform:none}
+.handle[data-align=center]::before,.handle[data-align=justify]::before{left:50%;margin-left:-3.5px;top:-9px;transform:none}
 .handle[data-align=left]::before{left:-4px}
 .handle[data-align=right]::before{right:-4px}
 .handle.dragging{cursor:grabbing;opacity:1}
@@ -128,7 +133,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
   .intro h2{font-size:1.7rem}
   .intro p{margin-bottom:0;font-size:.95rem}
   /* La vista previa cabe en media pantalla para ver el formulario debajo */
-  .leader .stage{max-width:min(100%,calc(52vh * .8));max-width:min(100%,calc(52svh * .8))}
+  .leader .stage{max-width:min(100%,calc(52vh * var(--ratio,.8)));max-width:min(100%,calc(52svh * var(--ratio,.8)))}
   .leader .stage-cap{display:none}
   /* Botones siempre a mano mientras se completa el formulario */
   .bar{position:sticky;bottom:0;z-index:15;margin:0 -16px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
@@ -144,7 +149,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
   .admin .stage .field{max-width:480px;margin:0 auto 8px}
   .admin .stage .field > span{display:none}
   .admin .stage .control{padding:9px 12px}
-  #aFrame{width:min(100%,calc(36vh * .8));width:min(100%,calc(36svh * .8));margin:0 auto}
+  #aFrame{width:min(100%,calc(36vh * var(--ratio,.8)));width:min(100%,calc(36svh * var(--ratio,.8)));margin:0 auto}
   .admin .stage-cap{display:none}
 }
 @media (max-width:520px){
@@ -191,7 +196,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
 
     <div class="stage">
       <div class="frame"><canvas id="lCanvas" width="1080" height="1350" aria-label="Vista previa de la invitación"></canvas></div>
-      <p class="stage-cap">Vista previa · 1080 × 1350 px</p>
+      <p class="stage-cap" id="lCap">Vista previa</p>
     </div>
 
     <div class="form">
@@ -201,18 +206,15 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
         <select id="lCell" class="control"></select>
       </label>
 
-      <div class="row">
-        <label class="field">
-          <span>Día</span>
-          <select id="lDay" class="control">
-            <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-            <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Hora</span>
-          <input id="lTime" type="time" class="control" value="19:30">
-        </label>
+      <div class="field">
+        <span>Día</span>
+        <div class="control static" id="lDate"></div>
+        <small>La fecha se actualiza sola cada semana.</small>
+      </div>
+
+      <div class="field">
+        <span>Hora</span>
+        <div class="time" id="lTime"></div>
       </div>
 
       <label class="field">
@@ -249,7 +251,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
       <div>
         <div class="panel">
           <h3>Semana y fondo</h3>
-          <p>Sube el arte en 1080 × 1350 px. Si es de otra medida, se recorta al centro.</p>
+          <p>La imagen se muestra completa: la tarjeta toma la proporción del arte que subas (recomendado 1080 × 1350 px).</p>
           <label class="field"><span>Nombre de la semana</span>
             <input class="control" data-path="weekName" type="text" placeholder="Ej.: Semana de la Familia">
           </label>
@@ -259,6 +261,28 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
           </div>
           <input type="file" id="aBgFile" accept="image/*" hidden>
           <div class="actions"><button class="btn btn-ghost btn-sm" id="aBgClear">Usar fondo por defecto</button></div>
+        </div>
+
+        <div class="panel">
+          <h3>Fecha y hora</h3>
+          <p>La reunión es los jueves. La fecha se calcula sola: de viernes a miércoles muestra el próximo jueves, y el mismo jueves muestra ese día.</p>
+          <div class="row2">
+            <label class="field"><span>Fecha</span>
+              <select class="control" data-path="dateMode">
+                <option value="auto">Jueves de la semana (automático)</option>
+                <option value="fixed">Fecha específica</option>
+              </select>
+            </label>
+            <label class="field" id="aFixedWrap"><span>Fecha específica</span>
+              <input class="control" type="date" data-path="fixedDate">
+            </label>
+          </div>
+          <p class="hint" id="aDateNote"></p>
+          <div class="field">
+            <span>Hora por defecto</span>
+            <div class="time" id="aTime"></div>
+            <small>Es la hora que aparece si el líder no la cambia.</small>
+          </div>
         </div>
 
         <div class="panel">
@@ -272,10 +296,8 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
               </select>
             </label>
             <label class="field"><span>Color</span><input class="control" type="color" data-path="color"></label>
-            <label class="field"><span>Alineación</span>
-              <select class="control" data-path="align">
-                <option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option>
-              </select>
+            <label class="field"><span>Texto antes de la dirección</span>
+              <input class="control" type="text" data-path="addressLabel" placeholder="Dirección:">
             </label>
           </div>
           <label class="field"><span>Ancho máximo del texto: <output id="aMaxWOut"></output></span>
@@ -289,18 +311,21 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
           <p>Si un texto no cabe, se achica solo hasta un 55 % del tamaño indicado.</p>
           <div class="el-row">
             <b>Nombre</b>
+            <label class="field"><span>Alineación</span><select class="control" data-path="elements.title.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
             <label class="field"><span>Tamaño</span><input class="control" type="number" min="20" max="200" data-path="elements.title.size"></label>
             <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="3" data-path="elements.title.maxLines"></label>
             <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.title.uppercase"> Mayús.</label>
           </div>
           <div class="el-row">
             <b>Día y hora</b>
+            <label class="field"><span>Alineación</span><select class="control" data-path="elements.when.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
             <label class="field"><span>Tamaño</span><input class="control" type="number" min="16" max="150" data-path="elements.when.size"></label>
             <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="2" data-path="elements.when.maxLines"></label>
             <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.when.uppercase"> Mayús.</label>
           </div>
           <div class="el-row">
             <b>Dirección</b>
+            <label class="field"><span>Alineación</span><select class="control" data-path="elements.address.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
             <label class="field"><span>Tamaño</span><input class="control" type="number" min="14" max="120" data-path="elements.address.size"></label>
             <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="5" data-path="elements.address.maxLines"></label>
             <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.address.uppercase"> Mayús.</label>
@@ -336,7 +361,8 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
 'use strict';
 
 /* ---------------- Constantes y estado ---------------- */
-const W = 1080, H = 1350;
+const W = 1080;
+let H = 1350; // se ajusta a la proporción de la imagen de fondo
 const CONFIG_URL = 'config.json';
 const DRAFT_KEY = 'roca_admin_draft_v2';
 const LAST_CELL_KEY = 'roca_last_cell';
@@ -349,13 +375,16 @@ const DEFAULT_CONFIG = {
   bgImage: '',
   font: 'League Spartan',
   color: '#ffffff',
-  align: 'center',
   maxWidth: 0.84,
+  dateMode: 'auto',
+  fixedDate: '',
+  defaultTime: '19:30',
+  addressLabel: 'Dirección:',
   shadow: true,
   elements: {
-    title:   { label: 'Nombre',     x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true },
-    when:    { label: 'Día y hora', x: 0.5, y: 0.71, size: 52, weight: 600, maxLines: 1, uppercase: true },
-    address: { label: 'Dirección',  x: 0.5, y: 0.81, size: 40, weight: 500, maxLines: 3, uppercase: false }
+    title:   { label: 'Nombre',     x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true,  align: 'center' },
+    when:    { label: 'Día y hora', x: 0.5, y: 0.71, size: 46, weight: 600, maxLines: 2, uppercase: true,  align: 'center' },
+    address: { label: 'Dirección',  x: 0.5, y: 0.82, size: 40, weight: 500, maxLines: 3, uppercase: false, align: 'center' }
   },
   cells: [
     'Célula La Chorrera','Célula Las Acacias (Arraiján)','Célula Bello Horizonte','San Antonio','Punta del Este',
@@ -378,7 +407,12 @@ function mergeConfig(raw){
   const d = clone(DEFAULT_CONFIG);
   if (!raw || typeof raw !== 'object') return d;
   const out = { ...d, ...raw, elements: {} };
-  for (const k of Object.keys(d.elements)) out.elements[k] = { ...d.elements[k], ...(raw.elements?.[k] || {}) };
+  for (const k of Object.keys(d.elements)) {
+    out.elements[k] = { ...d.elements[k], ...(raw.elements?.[k] || {}) };
+    // Configs anteriores tenían una sola alineación global
+    if (!raw.elements?.[k]?.align && raw.align) out.elements[k].align = raw.align;
+  }
+  delete out.align;
   if (!Array.isArray(out.cells) || !out.cells.length) out.cells = d.cells;
   return out;
 }
@@ -403,6 +437,66 @@ function showNotice(html, isErr){
   n.innerHTML = html;
   n.classList.toggle('err', !!isErr);
   n.hidden = false;
+}
+
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function today(){ const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+// Próximo jueves (hoy si es jueves)
+function nextThursday(){
+  const d = today();
+  d.setDate(d.getDate() + ((4 - d.getDay() + 7) % 7));
+  return d;
+}
+
+function fixedDateValue(){
+  if (config.dateMode !== 'fixed' || !config.fixedDate) return null;
+  const [y, m, dd] = config.fixedDate.split('-').map(Number);
+  const d = new Date(y, m - 1, dd);
+  return isNaN(d) ? null : d;
+}
+
+// Fecha específica solo si no ha pasado; si ya pasó, vuelve al jueves automático
+function meetingDate(){
+  const f = fixedDateValue();
+  return f && f >= today() ? f : nextThursday();
+}
+
+function dateText(d){
+  const dia = DIAS[d.getDay()];
+  return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+}
+
+// Selector de hora en formato 12 h: hora / minutos / AM-PM
+function timePicker(container, value, onChange){
+  const mk = (label, opts) => {
+    const s = document.createElement('select');
+    s.className = 'control'; s.setAttribute('aria-label', label);
+    s.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+    s.addEventListener('change', () => onChange(api.get()));
+    container.appendChild(s);
+    return s;
+  };
+  const h = mk('Hora', Array.from({ length: 12 }, (_, i) => [i + 1, i + 1]));
+  const m = mk('Minutos', Array.from({ length: 12 }, (_, i) => { const v = String(i * 5).padStart(2, '0'); return [v, v]; }));
+  const ap = mk('AM o PM', [['AM','AM'], ['PM','PM']]);
+  const api = {
+    get(){
+      let hh = +h.value % 12;
+      if (ap.value === 'PM') hh += 12;
+      return `${String(hh).padStart(2,'0')}:${m.value}`;
+    },
+    set(v){
+      const [hh, mm] = (v || '19:30').split(':').map(Number);
+      h.value = String(hh % 12 || 12);
+      m.value = String(Math.min(55, Math.round((mm || 0) / 5) * 5)).padStart(2, '0');
+      ap.value = hh >= 12 ? 'PM' : 'AM';
+    }
+  };
+  api.set(value);
+  return api;
 }
 
 function formatTime(hhmm){
@@ -441,6 +535,10 @@ async function applyBackground(){
     try { bgImg = await loadImage(config.bgImage); }
     catch { toast('No se pudo cargar la imagen de fondo. Se usa el fondo por defecto.', true); }
   }
+  // La tarjeta toma la proporción de la imagen, así se ve completa sin recortes
+  H = bgImg ? Math.round(W * bgImg.height / bgImg.width) : 1350;
+  document.documentElement.style.setProperty('--ratio', (W / H).toFixed(4));
+  const cap = $('lCap'); if (cap) cap.textContent = `Vista previa · ${W} × ${H} px`;
 }
 
 /* ---------------- Motor de dibujo ---------------- */
@@ -508,8 +606,8 @@ function layoutBlock(ctx, text, el, maxW){
 function blockMaxWidth(el){
   const cap = W * config.maxWidth;
   const margin = W * 0.04;
-  if (config.align === 'left')  return Math.min(cap, W * (1 - el.x) - margin);
-  if (config.align === 'right') return Math.min(cap, W * el.x - margin);
+  if (el.align === 'left')  return Math.min(cap, W * (1 - el.x) - margin);
+  if (el.align === 'right') return Math.min(cap, W * el.x - margin);
   return Math.min(cap, 2 * W * Math.min(el.x, 1 - el.x) - margin);
 }
 
@@ -521,26 +619,49 @@ function drawBlock(ctx, text, el){
   const lh = size * 1.12;
   const x = el.x * W;
   let y = el.y * H - ((lines.length - 1) * lh) / 2;
-  for (const l of lines) { ctx.fillText(l, x, y); y += lh; }
+  const align = el.align || 'center';
+
+  if (align !== 'justify') {
+    ctx.textAlign = align;
+    for (const l of lines) { ctx.fillText(l, x, y); y += lh; }
+    return;
+  }
+  // Justificado: el bloque toma el ancho de su línea más larga, centrado en x.
+  // Cada línea se estira repartiendo el espacio entre palabras; la última va centrada.
+  const blockW = Math.max(...lines.map(l => ctx.measureText(l).width));
+  const left = x - blockW / 2;
+  lines.forEach((l, i) => {
+    const words = l.split(' ');
+    if (i === lines.length - 1 || words.length < 2) {
+      ctx.textAlign = 'center'; ctx.fillText(l, x, y);
+    } else {
+      const wordsW = words.reduce((a, w) => a + ctx.measureText(w).width, 0);
+      const gap = (blockW - wordsW) / (words.length - 1);
+      ctx.textAlign = 'left';
+      let cx = left;
+      for (const w of words) { ctx.fillText(w, cx, y); cx += ctx.measureText(w).width + gap; }
+    }
+    y += lh;
+  });
 }
 
 function drawCard(canvas, data){
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   ctx.save();
-  if (bgImg) drawCover(ctx, bgImg); else drawDefaultBackground(ctx);
+  if (bgImg) ctx.drawImage(bgImg, 0, 0, W, H); else drawDefaultBackground(ctx);
   ctx.restore();
 
   ctx.fillStyle = config.color;
-  ctx.textAlign = config.align;
   ctx.textBaseline = 'middle';
   if (config.shadow) {
     ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
   }
-  const when = [data.day, formatTime(data.time)].filter(Boolean).join(', ');
+  const when = [dateText(meetingDate()), formatTime(data.time)].filter(Boolean).join(', ');
+  const address = data.address ? [config.addressLabel, data.address].filter(Boolean).join(' ') : '';
   drawBlock(ctx, data.name, config.elements.title);
   drawBlock(ctx, when, config.elements.when);
-  drawBlock(ctx, data.address, config.elements.address);
+  drawBlock(ctx, address, config.elements.address);
 }
 
 /* ---------------- Vista líder ---------------- */
@@ -552,10 +673,12 @@ const leader = {
       config.cells.map(c => `<option>${escapeHtml(c)}</option>`).join('');
     const last = store.get(LAST_CELL_KEY);
     if (last && config.cells.includes(last)) sel.value = last;
+    $('lDate').textContent = dateText(meetingDate());
+    this.tp = timePicker($('lTime'), config.defaultTime, () => this.changed());
     this.loadCell();
 
     sel.addEventListener('change', () => { store.set(LAST_CELL_KEY, sel.value); this.loadCell(); });
-    ['lDay','lTime','lAddress'].forEach(id => $(id).addEventListener('input', () => this.changed()));
+    $('lAddress').addEventListener('input', () => this.changed());
     $('lDownload').addEventListener('click', () => this.download());
     $('lShare').addEventListener('click', () => this.share());
 
@@ -565,20 +688,19 @@ const leader = {
     } catch {}
   },
   data(){
-    return { name: $('lCell').value, day: $('lDay').value, time: $('lTime').value, address: $('lAddress').value.trim() };
+    return { name: $('lCell').value, time: this.tp.get(), address: $('lAddress').value.trim() };
   },
   loadCell(){
     const name = $('lCell').value;
     let saved = null;
     if (name) { try { saved = JSON.parse(store.get(CELL_KEY(name)) || 'null'); } catch {} }
-    $('lDay').value = saved?.day || 'Miércoles';
-    $('lTime').value = saved?.time || '19:30';
+    this.tp.set(saved?.time || config.defaultTime);
     $('lAddress').value = saved?.address || '';
     this.refresh();
   },
   changed(){
     const d = this.data();
-    if (d.name) store.set(CELL_KEY(d.name), JSON.stringify({ day: d.day, time: d.time, address: d.address }));
+    if (d.name) store.set(CELL_KEY(d.name), JSON.stringify({ time: d.time, address: d.address }));
     this.refresh();
   },
   refresh(){
@@ -587,7 +709,7 @@ const leader = {
     const missing = !d.name ? 'Selecciona tu célula.' : !d.time ? 'Indica la hora.' : !d.address ? 'Completa la dirección para habilitar la descarga.' : '';
     $('lHint').textContent = missing || 'Lista. Tus datos quedan guardados en este dispositivo para la próxima semana.';
     $('lDownload').disabled = $('lShare').disabled = !!missing;
-    queueRender(() => drawCard($('lCanvas'), { ...d, name: d.name || 'Nombre de tu célula', address: d.address || 'Dirección de la reunión' }));
+    queueRender(() => drawCard($('lCanvas'), { ...d, name: d.name || 'Nombre de tu célula', address: d.address || 'escribe aquí la dirección' }));
   },
   blob(){
     return new Promise(res => {
@@ -637,6 +759,7 @@ const admin = {
     $('adminView').hidden = false;
     document.title = 'Admin · ' + document.title;
     this.buildHandles();
+    this.tp = timePicker($('aTime'), config.defaultTime, v => { config.defaultTime = v; this.changed(); });
     this.bindForm();
     this.fillForm();
 
@@ -683,6 +806,7 @@ const admin = {
       if (input.type === 'checkbox') input.checked = !!v; else input.value = v ?? '';
     });
     $('aCells').value = config.cells.join('\n');
+    this.tp.set(config.defaultTime);
     this.fillSamples();
     this.updateDropLabel();
     this.changed(true);
@@ -699,7 +823,7 @@ const admin = {
   sample(){
     let name = $('aSample').value;
     if (name === '__longest') name = [...config.cells].sort((a, b) => b.length - a.length)[0] || 'Célula de ejemplo';
-    return { name, day: 'Miércoles', time: '19:30', address: 'Calle 50, Edificio Torres del Mar, apartamento 12B, frente al parque' };
+    return { name, time: config.defaultTime, address: 'Calle 50, Edificio Torres del Mar, apartamento 12B, frente al parque' };
   },
 
   updateDropLabel(){
@@ -708,6 +832,11 @@ const admin = {
 
   changed(skipSave){
     $('aMaxWOut').textContent = Math.round(config.maxWidth * 100) + ' %';
+    $('aFixedWrap').hidden = config.dateMode !== 'fixed';
+    const f = fixedDateValue();
+    $('aDateNote').textContent = config.dateMode === 'fixed' && f && f < today()
+      ? `Esa fecha ya pasó, así que se usa el jueves automático: ${dateText(meetingDate())}.`
+      : `Los líderes verán: ${dateText(meetingDate())}.`;
     $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = !config.weekName;
     this.render();
     if (!skipSave) {
@@ -765,13 +894,14 @@ const admin = {
   },
 
   placeHandles(){
-    const tf = { center: 'translate(-50%, -50%)', left: 'translate(0, -50%)', right: 'translate(-100%, -50%)' }[config.align];
+    const TF = { center: 'translate(-50%, -50%)', justify: 'translate(-50%, -50%)', left: 'translate(0, -50%)', right: 'translate(-100%, -50%)' };
     for (const [key, h] of Object.entries(this.handles)) {
       const el = config.elements[key];
+      const tf = TF[el.align] || TF.center;
       h.style.left = el.x * 100 + '%';
       h.style.top = el.y * 100 + '%';
       h.style.transform = tf;
-      h.dataset.align = config.align;
+      h.dataset.align = el.align;
     }
   },
 
@@ -781,16 +911,16 @@ const admin = {
       const url = URL.createObjectURL(file);
       const img = await loadImage(url);
       URL.revokeObjectURL(url);
-      const c = document.createElement('canvas'); c.width = W; c.height = H;
-      const ctx = c.getContext('2d');
-      const s = Math.max(W / img.width, H / img.height);
-      ctx.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+      // Se reduce a 1080 px de ancho manteniendo la proporción: la imagen queda completa
+      const scale = Math.min(1, W / img.width);
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
       config.bgImage = c.toDataURL('image/jpeg', 0.9);
       await applyBackground();
       this.updateDropLabel();
       this.changed();
-      if (img.width / img.height < .78 || img.width / img.height > .82) toast('Imagen cargada. No era 4:5, se recortó al centro.');
-      else toast('Imagen de fondo cargada');
+      toast(`Imagen cargada completa (${W} × ${H} px)`);
     } catch { toast('No se pudo leer la imagen. Prueba con otro archivo.', true); }
   },
 
