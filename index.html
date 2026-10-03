@@ -81,7 +81,15 @@ textarea.control{resize:vertical;min-height:84px}
 .admin{display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:900px){.admin{grid-template-columns:minmax(0,1fr) minmax(0,440px);align-items:start}}
 .admin-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px}
-.admin-bar h2{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;flex:1 1 220px;letter-spacing:-.01em}
+.admin-bar h2{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-spacing:-.01em}
+.admin-bar .grow{flex:1 1 auto}
+.status{font-size:.8rem;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.status.dirty{color:var(--gold);border-color:rgba(255,204,77,.45)}
+.login{max-width:400px;margin:32px auto}
+.login h2{font-family:var(--display);font-weight:800;font-size:1.8rem;margin:0 0 6px;letter-spacing:-.01em}
+.login > p{color:var(--muted);margin:0 0 22px}
+.login .btn{width:100%}
+.hint.err{color:var(--danger)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px}
 .panel h3{font-family:var(--display);font-size:1.05rem;font-weight:700;margin:0 0 4px}
 .panel > p{color:var(--muted);font-size:.84rem;margin:0 0 14px}
@@ -141,7 +149,8 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
   .bar .btn{flex:1 1 0}
 }
 @media (max-width:899px){
-  .admin-bar h2{flex-basis:100%;font-size:1.4rem}
+  .admin-bar h2{font-size:1.4rem}
+  .admin-bar .grow{flex-basis:0}
   .admin-bar .btn{flex:1 1 auto!important}
   /* En admin la vista previa queda fija arriba mientras se ajustan los controles */
   .admin .stage{order:-1;position:sticky;top:calc(61px + env(safe-area-inset-top,0px));z-index:10;align-self:start;
@@ -237,14 +246,25 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
     </div>
   </section>
 
+  <!-- ============ ACCESO ADMIN ============ -->
+  <section id="loginView" class="login" hidden>
+    <h2>Acceso de administración</h2>
+    <p>Ingresa con el correo autorizado para editar y publicar la plantilla.</p>
+    <label class="field"><span>Correo</span><input id="loginEmail" type="email" class="control" autocomplete="username"></label>
+    <label class="field"><span>Contraseña</span><input id="loginPass" type="password" class="control" autocomplete="current-password"></label>
+    <button class="btn btn-primary" id="loginBtn">Entrar</button>
+    <p class="hint err" id="loginErr"></p>
+  </section>
+
   <!-- ============ VISTA ADMIN ============ -->
   <section id="adminView" hidden>
     <div class="admin-bar">
       <h2>Plantilla de la semana</h2>
-      <button class="btn btn-ghost btn-sm" id="aImportBtn">Abrir config.json</button>
-      <input type="file" id="aImportFile" accept="application/json,.json" hidden>
-      <button class="btn btn-ghost btn-sm" id="aReload">Volver a la publicada</button>
-      <button class="btn btn-primary btn-sm" id="aExport" style="flex:0 0 auto">Exportar config.json</button>
+      <span class="status" id="aStatus">Todo publicado</span>
+      <span class="grow"></span>
+      <button class="btn btn-ghost btn-sm" id="aLogout">Cerrar sesión</button>
+      <button class="btn btn-ghost btn-sm" id="aReload">Descartar cambios</button>
+      <button class="btn btn-primary btn-sm" id="aPublish">Publicar</button>
     </div>
 
     <div class="admin">
@@ -337,6 +357,16 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
           <p>Una por línea. Este es el listado que verán los líderes.</p>
           <textarea class="control" id="aCells" rows="10" spellcheck="false"></textarea>
         </div>
+
+        <div class="panel">
+          <h3>Respaldo</h3>
+          <p>Guarda una copia de la plantilla en tu equipo o recupera una anterior. Abrir un respaldo no lo publica hasta que toques Publicar.</p>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" id="aExport">Descargar respaldo</button>
+            <button class="btn btn-ghost btn-sm" id="aImportBtn">Abrir respaldo</button>
+            <input type="file" id="aImportFile" accept="application/json,.json" hidden>
+          </div>
+        </div>
       </div>
 
       <div class="stage">
@@ -347,7 +377,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
           <canvas id="aCanvas" width="1080" height="1350"></canvas>
           <div class="guide" id="aGuide"></div>
         </div>
-        <p class="stage-cap">Los cambios se guardan como borrador en este navegador. Para publicarlos, exporta config.json y súbelo al repositorio.</p>
+        <p class="stage-cap">Tus cambios se guardan como borrador en este navegador. Los líderes los verán cuando toques Publicar.</p>
       </div>
     </div>
   </section>
@@ -356,7 +386,31 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
 <footer>© <span id="year"></span> Iglesia Roca de Vida Panamá</footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script>
+<script type="module">
+const FB = 'https://www.gstatic.com/firebasejs/10.14.1/';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyB0fQXXlHQjRCOnvTvkbjsgAuRQ2JBPZBk',
+  authDomain: 'celular-rdv.firebaseapp.com',
+  projectId: 'celular-rdv',
+  storageBucket: 'celular-rdv.firebasestorage.app',
+  messagingSenderId: '830620018609',
+  appId: '1:830620018609:web:154e90874b83cfe00a7f90'
+};
+const MAX_IMG_CHARS = 900000;
+
+// Firebase se carga bajo demanda: si no hay conexión con Google, la página sigue funcionando con la plantilla por defecto.
+// Firestore: config/actual = textos y posiciones · config/fondo = imagen (cada documento admite hasta 1 MB)
+let fbPromise;
+function firebase(){
+  return fbPromise ||= (async () => {
+    const [appM, fsM] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-firestore.js')]);
+    const app = appM.initializeApp(firebaseConfig);
+    const db = fsM.getFirestore(app);
+    return { app, db, fs: fsM, DOC_CONFIG: fsM.doc(db, 'config', 'actual'), DOC_FONDO: fsM.doc(db, 'config', 'fondo') };
+  })();
+}
+
 (() => {
 'use strict';
 
@@ -539,6 +593,21 @@ async function applyBackground(){
   H = bgImg ? Math.round(W * bgImg.height / bgImg.width) : 1350;
   document.documentElement.style.setProperty('--ratio', (W / H).toFixed(4));
   const cap = $('lCap'); if (cap) cap.textContent = `Vista previa · ${W} × ${H} px`;
+}
+
+// Reduce calidad y, si hace falta, tamaño hasta que la imagen quepa en un documento de Firestore
+async function compressImage(src){
+  const img = typeof src === 'string' ? await loadImage(src) : src;
+  let w = Math.min(W, img.width), q = 0.9, out;
+  for (let i = 0; i < 14; i++) {
+    const h = Math.round(img.height * w / img.width);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    out = c.toDataURL('image/jpeg', q);
+    if (out.length <= MAX_IMG_CHARS) return out;
+    if (q > 0.62) q -= 0.08; else { w = Math.round(w * 0.85); q = 0.82; }
+  }
+  return out;
 }
 
 /* ---------------- Motor de dibujo ---------------- */
@@ -757,7 +826,6 @@ const admin = {
 
   init(){
     $('adminView').hidden = false;
-    document.title = 'Admin · ' + document.title;
     this.buildHandles();
     this.tp = timePicker($('aTime'), config.defaultTime, v => { config.defaultTime = v; this.changed(); });
     this.bindForm();
@@ -778,6 +846,8 @@ const admin = {
     file.addEventListener('change', () => { file.files[0] && this.setBackground(file.files[0]); file.value = ''; });
     $('aBgClear').addEventListener('click', async () => { config.bgImage = ''; await applyBackground(); this.updateDropLabel(); this.changed(); });
 
+    $('aPublish').addEventListener('click', () => this.publish());
+    $('aLogout').addEventListener('click', async () => { await this.auth.signOut(); location.reload(); });
     $('aExport').addEventListener('click', () => this.exportConfig());
     $('aImportBtn').addEventListener('click', () => $('aImportFile').click());
     $('aImportFile').addEventListener('change', e => { e.target.files[0] && this.importConfig(e.target.files[0]); e.target.value = ''; });
@@ -830,7 +900,50 @@ const admin = {
     $('aDropTitle').textContent = config.bgImage ? 'Fondo cargado. Toca para reemplazarlo' : 'Toca o arrastra la imagen de fondo';
   },
 
+  setPublished(c){
+    this.pubSnap = snapshot(c);
+    this.pubBg = c.bgImage || '';
+  },
+
+  updateStatus(){
+    const dirty = snapshot(config) !== this.pubSnap || (config.bgImage || '') !== this.pubBg;
+    const st = $('aStatus');
+    st.textContent = dirty ? 'Cambios sin publicar' : 'Todo publicado';
+    st.classList.toggle('dirty', dirty);
+    return dirty;
+  },
+
+  async publish(){
+    if (!config.cells.length) return toast('Agrega al menos una célula antes de publicar.', true);
+    const btn = $('aPublish');
+    btn.disabled = true; btn.textContent = 'Publicando…';
+    try {
+      if ((config.bgImage || '').length > MAX_IMG_CHARS) {
+        config.bgImage = await compressImage(config.bgImage);
+        await applyBackground();
+      }
+      const { bgImage, ...rest } = config;
+      const { db, fs, DOC_CONFIG, DOC_FONDO } = await firebase();
+      const batch = fs.writeBatch(db);
+      batch.set(DOC_CONFIG, { ...rest, updatedAt: fs.serverTimestamp(), updatedBy: this.auth.user.email });
+      batch.set(DOC_FONDO, { data: bgImage || '', updatedAt: fs.serverTimestamp() });
+      await batch.commit();
+      this.setPublished(config);
+      this.changed();
+      $('notice').hidden = true;
+      toast('Publicado. Los líderes ya ven los cambios.');
+    } catch (e) {
+      console.error(e);
+      toast(e.code === 'permission-denied'
+        ? 'Tu usuario no tiene permiso para publicar. Revisa las reglas de Firestore.'
+        : 'No se pudo publicar. Revisa tu conexión e inténtalo de nuevo.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Publicar';
+    }
+  },
+
   changed(skipSave){
+    if (this.pubSnap !== undefined) this.updateStatus();
     $('aMaxWOut').textContent = Math.round(config.maxWidth * 100) + ' %';
     $('aFixedWrap').hidden = config.dateMode !== 'fixed';
     const f = fixedDateValue();
@@ -911,12 +1024,8 @@ const admin = {
       const url = URL.createObjectURL(file);
       const img = await loadImage(url);
       URL.revokeObjectURL(url);
-      // Se reduce a 1080 px de ancho manteniendo la proporción: la imagen queda completa
-      const scale = Math.min(1, W / img.width);
-      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      config.bgImage = c.toDataURL('image/jpeg', 0.9);
+      // Mantiene la proporción (la imagen queda completa) y la comprime para guardarla en Firestore
+      config.bgImage = await compressImage(img);
       await applyBackground();
       this.updateDropLabel();
       this.changed();
@@ -931,7 +1040,7 @@ const admin = {
     const a = Object.assign(document.createElement('a'), { href: url, download: 'config.json' });
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    toast('config.json exportado. Súbelo al repositorio para publicarlo.');
+    toast('Respaldo descargado');
   },
 
   async importConfig(file){
@@ -939,17 +1048,19 @@ const admin = {
       config = mergeConfig(JSON.parse(await file.text()));
       await Promise.all([ensureFonts(), applyBackground()]);
       this.fillForm(); this.changed();
-      toast('Configuración abierta');
-    } catch { toast('El archivo no es un config.json válido.', true); }
+      toast('Respaldo abierto. Toca Publicar para que los líderes lo vean.');
+    } catch { toast('El archivo no es un respaldo válido.', true); }
   },
 
   async reloadPublished(){
+    if (!this.updateStatus()) return toast('No hay cambios sin publicar.');
+    if (!confirm('¿Descartar los cambios sin publicar?')) return;
     const pub = await fetchPublished();
-    if (!pub) return toast('No se encontró config.json publicado.', true);
     config = mergeConfig(pub);
     await Promise.all([ensureFonts(), applyBackground()]);
     this.fillForm(); this.changed();
-    toast('Se cargó la configuración publicada');
+    $('notice').hidden = true;
+    toast('Cambios descartados');
   }
 };
 
@@ -959,40 +1070,89 @@ function setPath(o, p, v){
   ks.reduce((a, k) => a[k], o)[last] = v;
 }
 
+function snapshot(c){ return JSON.stringify({ ...c, bgImage: '' }); }
+
 async function fetchPublished(){
   try {
+    const { fs, DOC_CONFIG, DOC_FONDO } = await firebase();
+    const [cSnap, fSnap] = await Promise.all([fs.getDoc(DOC_CONFIG), fs.getDoc(DOC_FONDO)]);
+    if (cSnap.exists()) {
+      const c = cSnap.data();
+      delete c.updatedAt; delete c.updatedBy;
+      c.bgImage = fSnap.exists() ? (fSnap.data().data || '') : '';
+      return c;
+    }
+  } catch (e) { console.warn('No se pudo leer Firestore:', e); }
+  try {
     const r = await fetch(CONFIG_URL, { cache: 'no-store' });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch { return null; }
+    if (r.ok) return await r.json();
+  } catch {}
+  return null;
+}
+
+// Pide correo y contraseña; resuelve cuando hay sesión iniciada
+async function requireLogin(){
+  let m, auth;
+  try {
+    const { app } = await firebase();
+    m = await import(FB + 'firebase-auth.js');
+    auth = m.getAuth(app);
+  } catch {
+    showNotice('No se pudo conectar con el servidor de acceso. Revisa tu conexión y recarga la página.', true);
+    return new Promise(() => {});
+  }
+  const api = { get user(){ return auth.currentUser; }, signOut: () => m.signOut(auth) };
+  const user = await new Promise(res => { const off = m.onAuthStateChanged(auth, u => { off(); res(u); }); });
+  if (user) return api;
+
+  $('loginView').hidden = false;
+  return new Promise(resolve => {
+    const btn = $('loginBtn'), err = $('loginErr');
+    const go = async () => {
+      const email = $('loginEmail').value.trim(), pass = $('loginPass').value;
+      if (!email || !pass) { err.textContent = 'Escribe tu correo y contraseña.'; return; }
+      btn.disabled = true; btn.textContent = 'Entrando…'; err.textContent = '';
+      try {
+        await m.signInWithEmailAndPassword(auth, email, pass);
+        $('loginView').hidden = true;
+        resolve(api);
+      } catch (e) {
+        err.textContent = {
+          'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+          'auth/invalid-email': 'El correo no es válido.',
+          'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos y vuelve a intentarlo.',
+          'auth/network-request-failed': 'Sin conexión. Revisa tu internet.'
+        }[e.code] || 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+      } finally { btn.disabled = false; btn.textContent = 'Entrar'; }
+    };
+    btn.addEventListener('click', go);
+    [$('loginEmail'), $('loginPass')].forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }));
+  });
 }
 
 /* ---------------- Arranque ---------------- */
 async function boot(){
   $('year').textContent = new Date().getFullYear();
 
-  let raw = null, source = 'published';
   if (IS_ADMIN) {
-    try { raw = JSON.parse(store.get(DRAFT_KEY) || 'null'); } catch {}
-    if (raw) source = 'draft';
-  }
-  if (!raw) raw = await fetchPublished();
-  if (!raw) source = 'default';
-  config = mergeConfig(raw);
-
-  await Promise.all([ensureFonts(), applyBackground()]);
-
-  if (config.weekName) { $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = false; }
-
-  if (IS_ADMIN) {
-    if (source === 'draft') showNotice('Estás editando tu borrador guardado. Usa <b>Volver a la publicada</b> para descartarlo.');
-    if (source === 'default') showNotice('No se encontró <b>config.json</b> junto a esta página. Arma la plantilla y expórtala para publicarla.');
+    document.title = 'Admin · ' + document.title;
+    admin.auth = await requireLogin();
+    const pub = await fetchPublished();
+    let draft = null;
+    try { draft = JSON.parse(store.get(DRAFT_KEY) || 'null'); } catch {}
+    config = mergeConfig(draft || pub);
+    await Promise.all([ensureFonts(), applyBackground()]);
+    admin.setPublished(mergeConfig(pub));
     admin.init();
-  } else {
-    if (source === 'default' && location.protocol === 'file:')
-      showNotice('Abriste el archivo local: el navegador no deja leer config.json así. Súbelo a GitHub Pages o pruébalo con un servidor local.', true);
-    leader.init();
+    if (!pub) showNotice('Todavía no hay una plantilla publicada. Ármala y toca <b>Publicar</b>.');
+    else if (admin.updateStatus()) showNotice('Tienes cambios sin publicar de la vez anterior. Toca <b>Publicar</b> para enviarlos o <b>Descartar cambios</b> para volver a lo publicado.');
+    return;
   }
+
+  config = mergeConfig(await fetchPublished());
+  await Promise.all([ensureFonts(), applyBackground()]);
+  if (config.weekName) { $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = false; }
+  leader.init();
 }
 
 boot();
