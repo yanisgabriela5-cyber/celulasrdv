@@ -104,7 +104,6 @@ textarea.control{resize:vertical;min-height:84px}
 @media (max-width:620px){.el-row{grid-template-columns:repeat(2,minmax(0,1fr))}.el-row b{grid-column:1/-1;padding:0}}
 .time{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .time .control{padding-left:12px;padding-right:30px;background-position:right 10px center}
-.static{background:var(--surface-2);color:var(--text);font-weight:600;cursor:default}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:520px){.row2{grid-template-columns:1fr}}
 .check{display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer}
@@ -200,7 +199,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
   <section id="leaderView" class="leader" hidden>
     <div class="intro">
       <h2>Arma la invitación de tu célula</h2>
-      <p>Elige tu célula, indica cuándo y dónde se reúnen, y descarga la imagen lista para compartir.</p>
+      <p>Elige tu célula, indica la hora y dónde se reúnen, y descarga la imagen lista para compartir.</p>
     </div>
 
     <div class="stage">
@@ -214,12 +213,6 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
         <span>Célula</span>
         <select id="lCell" class="control"></select>
       </label>
-
-      <div class="field">
-        <span>Día</span>
-        <div class="control static" id="lDate"></div>
-        <small>La fecha se actualiza sola cada semana.</small>
-      </div>
 
       <div class="field">
         <span>Hora</span>
@@ -284,20 +277,7 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
         </div>
 
         <div class="panel">
-          <h3> hora</h3>
-          <p>La reunión es los jueves. La fecha se calcula sola: de viernes a miércoles muestra el próximo jueves, y el mismo jueves muestra ese día.</p>
-          <div class="row2">
-            <label class="field"><span>Fecha</span>
-              <select class="control" data-path="dateMode">
-                <option value="auto">Jueves de la semana (automático)</option>
-                <option value="fixed">Fecha específica</option>
-              </select>
-            </label>
-            <label class="field" id="aFixedWrap"><span>Fecha específica</span>
-              <input class="control" type="date" data-path="fixedDate">
-            </label>
-          </div>
-          <p class="hint" id="aDateNote"></p>
+          <h3>Hora</h3>
           <div class="field">
             <span>Hora por defecto</span>
             <div class="time" id="aTime"></div>
@@ -337,10 +317,10 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
             <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.title.uppercase"> Mayús.</label>
           </div>
           <div class="el-row">
-            <b>Día y hora</b>
+            <b>Hora</b>
             <label class="field"><span>Alineación</span><select class="control" data-path="elements.when.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
             <label class="field"><span>Tamaño</span><input class="control" type="number" min="16" max="150" data-path="elements.when.size"></label>
-            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="2" data-path="elements.when.maxLines"></label>
+            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="1" data-path="elements.when.maxLines"></label>
             <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.when.uppercase"> Mayús.</label>
           </div>
           <div class="el-row">
@@ -430,15 +410,13 @@ const DEFAULT_CONFIG = {
   font: 'League Spartan',
   color: '#ffffff',
   maxWidth: 0.84,
-  dateMode: 'auto',
-  fixedDate: '',
   defaultTime: '19:30',
   addressLabel: 'Dirección:',
   shadow: true,
   elements: {
-    title:   { label: 'Nombre',     x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true,  align: 'center' },
-    when:    { label: 'Día y hora', x: 0.5, y: 0.71, size: 46, weight: 600, maxLines: 2, uppercase: true,  align: 'center' },
-    address: { label: 'Dirección',  x: 0.5, y: 0.82, size: 40, weight: 500, maxLines: 3, uppercase: false, align: 'center' }
+    title:   { label: 'Nombre',    x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true,  align: 'center' },
+    when:    { label: 'Hora',      x: 0.5, y: 0.71, size: 46, weight: 600, maxLines: 1, uppercase: true,  align: 'center' },
+    address: { label: 'Dirección', x: 0.5, y: 0.82, size: 40, weight: 500, maxLines: 3, uppercase: false, align: 'center' }
   },
   cells: [
     'Célula La Chorrera','Célula Las Acacias (Arraiján)','Célula Bello Horizonte','San Antonio','Punta del Este',
@@ -466,7 +444,11 @@ function mergeConfig(raw){
     // Configs anteriores tenían una sola alineación global
     if (!raw.elements?.[k]?.align && raw.align) out.elements[k].align = raw.align;
   }
-  delete out.align;
+  // La hora ocupa una sola línea y su etiqueta ya no menciona el día
+  out.elements.when.label = d.elements.when.label;
+  out.elements.when.maxLines = 1;
+  // Campos de fecha de versiones anteriores, ya no se usan
+  delete out.align; delete out.dateMode; delete out.fixedDate;
   if (!Array.isArray(out.cells) || !out.cells.length) out.cells = d.cells;
   return out;
 }
@@ -491,36 +473,6 @@ function showNotice(html, isErr){
   n.innerHTML = html;
   n.classList.toggle('err', !!isErr);
   n.hidden = false;
-}
-
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-
-function today(){ const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
-
-// Próximo jueves (hoy si es jueves)
-function nextThursday(){
-  const d = today();
-  d.setDate(d.getDate() + ((4 - d.getDay() + 7) % 7));
-  return d;
-}
-
-function fixedDateValue(){
-  if (config.dateMode !== 'fixed' || !config.fixedDate) return null;
-  const [y, m, dd] = config.fixedDate.split('-').map(Number);
-  const d = new Date(y, m - 1, dd);
-  return isNaN(d) ? null : d;
-}
-
-// Fecha específica solo si no ha pasado; si ya pasó, vuelve al jueves automático
-function meetingDate(){
-  const f = fixedDateValue();
-  return f && f >= today() ? f : nextThursday();
-}
-
-function dateText(d){
-  const dia = DIAS[d.getDay()];
-  return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()} de ${MESES[d.getMonth()]}`;
 }
 
 // Selector de hora en formato 12 h: hora / minutos / AM-PM
@@ -626,12 +578,6 @@ function drawDefaultBackground(ctx){
   ctx.strokeStyle = '#ffcc4d'; ctx.lineWidth = 2; ctx.stroke();
 }
 
-function drawCover(ctx, img){
-  const s = Math.max(W / img.width, H / img.height);
-  const w = img.width * s, h = img.height * s;
-  ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
-}
-
 function wrapWords(ctx, text, maxW){
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];
@@ -726,7 +672,7 @@ function drawCard(canvas, data){
   if (config.shadow) {
     ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
   }
-  const when = [dateText(meetingDate()), formatTime(data.time)].filter(Boolean).join(', ');
+  const when = formatTime(data.time); // Solo la hora, sin día
   const address = data.address ? [config.addressLabel, data.address].filter(Boolean).join(' ') : '';
   drawBlock(ctx, data.name, config.elements.title);
   drawBlock(ctx, when, config.elements.when);
@@ -742,7 +688,6 @@ const leader = {
       config.cells.map(c => `<option>${escapeHtml(c)}</option>`).join('');
     const last = store.get(LAST_CELL_KEY);
     if (last && config.cells.includes(last)) sel.value = last;
-    $('lDate').textContent = dateText(meetingDate());
     this.tp = timePicker($('lTime'), config.defaultTime, () => this.changed());
     this.loadCell();
 
@@ -945,11 +890,6 @@ const admin = {
   changed(skipSave){
     if (this.pubSnap !== undefined) this.updateStatus();
     $('aMaxWOut').textContent = Math.round(config.maxWidth * 100) + ' %';
-    $('aFixedWrap').hidden = config.dateMode !== 'fixed';
-    const f = fixedDateValue();
-    $('aDateNote').textContent = config.dateMode === 'fixed' && f && f < today()
-      ? `Esa fecha ya pasó, así que se usa el jueves automático: ${dateText(meetingDate())}.`
-      : `Los líderes verán: ${dateText(meetingDate())}.`;
     $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = !config.weekName;
     this.render();
     if (!skipSave) {
