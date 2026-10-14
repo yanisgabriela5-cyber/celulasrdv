@@ -672,7 +672,11 @@ function drawCard(canvas, data){
   if (config.shadow) {
     ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
   }
- const when = data.time ? 'HORA: ' + formatTime(data.time) : '';
+  const when = data.time ? 'HORA: ' + formatTime(data.time) : ''; // Solo la hora, sin día
+  const address = data.address ? [config.addressLabel, data.address].filter(Boolean).join(' ') : '';
+  drawBlock(ctx, data.name, config.elements.title);
+  drawBlock(ctx, when, config.elements.when);
+  drawBlock(ctx, address, config.elements.address);
 }
 
 /* ---------------- Vista líder ---------------- */
