@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@500;600;700;800&family=Poppins:wght@500;600;700;800&family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@500;600;700;800&family=Poppins:wght@500;600;700;800&family=Raleway:wght@400;500;600;700;800&family=Anton&family=Archivo+Black&family=Cinzel:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#14110e; --surface:#1d1915; --surface-2:#251f1a; --line:#352d25;
@@ -173,6 +173,37 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
   .handle::before{display:none}
   .hl-long{display:none}.hl-short{display:inline}
 }
+/* Editor de texto por bloque */
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 16px;padding-top:14px;border-top:1px solid var(--line)}
+.tab{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.85rem;font-weight:600;cursor:pointer;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab:hover{border-color:#4a3f34}
+.tab.active{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.tab.off{opacity:.55;text-decoration:line-through}
+.tab-add{border-style:dashed;color:var(--gold)}
+.editor h4{font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:20px 0 10px;font-weight:700}
+.editor .field{margin-bottom:12px}
+.editor .field > span{font-size:.8rem;font-weight:600}
+.editor .control{padding:9px 11px}
+.editor input[type=color].control{height:40px}
+.editor output{color:var(--gold);font-weight:700}
+.checks{display:flex;flex-wrap:wrap;gap:10px 20px;margin:2px 0 12px}
+.color-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.color-row input:disabled{opacity:.35;cursor:not-allowed}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.seg button{background:var(--bg);border:0;border-left:1px solid var(--line);padding:9px 4px;font-size:.82rem;font-weight:600;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button.active{background:var(--gold);color:var(--gold-ink)}
+.fx{border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:10px}
+.fx-title{font-size:.9rem;display:block}
+.fx-sub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;margin-top:10px}
+.fx-sub .field{margin-bottom:6px}
+.ed-actions{margin-top:16px}
+.btn-danger{color:var(--danger)}
+.btn-danger:hover{border-color:var(--danger)}
+.handle.active{opacity:1;outline:2px solid #fff;outline-offset:1px;z-index:2}
+.handle.off{opacity:.3;background:#9a8a70}
+@media (max-width:520px){.grid2,.fx-sub{grid-template-columns:1fr}.seg button{font-size:.75rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -287,48 +318,97 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 20px 3
 
         <div class="panel">
           <h3>Texto</h3>
-          <p>Arrastra los marcadores sobre la vista previa para ubicar cada bloque.</p>
-          <div class="grid3">
-            <label class="field"><span>Tipografía</span>
-              <select class="control" data-path="font">
-                <option>League Spartan</option><option>Bebas Neue</option><option>Montserrat</option>
-                <option>Oswald</option><option>Poppins</option><option>Raleway</option><option>Playfair Display</option>
-              </select>
-            </label>
-            <label class="field"><span>Color</span><input class="control" type="color" data-path="color"></label>
-            <label class="field"><span>Texto antes de la dirección</span>
-              <input class="control" type="text" data-path="addressLabel" placeholder="Dirección:">
-            </label>
+          <p>Elige un bloque para editarlo, o toca su marcador en la vista previa. Con un marcador seleccionado, las flechas del teclado lo mueven (Mayús + flecha, más rápido).</p>
+          <div class="grid2">
+            <label class="field"><span>Tipografía general</span><select class="control font-select" data-path="font"></select></label>
+            <label class="field"><span>Color general</span><input class="control" type="color" data-path="color"></label>
           </div>
-          <label class="field"><span>Ancho máximo del texto: <output id="aMaxWOut"></output></span>
-            <input type="range" min="0.4" max="0.95" step="0.01" data-path="maxWidth">
-          </label>
-          <label class="check"><input type="checkbox" data-path="shadow"> Sombra detrás del texto</label>
-        </div>
 
-        <div class="panel">
-          <h3>Bloques</h3>
-          <p>Si un texto no cabe, se achica solo hasta un 55 % del tamaño indicado.</p>
-          <div class="el-row">
-            <b>Nombre</b>
-            <label class="field"><span>Alineación</span><select class="control" data-path="elements.title.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
-            <label class="field"><span>Tamaño</span><input class="control" type="number" min="20" max="200" data-path="elements.title.size"></label>
-            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="3" data-path="elements.title.maxLines"></label>
-            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.title.uppercase"> Mayús.</label>
-          </div>
-          <div class="el-row">
-            <b>Hora</b>
-            <label class="field"><span>Alineación</span><select class="control" data-path="elements.when.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
-            <label class="field"><span>Tamaño</span><input class="control" type="number" min="16" max="150" data-path="elements.when.size"></label>
-            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="1" data-path="elements.when.maxLines"></label>
-            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.when.uppercase"> Mayús.</label>
-          </div>
-          <div class="el-row">
-            <b>Dirección</b>
-            <label class="field"><span>Alineación</span><select class="control" data-path="elements.address.align"><option value="center">Centro</option><option value="left">Izquierda</option><option value="right">Derecha</option><option value="justify">Justificado</option></select></label>
-            <label class="field"><span>Tamaño</span><input class="control" type="number" min="14" max="120" data-path="elements.address.size"></label>
-            <label class="field"><span>Líneas</span><input class="control" type="number" min="1" max="5" data-path="elements.address.maxLines"></label>
-            <label class="check" style="padding-bottom:10px"><input type="checkbox" data-path="elements.address.uppercase"> Mayús.</label>
+          <div class="tabs" id="aTabs" role="tablist" aria-label="Bloques de texto"></div>
+
+          <div class="editor" id="aEditor">
+            <div id="edContent">
+              <label class="field"><span>Texto</span>
+                <textarea class="control" rows="2" data-el="text" placeholder="Ej.: ¡Te esperamos!"></textarea>
+                <small>Sale igual en todas las invitaciones. Usa Enter para cambiar de línea.</small>
+              </label>
+            </div>
+            <div id="edPrefix">
+              <div class="grid2">
+                <label class="field"><span>Texto antes</span><input class="control" type="text" data-el="prefix" placeholder="Ej.: HORA:"></label>
+                <label class="field" id="edTimeFmt"><span>Formato de hora</span>
+                  <select class="control" data-el="timeFormat">
+                    <option value="12">7:30 PM</option><option value="12es">7:30 p. m.</option><option value="24">19:30</option>
+                  </select>
+                </label>
+              </div>
+              <label class="check"><input type="checkbox" data-el="prefixOwnLine"> Poner el texto antes en su propia línea</label>
+            </div>
+
+            <h4>Letra</h4>
+            <div class="grid3">
+              <label class="field"><span>Tipografía</span><select class="control font-select" data-el="font" data-inherit="La general"></select></label>
+              <label class="field"><span>Grosor</span>
+                <select class="control" data-el="weight">
+                  <option value="400">Normal</option><option value="500">Media</option><option value="600">Seminegrita</option>
+                  <option value="700">Negrita</option><option value="800">Extra negrita</option>
+                </select>
+              </label>
+              <label class="field"><span>Tamaño</span><input class="control" type="number" min="12" max="220" data-el="size"></label>
+            </div>
+            <div class="checks">
+              <label class="check"><input type="checkbox" data-el="italic"> Cursiva</label>
+              <label class="check"><input type="checkbox" data-el="uppercase"> Mayúsculas</label>
+              <label class="check"><input type="checkbox" data-el="visible"> Mostrar este bloque</label>
+            </div>
+            <div class="color-row">
+              <label class="check"><input type="checkbox" id="edOwnColor"> Color propio</label>
+              <input class="control" type="color" data-el="color" aria-label="Color del bloque">
+            </div>
+
+            <h4>Párrafo</h4>
+            <div class="seg" id="edAlign" role="group" aria-label="Alineación">
+              <button type="button" data-align="left">Izquierda</button><button type="button" data-align="center">Centro</button>
+              <button type="button" data-align="right">Derecha</button><button type="button" data-align="justify">Justificado</button>
+            </div>
+            <div class="grid2">
+              <label class="field"><span>Líneas máximas</span><input class="control" type="number" min="1" max="6" data-el="maxLines"></label>
+              <label class="field"><span>Ancho máximo: <output data-out="maxWidth"></output></span><input type="range" min="0.2" max="0.95" step="0.01" data-el="maxWidth"></label>
+              <label class="field"><span>Interlineado: <output data-out="lineHeight"></output></span><input type="range" min="0.8" max="2" step="0.02" data-el="lineHeight"></label>
+              <label class="field"><span>Espacio entre letras: <output data-out="letterSpacing"></output></span><input type="range" min="-4" max="40" step="1" data-el="letterSpacing"></label>
+            </div>
+
+            <h4>Efectos</h4>
+            <div class="fx">
+              <label class="check"><input type="checkbox" data-el="shadow"> Sombra</label>
+              <div class="fx-sub" data-show="shadow">
+                <label class="field"><span>Difuminado: <output data-out="shadowBlur"></output></span><input type="range" min="0" max="40" step="1" data-el="shadowBlur"></label>
+                <label class="field"><span>Color</span><input class="control" type="color" data-el="shadowColor"></label>
+              </div>
+            </div>
+            <div class="fx">
+              <span class="fx-title">Contorno</span>
+              <div class="fx-sub">
+                <label class="field"><span>Grosor: <output data-out="strokeWidth"></output></span><input type="range" min="0" max="12" step="1" data-el="strokeWidth"></label>
+                <label class="field"><span>Color</span><input class="control" type="color" data-el="strokeColor"></label>
+              </div>
+            </div>
+            <div class="fx">
+              <label class="check"><input type="checkbox" data-el="box"> Recuadro detrás del texto</label>
+              <div class="fx-sub" data-show="box">
+                <label class="field"><span>Color</span><input class="control" type="color" data-el="boxColor"></label>
+                <label class="field"><span>Opacidad: <output data-out="boxOpacity"></output></span><input type="range" min="0.05" max="1" step="0.05" data-el="boxOpacity"></label>
+                <label class="field"><span>Margen: <output data-out="boxPad"></output></span><input type="range" min="0" max="80" step="2" data-el="boxPad"></label>
+                <label class="field"><span>Esquinas: <output data-out="boxRadius"></output></span><input type="range" min="0" max="80" step="2" data-el="boxRadius"></label>
+              </div>
+            </div>
+
+            <div class="actions ed-actions">
+              <button type="button" class="btn btn-ghost btn-sm" id="edCenter">Centrar horizontalmente</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="edCopyStyle">Copiar este estilo a los demás</button>
+              <button type="button" class="btn btn-ghost btn-sm btn-danger" id="edDelete">Eliminar este texto</button>
+            </div>
+            <p class="hint">Si un texto no cabe, se achica solo hasta un 55 % del tamaño indicado. Algunas tipografías tienen un solo grosor.</p>
           </div>
         </div>
 
@@ -403,21 +483,37 @@ const LAST_CELL_KEY = 'roca_last_cell';
 const CELL_KEY = name => 'roca_cell:' + name;
 const IS_ADMIN = new URLSearchParams(location.search).has('admin');
 
+const FONTS = ['League Spartan','Bebas Neue','Montserrat','Oswald','Poppins','Raleway','Playfair Display',
+  'Anton','Archivo Black','Cinzel','Lora','Great Vibes','Dancing Script'];
+
+// Estilo de cada bloque de texto. font y color vacíos = usar los generales.
+const STYLE_DEFAULTS = {
+  font: '', color: '', weight: 700, italic: false, uppercase: false,
+  size: 48, maxLines: 2, align: 'center', lineHeight: 1.12, letterSpacing: 0, maxWidth: 0.84,
+  visible: true,
+  shadow: true, shadowBlur: 14, shadowColor: '#000000',
+  strokeWidth: 0, strokeColor: '#000000',
+  box: false, boxColor: '#000000', boxOpacity: 0.55, boxPad: 24, boxRadius: 18,
+  prefix: '', prefixOwnLine: false
+};
+// Lo que se copia con "Copiar este estilo a los demás" (no toca posición, tamaño ni contenido)
+const STYLE_KEYS = ['font','color','weight','italic','uppercase','lineHeight','letterSpacing','shadow','shadowBlur','shadowColor',
+  'strokeWidth','strokeColor','box','boxColor','boxOpacity','boxPad','boxRadius'];
+const MAX_LINES = { title: 3, when: 2, address: 5, extra: 6 };
+
 const DEFAULT_CONFIG = {
-  version: 2,
+  version: 3,
   weekName: '',
   bgImage: '',
   font: 'League Spartan',
   color: '#ffffff',
-  maxWidth: 0.84,
   defaultTime: '19:30',
-  addressLabel: 'Dirección:',
-  shadow: true,
   elements: {
-    title:   { label: 'Nombre',    x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true,  align: 'center' },
-    when:    { label: 'Hora',      x: 0.5, y: 0.71, size: 46, weight: 600, maxLines: 1, uppercase: true,  align: 'center' },
-    address: { label: 'Dirección', x: 0.5, y: 0.82, size: 40, weight: 500, maxLines: 3, uppercase: false, align: 'center' }
+    title:   { ...STYLE_DEFAULTS, label: 'Nombre',    x: 0.5, y: 0.58, size: 84, weight: 800, maxLines: 2, uppercase: true },
+    when:    { ...STYLE_DEFAULTS, label: 'Hora',      x: 0.5, y: 0.71, size: 46, weight: 600, maxLines: 1, uppercase: true, prefix: 'HORA:', timeFormat: '12' },
+    address: { ...STYLE_DEFAULTS, label: 'Dirección', x: 0.5, y: 0.82, size: 40, weight: 500, maxLines: 3, uppercase: false, prefix: 'Dirección:' }
   },
+  extras: [], // textos libres que salen igual en todas las invitaciones
   cells: [
     'Célula La Chorrera','Célula Las Acacias (Arraiján)','Célula Bello Horizonte','San Antonio','Punta del Este',
     'Villas Don Bosco','Célula Fe Sin Fronteras','Villa Zaita','San Francisco','Brisas del Golf','Parque Lefevre',
@@ -434,24 +530,38 @@ const $ = id => document.getElementById(id);
 
 /* ---------------- Utilidades ---------------- */
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function uid(){ return Math.random().toString(36).slice(2, 9); }
+
+function newExtra(over){
+  return { ...STYLE_DEFAULTS, id: uid(), text: '', x: 0.5, y: 0.3, size: 56, maxLines: 2, ...over };
+}
 
 function mergeConfig(raw){
   const d = clone(DEFAULT_CONFIG);
   if (!raw || typeof raw !== 'object') return d;
   const out = { ...d, ...raw, elements: {} };
   for (const k of Object.keys(d.elements)) {
-    out.elements[k] = { ...d.elements[k], ...(raw.elements?.[k] || {}) };
-    // Configs anteriores tenían una sola alineación global
-    if (!raw.elements?.[k]?.align && raw.align) out.elements[k].align = raw.align;
+    const r = raw.elements?.[k] || {};
+    const e = { ...d.elements[k], ...r };
+    // Versiones anteriores tenían alineación, ancho y sombra generales para todos los bloques
+    if (!r.align && raw.align) e.align = raw.align;
+    if (r.maxWidth === undefined && typeof raw.maxWidth === 'number') e.maxWidth = raw.maxWidth;
+    if (r.shadow === undefined && typeof raw.shadow === 'boolean') e.shadow = raw.shadow;
+    e.label = d.elements[k].label;
+    out.elements[k] = e;
   }
-  // La hora ocupa una sola línea y su etiqueta ya no menciona el día
-  out.elements.when.label = d.elements.when.label;
-  out.elements.when.maxLines = 1;
-  // Campos de fecha de versiones anteriores, ya no se usan
-  delete out.align; delete out.dateMode; delete out.fixedDate;
+  if (raw.elements?.address?.prefix === undefined && typeof raw.addressLabel === 'string') out.elements.address.prefix = raw.addressLabel;
+  out.extras = (Array.isArray(raw.extras) ? raw.extras : [])
+    .filter(e => e && typeof e === 'object')
+    .map(e => newExtra({ ...e, id: e.id || uid() }));
+  // Campos de versiones anteriores, ya no se usan
+  delete out.align; delete out.dateMode; delete out.fixedDate; delete out.addressLabel; delete out.shadow; delete out.maxWidth;
   if (!Array.isArray(out.cells) || !out.cells.length) out.cells = d.cells;
+  out.version = d.version;
   return out;
 }
+
+function allElements(){ return [...Object.values(config.elements), ...config.extras]; }
 
 const store = {
   get(k){ try { return localStorage.getItem(k); } catch { return null; } },
@@ -505,13 +615,15 @@ function timePicker(container, value, onChange){
   return api;
 }
 
-function formatTime(hhmm){
+function formatTime(hhmm, fmt){
   if (!hhmm) return '';
   const [h, m] = hhmm.split(':').map(Number);
   if (isNaN(h)) return hhmm;
-  const ampm = h >= 12 ? 'PM' : 'AM';
+  const mm = String(m || 0).padStart(2, '0');
+  if (fmt === '24') return `${String(h).padStart(2, '0')}:${mm}`;
   const h12 = h % 12 || 12;
-  return `${h12}:${String(m || 0).padStart(2,'0')} ${ampm}`;
+  if (fmt === '12es') return `${h12}:${mm} ${h >= 12 ? 'p. m.' : 'a. m.'}`;
+  return `${h12}:${mm} ${h >= 12 ? 'PM' : 'AM'}`;
 }
 
 function slug(s){
@@ -528,10 +640,9 @@ function loadImage(src){
 }
 
 async function ensureFonts(){
-  const f = config.font;
-  const weights = new Set(Object.values(config.elements).map(e => e.weight));
+  const specs = new Set(allElements().map(e => `${e.italic ? 'italic ' : ''}${e.weight} 40px "${e.font || config.font}"`));
   try {
-    await Promise.all([...weights].map(w => document.fonts.load(`${w} 40px "${f}"`, 'ÁÉÍÓÚÑáéíóúñ')));
+    await Promise.all([...specs].map(f => document.fonts.load(f, 'ÁÉÍÓÚÑáéíóúñ')));
   } catch { /* sigue con la fuente de respaldo */ }
 }
 
@@ -578,86 +689,156 @@ function drawDefaultBackground(ctx){
   ctx.strokeStyle = '#ffcc4d'; ctx.lineWidth = 2; ctx.stroke();
 }
 
-function wrapWords(ctx, text, maxW){
-  const words = text.split(/\s+/).filter(Boolean);
-  const lines = [];
-  let line = '';
-  for (const w of words) {
-    const test = line ? line + ' ' + w : w;
-    if (ctx.measureText(test).width <= maxW || !line) line = test;
-    else { lines.push(line); line = w; }
+function fontStr(el, size){
+  return `${el.italic ? 'italic ' : ''}${el.weight} ${size}px "${el.font || config.font}", sans-serif`;
+}
+
+// Ancho de un texto con espacio extra entre letras
+function textW(ctx, s, ls){
+  const n = [...s].length;
+  return ctx.measureText(s).width + (n > 1 ? ls * (n - 1) : 0);
+}
+
+function paintText(ctx, s, x, y, ls, stroke){
+  if (!ls) { stroke ? ctx.strokeText(s, x, y) : ctx.fillText(s, x, y); return; }
+  for (const ch of s) {
+    stroke ? ctx.strokeText(ch, x, y) : ctx.fillText(ch, x, y);
+    x += ctx.measureText(ch).width + ls;
   }
-  if (line) lines.push(line);
+}
+
+// Respeta los saltos de línea escritos y envuelve cada párrafo al ancho disponible
+function wrapWords(ctx, text, maxW, ls){
+  const lines = [];
+  for (const para of text.split('\n')) {
+    const words = para.split(/\s+/).filter(Boolean);
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (textW(ctx, test, ls) <= maxW || !line) line = test;
+      else { lines.push(line); line = w; }
+    }
+    lines.push(line);
+  }
   return lines;
 }
 
-function truncate(ctx, text, maxW){
-  if (ctx.measureText(text).width <= maxW) return text;
+function truncate(ctx, text, maxW, ls){
+  if (textW(ctx, text, ls) <= maxW) return text;
   let t = text;
-  while (t.length && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  while (t.length && textW(ctx, t + '…', ls) > maxW) t = t.slice(0, -1);
   return t.trimEnd() + '…';
 }
 
 // Ajusta el texto: envuelve en líneas y achica la fuente hasta que quepa.
-function layoutBlock(ctx, text, el, maxW){
-  const minSize = Math.max(14, Math.round(el.size * 0.55));
+function layoutBlock(ctx, text, el, maxW, maxLines){
+  const minSize = Math.max(12, Math.round(el.size * 0.55));
+  const lsFor = size => (el.letterSpacing || 0) * size / el.size;
   let size = el.size, lines;
   for (;;) {
-    ctx.font = `${el.weight} ${size}px "${config.font}", sans-serif`;
-    lines = wrapWords(ctx, text, maxW);
-    const fits = lines.length <= el.maxLines && lines.every(l => ctx.measureText(l).width <= maxW);
+    ctx.font = fontStr(el, size);
+    lines = wrapWords(ctx, text, maxW, lsFor(size));
+    const fits = lines.length <= maxLines && lines.every(l => textW(ctx, l, lsFor(size)) <= maxW);
     if (fits || size <= minSize) break;
     size -= 2;
   }
-  if (lines.length > el.maxLines) {
-    const keep = lines.slice(0, el.maxLines);
-    keep[keep.length - 1] = lines.slice(el.maxLines - 1).join(' ');
+  const ls = lsFor(size);
+  if (lines.length > maxLines) {
+    const keep = lines.slice(0, maxLines);
+    keep[keep.length - 1] = lines.slice(maxLines - 1).join(' ');
     lines = keep;
   }
-  lines = lines.map(l => truncate(ctx, l, maxW));
-  return { lines, size };
+  lines = lines.map(l => truncate(ctx, l, maxW, ls));
+  return { lines, size, ls };
 }
 
 function blockMaxWidth(el){
-  const cap = W * config.maxWidth;
+  const cap = W * (el.maxWidth || 0.84);
   const margin = W * 0.04;
   if (el.align === 'left')  return Math.min(cap, W * (1 - el.x) - margin);
   if (el.align === 'right') return Math.min(cap, W * el.x - margin);
   return Math.min(cap, 2 * W * Math.min(el.x, 1 - el.x) - margin);
 }
 
-function drawBlock(ctx, text, el){
-  if (!text) return;
+function rgba(hex, a){
+  const n = parseInt((hex || '#000000').slice(1), 16);
+  return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+}
+
+function roundRectPath(ctx, x, y, w, h, r){
+  r = Math.max(0, Math.min(r, w / 2, h / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawBlock(ctx, text, el, extraLines = 0){
+  if (!text || !text.trim() || el.visible === false) return;
+  text = text.trim();
   if (el.uppercase) text = text.toLocaleUpperCase('es');
   const maxW = Math.max(120, blockMaxWidth(el));
-  const { lines, size } = layoutBlock(ctx, text, el, maxW);
-  const lh = size * 1.12;
-  const x = el.x * W;
-  let y = el.y * H - ((lines.length - 1) * lh) / 2;
+  const { lines, size, ls } = layoutBlock(ctx, text, el, maxW, (el.maxLines || 1) + extraLines);
+  const k = size / el.size; // los efectos se achican junto con el texto
+  const lh = size * (el.lineHeight || 1.12);
   const align = el.align || 'center';
+  const cx = el.x * W;
+  const widths = lines.map(l => textW(ctx, l, ls));
+  const blockW = Math.max(...widths);
+  const top = el.y * H - (lines.length * lh) / 2;
+  const leftOf = w => align === 'left' ? cx : align === 'right' ? cx - w : cx - w / 2;
 
-  if (align !== 'justify') {
-    ctx.textAlign = align;
-    for (const l of lines) { ctx.fillText(l, x, y); y += lh; }
-    return;
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+
+  if (el.box) {
+    const px = (el.boxPad || 0) * k, py = px * 0.7;
+    ctx.globalAlpha = el.boxOpacity ?? 0.55;
+    ctx.fillStyle = el.boxColor || '#000000';
+    roundRectPath(ctx, leftOf(blockW) - px, top - py, blockW + 2 * px, lines.length * lh + 2 * py, (el.boxRadius || 0) * k);
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
-  // Justificado: el bloque toma el ancho de su línea más larga, centrado en x.
-  // Cada línea se estira repartiendo el espacio entre palabras; la última va centrada.
-  const blockW = Math.max(...lines.map(l => ctx.measureText(l).width));
-  const left = x - blockW / 2;
-  lines.forEach((l, i) => {
+
+  const eachLine = stroke => lines.forEach((l, i) => {
+    const y = top + lh * (i + 0.5);
     const words = l.split(' ');
-    if (i === lines.length - 1 || words.length < 2) {
-      ctx.textAlign = 'center'; ctx.fillText(l, x, y);
+    if (align === 'justify' && i < lines.length - 1 && words.length > 1) {
+      // Justificado: cada línea se estira al ancho de la más larga; la última va centrada
+      const ww = words.map(w => textW(ctx, w, ls));
+      const gap = (blockW - ww.reduce((a, b) => a + b, 0)) / (words.length - 1);
+      let x = cx - blockW / 2;
+      words.forEach((w, j) => { paintText(ctx, w, x, y, ls, stroke); x += ww[j] + gap; });
     } else {
-      const wordsW = words.reduce((a, w) => a + ctx.measureText(w).width, 0);
-      const gap = (blockW - wordsW) / (words.length - 1);
-      ctx.textAlign = 'left';
-      let cx = left;
-      for (const w of words) { ctx.fillText(w, cx, y); cx += ctx.measureText(w).width + gap; }
+      paintText(ctx, l, leftOf(widths[i]), y, ls, stroke);
     }
-    y += lh;
   });
+  const shadowOn = on => {
+    if (on && el.shadow) {
+      ctx.shadowColor = rgba(el.shadowColor, 0.8);
+      ctx.shadowBlur = (el.shadowBlur ?? 14) * k;
+      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round((el.shadowBlur ?? 14) * k / 5);
+    } else { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
+  };
+
+  const sw = (el.strokeWidth || 0) * k;
+  if (sw > 0) {
+    // El contorno va primero (con la sombra) y el relleno encima, así el borde queda por fuera
+    ctx.strokeStyle = el.strokeColor || '#000000';
+    ctx.lineWidth = sw * 2; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+    shadowOn(true); eachLine(true); shadowOn(false);
+  } else shadowOn(true);
+  ctx.fillStyle = el.color || config.color;
+  eachLine(false);
+  ctx.restore();
+}
+
+function withPrefix(el, value){
+  if (!value) return '';
+  if (!el.prefix) return value;
+  return el.prefix + (el.prefixOwnLine ? '\n' : ' ') + value;
 }
 
 function drawCard(canvas, data){
@@ -667,16 +848,12 @@ function drawCard(canvas, data){
   if (bgImg) ctx.drawImage(bgImg, 0, 0, W, H); else drawDefaultBackground(ctx);
   ctx.restore();
 
-  ctx.fillStyle = config.color;
-  ctx.textBaseline = 'middle';
-  if (config.shadow) {
-    ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
-  }
-  const when = data.time ? 'HORA: ' + formatTime(data.time) : ''; // Solo la hora, sin día
-  const address = data.address ? [config.addressLabel, data.address].filter(Boolean).join(' ') : '';
-  drawBlock(ctx, data.name, config.elements.title);
-  drawBlock(ctx, when, config.elements.when);
-  drawBlock(ctx, address, config.elements.address);
+  const E = config.elements;
+  const own = el => el.prefix && el.prefixOwnLine ? 1 : 0;
+  drawBlock(ctx, withPrefix(E.title, data.name), E.title, own(E.title));
+  drawBlock(ctx, withPrefix(E.when, formatTime(data.time, E.when.timeFormat)), E.when, own(E.when)); // Solo la hora, sin día
+  drawBlock(ctx, withPrefix(E.address, data.address), E.address, own(E.address));
+  for (const x of config.extras) drawBlock(ctx, x.text, x);
 }
 
 /* ---------------- Vista líder ---------------- */
@@ -766,14 +943,20 @@ function queueRender(fn){
 /* ---------------- Vista admin ---------------- */
 const admin = {
   handles: {},
+  active: 'title',
   draftWarned: false,
   saveTimer: null,
 
   init(){
     $('adminView').hidden = false;
-    this.buildHandles();
+    document.querySelectorAll('.font-select').forEach(sel => {
+      const inherit = sel.dataset.inherit;
+      sel.innerHTML = (inherit ? `<option value="">${inherit}</option>` : '') +
+        FONTS.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('');
+    });
     this.tp = timePicker($('aTime'), config.defaultTime, v => { config.defaultTime = v; this.changed(); });
     this.bindForm();
+    this.bindEditor();
     this.fillForm();
 
     $('aCells').addEventListener('input', () => {
@@ -815,6 +998,145 @@ const admin = {
     });
   },
 
+  /* ----- Editor del bloque seleccionado ----- */
+  keys(){ return [...Object.keys(config.elements), ...config.extras.map(x => 'x:' + x.id)]; },
+  el(key = this.active){
+    if (key.startsWith('x:')) return config.extras.find(x => 'x:' + x.id === key);
+    return config.elements[key];
+  },
+  isExtra(key = this.active){ return key.startsWith('x:'); },
+  labelOf(key){
+    if (!this.isExtra(key)) return config.elements[key].label;
+    const i = config.extras.findIndex(x => 'x:' + x.id === key);
+    const t = (config.extras[i].text || '').replace(/\s+/g, ' ').trim();
+    return t ? t.slice(0, 22) + (t.length > 22 ? '…' : '') : 'Texto ' + (i + 1);
+  },
+  shortOf(key){
+    return this.isExtra(key) ? String(config.extras.findIndex(x => 'x:' + x.id === key) + 1) : config.elements[key].label[0];
+  },
+
+  bindEditor(){
+    const ed = $('aEditor');
+    ed.querySelectorAll('[data-el]').forEach(input => {
+      const ev = (input.type === 'checkbox' || input.tagName === 'SELECT') ? 'change' : 'input';
+      input.addEventListener(ev, async () => {
+        const el = this.el(); if (!el) return;
+        const prop = input.dataset.el;
+        let v = input.type === 'checkbox' ? input.checked
+              : (input.type === 'number' || input.type === 'range' || prop === 'weight') ? parseFloat(input.value) : input.value;
+        if (typeof v === 'number' && isNaN(v)) return;
+        if (prop === 'color') $('edOwnColor').checked = true;
+        el[prop] = v;
+        if (['font','weight','italic'].includes(prop)) await ensureFonts();
+        if (prop === 'text') this.renderTabs();
+        if (prop === 'visible') { this.renderTabs(); this.placeHandles(); }
+        this.syncEditorBits();
+        this.changed();
+      });
+    });
+    $('edOwnColor').addEventListener('change', e => {
+      const el = this.el();
+      el.color = e.target.checked ? ed.querySelector('[data-el=color]').value : '';
+      this.syncEditorBits(); this.changed();
+    });
+    $('edAlign').addEventListener('click', e => {
+      const b = e.target.closest('[data-align]'); if (!b) return;
+      this.el().align = b.dataset.align;
+      this.syncEditorBits(); this.changed();
+    });
+    $('edCenter').addEventListener('click', () => { this.el().x = 0.5; this.changed(); });
+    $('edCopyStyle').addEventListener('click', () => {
+      if (!confirm(`¿Aplicar la letra, el color y los efectos de "${this.labelOf(this.active)}" a todos los demás bloques?`)) return;
+      const src = this.el();
+      for (const el of allElements()) if (el !== src) for (const k of STYLE_KEYS) el[k] = src[k];
+      ensureFonts().then(() => this.changed());
+      toast('Estilo copiado a los demás bloques');
+    });
+    $('edDelete').addEventListener('click', () => {
+      if (!this.isExtra() || !confirm('¿Eliminar este texto?')) return;
+      config.extras = config.extras.filter(x => 'x:' + x.id !== this.active);
+      this.active = 'title';
+      this.rebuild(); this.changed();
+    });
+  },
+
+  select(key){
+    if (!this.el(key)) key = 'title';
+    this.active = key;
+    this.renderTabs();
+    this.fillEditor();
+    Object.entries(this.handles).forEach(([k, h]) => h.classList.toggle('active', k === key));
+  },
+
+  renderTabs(){
+    const tabs = $('aTabs');
+    tabs.innerHTML = '';
+    for (const key of this.keys()) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.classList.toggle('active', key === this.active);
+      b.classList.toggle('off', this.el(key).visible === false);
+      b.setAttribute('aria-selected', key === this.active);
+      b.textContent = this.labelOf(key);
+      b.addEventListener('click', () => this.select(key));
+      tabs.appendChild(b);
+    }
+    const add = document.createElement('button');
+    add.type = 'button'; add.className = 'tab tab-add'; add.textContent = '+ Añadir texto';
+    add.addEventListener('click', () => this.addExtra());
+    tabs.appendChild(add);
+  },
+
+  addExtra(){
+    if (config.extras.length >= 8) return toast('Puedes tener hasta 8 textos adicionales.', true);
+    const x = newExtra({ text: '¡Te esperamos!', y: Math.max(0.08, 0.3 - config.extras.length * 0.07) });
+    config.extras.push(x);
+    this.active = 'x:' + x.id;
+    this.rebuild(); this.changed();
+    const ta = $('aEditor').querySelector('[data-el=text]');
+    ta.focus(); ta.select();
+  },
+
+  fillEditor(){
+    const el = this.el(), key = this.active, ed = $('aEditor');
+    const kind = this.isExtra() ? 'extra' : key;
+    $('edContent').hidden = kind !== 'extra';
+    $('edPrefix').hidden = kind === 'extra';
+    $('edTimeFmt').hidden = kind !== 'when';
+    $('edDelete').hidden = kind !== 'extra';
+    ed.querySelector('[data-el=maxLines]').max = MAX_LINES[kind];
+    ed.querySelectorAll('[data-el]').forEach(input => {
+      const prop = input.dataset.el;
+      let v = el[prop] ?? STYLE_DEFAULTS[prop] ?? '';
+      if (prop === 'color' && !v) v = config.color;
+      if (prop === 'timeFormat' && !v) v = '12';
+      if (input.type === 'checkbox') input.checked = !!v; else input.value = v;
+    });
+    $('edOwnColor').checked = !!el.color;
+    this.syncEditorBits();
+  },
+
+  // Partes del editor que dependen de otros valores: salidas de los deslizadores, alineación, efectos
+  syncEditorBits(){
+    const el = this.el(), ed = $('aEditor');
+    if (!el) return;
+    const fmt = {
+      maxWidth: v => Math.round(v * 100) + ' %', lineHeight: v => (+v).toFixed(2), letterSpacing: v => v + ' px',
+      shadowBlur: v => v, strokeWidth: v => v ? v + ' px' : 'sin contorno', boxOpacity: v => Math.round(v * 100) + ' %',
+      boxPad: v => v + ' px', boxRadius: v => v + ' px'
+    };
+    ed.querySelectorAll('[data-out]').forEach(o => { const k = o.dataset.out; o.textContent = fmt[k](el[k] ?? STYLE_DEFAULTS[k]); });
+    ed.querySelectorAll('#edAlign [data-align]').forEach(b => b.classList.toggle('active', b.dataset.align === (el.align || 'center')));
+    ed.querySelectorAll('[data-show]').forEach(g => { g.hidden = !el[g.dataset.show]; });
+    ed.querySelector('[data-el=color]').disabled = !el.color;
+    ed.querySelector('[data-el=prefixOwnLine]').disabled = !el.prefix;
+  },
+
+  rebuild(){
+    this.buildHandles();
+    this.select(this.active);
+  },
+
   fillForm(){
     document.querySelectorAll('#adminView [data-path]').forEach(input => {
       const v = getPath(config, input.dataset.path);
@@ -824,6 +1146,7 @@ const admin = {
     this.tp.set(config.defaultTime);
     this.fillSamples();
     this.updateDropLabel();
+    this.rebuild();
     this.changed(true);
   },
 
@@ -889,7 +1212,6 @@ const admin = {
 
   changed(skipSave){
     if (this.pubSnap !== undefined) this.updateStatus();
-    $('aMaxWOut').textContent = Math.round(config.maxWidth * 100) + ' %';
     $('weekBadge').textContent = config.weekName; $('weekBadge').hidden = !config.weekName;
     this.render();
     if (!skipSave) {
@@ -909,17 +1231,22 @@ const admin = {
 
   buildHandles(){
     const frame = $('aFrame');
-    for (const key of Object.keys(config.elements)) {
+    Object.values(this.handles).forEach(h => h.remove());
+    this.handles = {};
+    for (const key of this.keys()) {
       const h = document.createElement('div');
       h.className = 'handle';
-      const label = DEFAULT_CONFIG.elements[key].label;
-      h.innerHTML = `<span class="hl-long">${label}</span><span class="hl-short">${label[0]}</span>`;
-      h.setAttribute('aria-label', 'Mover ' + label);
+      h.tabIndex = 0;
+      const label = this.isExtra(key) ? 'Texto ' + this.shortOf(key) : this.labelOf(key);
+      h.innerHTML = `<span class="hl-long">${escapeHtml(label)}</span><span class="hl-short">${escapeHtml(this.shortOf(key))}</span>`;
+      h.setAttribute('aria-label', 'Mover ' + label + ' (usa las flechas)');
       frame.appendChild(h);
       this.handles[key] = h;
 
       h.addEventListener('pointerdown', e => {
         e.preventDefault();
+        h.focus({ preventScroll: true });
+        if (this.active !== key) this.select(key);
         h.setPointerCapture(e.pointerId);
         h.classList.add('dragging');
         const move = ev => {
@@ -930,8 +1257,9 @@ const admin = {
           const snap = Math.abs(x - .5) < .015;
           if (snap) x = .5;
           $('aGuide').classList.toggle('on', snap);
-          config.elements[key].x = +x.toFixed(4);
-          config.elements[key].y = +y.toFixed(4);
+          const el = this.el(key);
+          el.x = +x.toFixed(4);
+          el.y = +y.toFixed(4);
           this.render();
         };
         const up = () => {
@@ -943,18 +1271,31 @@ const admin = {
         h.addEventListener('pointerup', up);
         h.addEventListener('pointercancel', up);
       });
+
+      h.addEventListener('focus', () => { if (this.active !== key) this.select(key); });
+      h.addEventListener('keydown', e => {
+        const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+        if (!d) return;
+        e.preventDefault();
+        const step = e.shiftKey ? 0.02 : 0.004, el = this.el(key);
+        el.x = +Math.min(.98, Math.max(.02, el.x + d[0] * step)).toFixed(4);
+        el.y = +Math.min(.97, Math.max(.03, el.y + d[1] * step)).toFixed(4);
+        this.changed();
+      });
     }
   },
 
   placeHandles(){
     const TF = { center: 'translate(-50%, -50%)', justify: 'translate(-50%, -50%)', left: 'translate(0, -50%)', right: 'translate(-100%, -50%)' };
     for (const [key, h] of Object.entries(this.handles)) {
-      const el = config.elements[key];
-      const tf = TF[el.align] || TF.center;
+      const el = this.el(key);
+      if (!el) continue;
       h.style.left = el.x * 100 + '%';
       h.style.top = el.y * 100 + '%';
-      h.style.transform = tf;
+      h.style.transform = TF[el.align] || TF.center;
       h.dataset.align = el.align;
+      h.classList.toggle('off', el.visible === false);
+      h.classList.toggle('active', key === this.active);
     }
   },
 
